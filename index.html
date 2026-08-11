@@ -156,10 +156,27 @@
             width: var(--board-w);
             margin: 0 auto;
             display: flex;
-            justify-content: flex-end;
+            justify-content: space-between;
             align-items: center;
             height: 38px;
         }
+
+        .topbar-right { display: flex; gap: 8px; }
+
+        .coin-chip {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            height: 38px;
+            padding: 0 12px;
+            background: var(--gold-100);
+            border: var(--border-thick) solid var(--ink);
+            border-radius: var(--radius-sm);
+            box-shadow: var(--shadow-small);
+        }
+        .coin-chip .material-symbols-outlined { font-size: 1.05rem; color: var(--gold-700); font-variation-settings: 'FILL' 1, 'wght' 600; }
+        .coin-chip span:last-child { font-weight: 900; font-size: 0.95rem; color: var(--ink); }
+        .coin-chip.bump { animation: bumpVal 0.3s ease; }
 
         .icon-btn {
             width: 38px;
@@ -699,6 +716,12 @@
         .pu-btn .material-symbols-outlined { font-size: 1.15rem; color: var(--ink); font-variation-settings: 'FILL' 1, 'wght' 600; }
         .pu-btn.empty { opacity: 0.32; pointer-events: none; }
         .pu-btn.armed { background: var(--gold-300); animation: armedPulse 0.9s ease-in-out infinite; }
+        /* Premium (coin-bought) tray slots keep the same gold family as
+           their shop cards, so the tray itself signals which power-ups are
+           the "better" bought tier at a glance. */
+        .pu-btn.premium { background: linear-gradient(155deg, var(--gold-100), var(--gold-300)); border-color: var(--gold-900); }
+        .pu-btn.premium .material-symbols-outlined { color: var(--gold-900); }
+        .pu-btn.premium .pu-count { background: var(--gold-900); }
 
         .pu-count {
             position: absolute;
@@ -740,6 +763,40 @@
         .reward-card .material-symbols-outlined { font-size: 2rem; color: var(--ocean-700); font-variation-settings: 'FILL' 1, 'wght' 600; }
         .reward-card .rc-name { font-weight: 900; font-size: 0.95rem; }
         .reward-card .rc-desc { font-size: 0.75rem; color: var(--navy-500); text-align: center; line-height: 1.3; font-weight: 600; }
+
+        /* Premium (coin-bought) cards get their own gold treatment so they
+           never look like just another copy of the free power-ups. */
+        .reward-card.premium {
+            background: linear-gradient(155deg, var(--gold-100), var(--gold-300));
+            border-color: var(--gold-900);
+        }
+        .reward-card.premium .material-symbols-outlined { color: var(--gold-900); }
+        .reward-card.premium .rc-cost {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            font-weight: 900;
+            font-size: 0.8rem;
+            color: var(--gold-900);
+            background: rgba(255, 255, 255, 0.55);
+            padding: 2px 8px;
+            border-radius: 999px;
+        }
+        .reward-card.premium .rc-cost .material-symbols-outlined { font-size: 0.8rem; color: var(--gold-900); }
+        .reward-card.premium.unaffordable { opacity: 0.55; cursor: not-allowed; }
+
+        .shop-balance {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 14px;
+            background: var(--gold-100);
+            border: var(--border-thick) solid var(--ink);
+            border-radius: 999px;
+            font-weight: 900;
+            font-size: 1rem;
+        }
+        .shop-balance .material-symbols-outlined { color: var(--gold-700); font-variation-settings: 'FILL' 1, 'wght' 600; }
 
         @keyframes armedPulse {
             0%, 100% { box-shadow: var(--shadow-small); }
@@ -847,9 +904,18 @@
 
     <div id="app">
         <div class="topbar">
-            <button class="icon-btn" id="mute-btn" aria-label="Toggle Sound">
-                <span class="material-symbols-outlined" id="mute-icon">volume_up</span>
-            </button>
+            <div class="coin-chip" id="coin-chip">
+                <span class="material-symbols-outlined">paid</span>
+                <span id="coin-txt">0</span>
+            </div>
+            <div class="topbar-right">
+                <button class="icon-btn" id="shop-btn" aria-label="Shop">
+                    <span class="material-symbols-outlined">storefront</span>
+                </button>
+                <button class="icon-btn" id="mute-btn" aria-label="Toggle Sound">
+                    <span class="material-symbols-outlined" id="mute-icon">volume_up</span>
+                </button>
+            </div>
         </div>
 
         <div class="hud">
@@ -909,6 +975,18 @@
             </div>
         </div>
 
+        <div class="overlay" id="shop-overlay">
+            <div class="overlay-card">
+                <h2>SHOP</h2>
+                <div class="shop-balance">
+                    <span class="material-symbols-outlined">paid</span>
+                    <span id="shop-coin-txt">0</span>
+                </div>
+                <div class="reward-row" id="shop-row"></div>
+                <button id="shop-close-btn">CLOSE</button>
+            </div>
+        </div>
+
         <div class="confetti-lottie" id="confetti-lottie"></div>
     </div>
 
@@ -957,6 +1035,15 @@ const POWER_UPS = {
     shuffle: { icon: 'shuffle', name: 'Shuffle', desc: 'Reshuffle the whole board.' },
     extraMoves: { icon: 'add_circle', name: '+5 Moves', desc: 'Adds 5 extra moves to spend.' },
     colorBomb: { icon: 'auto_awesome', name: 'Color Bomb', desc: 'Drops a color bomb onto the board.' }
+};
+
+/* Coin-only power-ups: stronger versions of the free ones, bought from the
+   shop rather than earned. Kept in a separate object (and given their own
+   gold styling everywhere they render) so they always read as a distinct,
+   premium tier rather than just "more of the same". */
+const PREMIUM_POWER_UPS = {
+    megaHammer: { icon: 'bolt', name: 'Mega Hammer', desc: 'Tap a tile to smash its whole row.', cost: 40 },
+    doubleBomb: { icon: 'stars', name: 'Double Bomb', desc: 'Drops two color bombs at once.', cost: 60 }
 };
 const ACTION_WORDS = ["BAM!", "RAD!", "BOOM!", "SICK!", "WILD!", "POP!", "SWEET!", "TASTY!"];
 const ICONS = {
@@ -1122,8 +1209,9 @@ class Match3Game {
         this.selectedPiece = null;
         this.activePointerId = null;
 
-        this.inventory = { hammer: 0, shuffle: 0, extraMoves: 0, colorBomb: 0 };
+        this.inventory = { hammer: 0, shuffle: 0, extraMoves: 0, colorBomb: 0, megaHammer: 0, doubleBomb: 0 };
         this.pendingPowerUp = null;
+        this.coins = 0;
 
         this.applyTheme(0);
         this.layoutBoard();
@@ -1132,6 +1220,7 @@ class Match3Game {
         this.startIdleWatcher();
         this.startWatchdog();
         this.updatePowerUpTray();
+        this.updateCoinDisplay();
         this.showScreen(`LEVEL ${LEVELS[0].id}`, LEVELS[0].desc, "PLAY");
     }
 
@@ -1155,8 +1244,11 @@ class Match3Game {
         if (!fam) return;
         document.documentElement.style.setProperty('--bg-light', fam.light);
         document.documentElement.style.setProperty('--bg-dark', fam.dark);
+        // The gradient runs light-at-top to dark-at-bottom, and the status
+        // bar sits at the very top - tint it to match what's actually behind
+        // it there, not the shade from the opposite end of the screen.
         const meta = document.querySelector('meta[name="theme-color"]');
-        if (meta) meta.setAttribute('content', fam.dark);
+        if (meta) meta.setAttribute('content', fam.light);
     }
 
     /* ---------- Layout ---------- */
@@ -1183,6 +1275,8 @@ class Match3Game {
         document.addEventListener('gesturestart', e => e.preventDefault());
         document.addEventListener('dblclick', e => e.preventDefault());
         document.getElementById('mute-btn').addEventListener('click', () => this.toggleMute());
+        document.getElementById('shop-btn').addEventListener('click', () => this.openShop());
+        document.getElementById('shop-close-btn').addEventListener('click', () => this.closeShop());
     }
 
     toggleMute() {
@@ -1530,32 +1624,86 @@ class Match3Game {
         setTimeout(cleanup, (data.op / data.fr) * 1000 + 500);
     }
 
+    /* ---------- Coins ---------- */
+
+    updateCoinDisplay() {
+        document.getElementById('coin-txt').innerText = this.coins;
+        document.getElementById('shop-coin-txt').innerText = this.coins;
+    }
+
+    addCoins(n) {
+        this.coins += n;
+        this.updateCoinDisplay();
+        const chip = document.getElementById('coin-chip');
+        chip.classList.remove('bump');
+        void chip.offsetWidth;
+        chip.classList.add('bump');
+    }
+
+    /* ---------- Shop ---------- */
+
+    openShop() {
+        const row = document.getElementById('shop-row');
+        row.innerHTML = '';
+        Object.keys(PREMIUM_POWER_UPS).forEach(type => {
+            const def = PREMIUM_POWER_UPS[type];
+            const affordable = this.coins >= def.cost;
+            const card = document.createElement('div');
+            card.className = 'reward-card premium' + (affordable ? '' : ' unaffordable');
+            card.innerHTML = `<span class="material-symbols-outlined">${def.icon}</span><span class="rc-name">${def.name}</span><span class="rc-desc">${def.desc}</span><span class="rc-cost"><span class="material-symbols-outlined">paid</span>${def.cost}</span>`;
+            if (affordable) card.addEventListener('click', () => this.buyPremium(type));
+            row.appendChild(card);
+        });
+        this.updateCoinDisplay();
+        document.getElementById('shop-overlay').classList.add('active');
+    }
+
+    closeShop() {
+        document.getElementById('shop-overlay').classList.remove('active');
+    }
+
+    buyPremium(type) {
+        const def = PREMIUM_POWER_UPS[type];
+        if (!def || this.coins < def.cost) return;
+        this.coins -= def.cost;
+        this.inventory[type] = (this.inventory[type] || 0) + 1;
+        this.sfx.special();
+        this.updateCoinDisplay();
+        this.updatePowerUpTray();
+        this.openShop(); // refresh affordability/prices in place
+    }
+
     /* ---------- Power-ups ---------- */
 
     updatePowerUpTray() {
         const tray = document.getElementById('powerup-tray');
         if (!tray) return;
         tray.innerHTML = '';
-        Object.keys(POWER_UPS).forEach(type => {
+        const renderOne = (type, def, premium) => {
             const count = this.inventory[type] || 0;
-            const def = POWER_UPS[type];
             const btn = document.createElement('button');
-            btn.className = 'pu-btn' + (count === 0 ? ' empty' : '') + (this.pendingPowerUp === type ? ' armed' : '');
+            btn.className = 'pu-btn'
+                + (count === 0 ? ' empty' : '')
+                + (this.pendingPowerUp === type ? ' armed' : '')
+                + (premium ? ' premium' : '');
             btn.setAttribute('aria-label', `${def.name} (${count})`);
             btn.innerHTML = `<span class="material-symbols-outlined">${def.icon}</span><span class="pu-count">${count}</span>`;
             btn.addEventListener('click', () => this.usePowerUp(type));
             tray.appendChild(btn);
-        });
+        };
+        Object.keys(POWER_UPS).forEach(type => renderOne(type, POWER_UPS[type], false));
+        Object.keys(PREMIUM_POWER_UPS).forEach(type => renderOne(type, PREMIUM_POWER_UPS[type], true));
     }
 
     usePowerUp(type) {
         if (this.isProcessing) return;
         if (!this.inventory[type]) return;
 
-        // Hammer needs a target tile, so tapping it just arms/disarms
-        // targeting mode; the actual use happens in handlePointerDown.
-        if (type === 'hammer') {
-            this.pendingPowerUp = this.pendingPowerUp === 'hammer' ? null : 'hammer';
+        // Hammer and its premium row-clearing cousin both need a target
+        // tile, so tapping them just arms/disarms targeting mode; the
+        // actual use happens in handlePointerDown.
+        if (type === 'hammer' || type === 'megaHammer') {
+            this.pendingPowerUp = this.pendingPowerUp === type ? null : type;
             this.updatePowerUpTray();
             return;
         }
@@ -1573,7 +1721,10 @@ class Match3Game {
             this.updateHUD();
             this.updatePowerUpTray();
         } else if (type === 'colorBomb') {
-            this.dropColorBomb();
+            this.dropColorBombs(1);
+            this.updatePowerUpTray();
+        } else if (type === 'doubleBomb') {
+            this.dropColorBombs(2);
             this.updatePowerUpTray();
         }
     }
@@ -1598,18 +1749,45 @@ class Match3Game {
         this.checkWinLoss();
     }
 
-    dropColorBomb() {
-        const candidates = [];
-        for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
-            if (this.board[r][c] && this.board[r][c].special === SPECIALS.NONE) candidates.push([r, c]);
+    /* Premium version of the hammer: smashes the whole row the tapped tile
+       is in, same no-move / no-cascade rules as the regular hammer. */
+    async useMegaHammer(piece) {
+        this.pendingPowerUp = null;
+        this.inventory.megaHammer--;
+        this.updatePowerUpTray();
+        this.isProcessing = true;
+        this.sfx.special();
+        this.screenFlash();
+        const row = piece.r;
+        const victims = [];
+        for (let c = 0; c < COLS; c++) if (this.board[row][c]) victims.push(this.board[row][c]);
+        victims.forEach(p => {
+            this.createParticles(p);
+            p.el.classList.add('pop');
+            this.board[p.r][p.c] = null;
+            this.addScore(15);
+            setTimeout(() => p.el.remove(), 260);
+        });
+        await wait(300);
+        await this.applyGravity();
+        if (this.moves > 0 && this.score < this.starMax) await this.ensureSolvable();
+        this.checkWinLoss();
+    }
+
+    dropColorBombs(count) {
+        for (let i = 0; i < count; i++) {
+            const candidates = [];
+            for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
+                if (this.board[r][c] && this.board[r][c].special === SPECIALS.NONE) candidates.push([r, c]);
+            }
+            if (!candidates.length) return;
+            const [r, c] = candidates[Math.floor(Math.random() * candidates.length)];
+            const old = this.board[r][c];
+            old.el.remove();
+            this.board[r][c] = null;
+            this.spawnShockwave(r, c);
+            this.spawnPiece(r, c, 0, SPECIALS.BOMB);
         }
-        if (!candidates.length) return;
-        const [r, c] = candidates[Math.floor(Math.random() * candidates.length)];
-        const old = this.board[r][c];
-        old.el.remove();
-        this.board[r][c] = null;
-        this.spawnShockwave(r, c);
-        this.spawnPiece(r, c, 0, SPECIALS.BOMB);
     }
 
     showRewardPicker() {
@@ -1822,6 +2000,10 @@ class Match3Game {
 
         if (this.pendingPowerUp === 'hammer') {
             this.useHammer(piece);
+            return;
+        }
+        if (this.pendingPowerUp === 'megaHammer') {
+            this.useMegaHammer(piece);
             return;
         }
 
@@ -2255,15 +2437,19 @@ class Match3Game {
             this.sfx.win();
             this.playLottieConfetti();
             const stars = this.computeStars();
+            const coinsEarned = stars * 15;
+            this.addCoins(coinsEarned);
             this.currentLevelIdx++;
             if (this.currentLevelIdx >= LEVELS.length) {
-                this.showScreen("YOU WIN!", `FINAL SCORE: ${this.score}`, "PLAY AGAIN", stars, 'play');
+                this.showScreen("YOU WIN!", `FINAL SCORE: ${this.score} · +${coinsEarned} COINS`, "PLAY AGAIN", stars, 'play');
                 this.currentLevelIdx = 0;
                 // A full clear ends the run - start the next one with a clean slate.
-                this.inventory = { hammer: 0, shuffle: 0, extraMoves: 0, colorBomb: 0 };
+                this.inventory = { hammer: 0, shuffle: 0, extraMoves: 0, colorBomb: 0, megaHammer: 0, doubleBomb: 0 };
+                this.coins = 0;
                 this.updatePowerUpTray();
+                this.updateCoinDisplay();
             } else {
-                this.showScreen("LEVEL CLEAR!", `SCORE: ${this.score} / ${this.targetScore}`, "CONTINUE", stars, 'reward');
+                this.showScreen("LEVEL CLEAR!", `SCORE: ${this.score} / ${this.targetScore} · +${coinsEarned} COINS`, "CONTINUE", stars, 'reward');
             }
         } else {
             this.sfx.lose();
