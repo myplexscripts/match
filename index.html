@@ -10,7 +10,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Brutal Match">
-    <meta name="theme-color" content="#29343E">
+    <meta name="theme-color" content="#10242E">
     <meta name="format-detection" content="telephone=no">
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -37,12 +37,11 @@
             --green-100: #E1F2E5; --green-300: #A4D4AF; --green-500: #68B77B; --green-700: #438D57; --green-900: #2E633E;
             --navy-100: #E5E9EC; --navy-300: #A8B2BA; --navy-500: #687985; --navy-700: #455762; --navy-900: #29343E;
 
-            /* --- App tokens (built from the palette above) --- */
-            --bg-deep: #1B242C;
-            --bg-deep-2: var(--navy-900);
+            /* --- Neutrals + theme tokens --- */
             --ink: var(--navy-900);
-            --card: var(--navy-100);
-            --card-alt: #D7DEE3;
+            --paper: #F2F6F8;
+            --paper-2: #DCE4E9;
+            --accent: var(--ocean-500);
 
             /* Candy colors */
             --c1: var(--aqua-700);
@@ -53,15 +52,15 @@
             --c6: var(--orange-500);
             --c7: var(--gold-500);
 
-            --cols: 7;
-            --rows: 10;
+            --cell: 56px;
+            --board-w: 340px;
 
             --border-thick: 3px;
-            --radius-lg: 20px;
-            --radius-md: 12px;
-            --radius-sm: 9px;
-            --shadow-hard: 5px 5px 0px var(--ink), 8px 10px 20px rgba(6, 10, 14, 0.4);
-            --shadow-small: 3px 3px 0px var(--ink), 4px 5px 10px rgba(6, 10, 14, 0.32);
+            --radius-lg: 22px;
+            --radius-md: 14px;
+            --radius-sm: 12px;
+            --shadow-hard: 5px 5px 0px var(--ink), 8px 12px 22px rgba(4, 10, 14, 0.4);
+            --shadow-small: 3px 3px 0px var(--ink), 4px 6px 12px rgba(4, 10, 14, 0.32);
         }
 
         * {
@@ -79,31 +78,63 @@
 
         html {
             height: 100%;
+            background-color: #10242E;
+            transition: background-color 1.6s ease;
             overscroll-behavior: none;
         }
 
+        /* Fixed body kills iOS toolbar resize gaps + rubber-band white flashes */
         body {
-            height: 100dvh;
-            width: 100vw;
-            background: linear-gradient(165deg, var(--bg-deep) 0%, var(--bg-deep-2) 100%);
-            color: var(--ink);
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
             overflow: hidden;
             overscroll-behavior: none;
-            position: relative;
+            background: transparent;
+            color: var(--ink);
         }
 
-        body::before, body::after {
-            content: '';
+        /* ---------- Living gradient background ---------- */
+        #bg {
             position: fixed;
-            border-radius: 50%;
-            filter: blur(70px);
-            opacity: 0.22;
+            inset: 0;
+            overflow: hidden;
+            isolation: isolate;
             z-index: 0;
+            background-color: #10242E;
+            transition: background-color 1.6s ease;
+        }
+
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            color: transparent;
+            background: radial-gradient(circle at 50% 50%, currentColor 0%, rgba(0,0,0,0) 68%);
+            mix-blend-mode: screen;
+            transition: color 1.6s ease;
+            will-change: transform;
+            animation-name: drift;
+            animation-timing-function: ease-in-out;
+            animation-iteration-count: infinite;
+            animation-direction: alternate;
+        }
+
+        @keyframes drift {
+            from { transform: translate(-50%, -50%) translate3d(0, 0, 0) scale(1); }
+            to   { transform: translate(-50%, -50%) translate3d(var(--dx), var(--dy), 0) scale(var(--s2)); }
+        }
+
+        /* Soft vignette so HUD/board always sit on a calm ground */
+        #bg::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 50% 42%, rgba(0,0,0,0) 40%, rgba(4, 10, 14, 0.45) 100%);
             pointer-events: none;
         }
-        body::before { width: 300px; height: 300px; background: var(--violet-500); top: -90px; left: -80px; }
-        body::after { width: 280px; height: 280px; background: var(--coral-500); bottom: -80px; right: -70px; }
 
+        /* ---------- App shell ---------- */
         #app {
             position: relative;
             z-index: 1;
@@ -111,40 +142,46 @@
             flex-direction: column;
             height: 100%;
             width: 100%;
-            padding-top: max(env(safe-area-inset-top), 10px);
-            padding-bottom: max(env(safe-area-inset-bottom), 8px);
-            padding-left: env(safe-area-inset-left);
-            padding-right: env(safe-area-inset-right);
+            padding-top: max(env(safe-area-inset-top), 8px);
+            padding-bottom: max(env(safe-area-inset-bottom), 10px);
+            padding-left: max(env(safe-area-inset-left), 10px);
+            padding-right: max(env(safe-area-inset-right), 10px);
         }
 
-        .mute-btn {
-            position: absolute;
-            top: max(env(safe-area-inset-top), 10px);
-            right: max(env(safe-area-inset-right), 10px);
-            width: 40px;
-            height: 40px;
+        .topbar {
+            flex: 0 0 auto;
+            width: var(--board-w);
+            margin: 0 auto;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            height: 38px;
+        }
+
+        .icon-btn {
+            width: 38px;
+            height: 38px;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: var(--card);
+            background: var(--paper);
             border: var(--border-thick) solid var(--ink);
             border-radius: var(--radius-sm);
             box-shadow: var(--shadow-small);
             cursor: pointer;
-            z-index: 300;
             transition: transform 0.1s ease, box-shadow 0.1s ease;
         }
-        .mute-btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
-        .mute-btn .material-symbols-outlined { font-size: 1.25rem; font-variation-settings: 'FILL' 1, 'wght' 600; color: var(--ink); }
+        .icon-btn:active { transform: translate(3px, 3px); box-shadow: 0px 0px 0 var(--ink); }
+        .icon-btn .material-symbols-outlined { font-size: 1.2rem; font-variation-settings: 'FILL' 1, 'wght' 600; color: var(--ink); }
 
         .hud {
             flex: 0 0 auto;
-            width: 100%;
+            width: var(--board-w);
+            margin: 0 auto;
             display: flex;
             flex-direction: column;
-            gap: 8px;
-            padding: 0 14px;
-            padding-right: 60px; /* clear the mute button */
+            gap: 10px;
+            padding-top: 6px;
         }
 
         .hud-top {
@@ -154,49 +191,52 @@
         }
 
         .hud-box {
-            background: var(--card);
-            padding: 5px 12px;
+            background: var(--paper);
+            padding: 5px 13px;
             border: var(--border-thick) solid var(--ink);
             border-radius: var(--radius-sm);
             box-shadow: var(--shadow-small);
             text-align: center;
-            min-width: 66px;
+            min-width: 74px;
         }
 
         .hud-label {
             font-size: 0.6rem;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            opacity: 0.7;
+            letter-spacing: 1.2px;
+            color: var(--navy-500);
         }
 
         .hud-val {
-            font-size: 1.35rem;
+            font-size: 1.4rem;
             font-weight: 900;
             line-height: 1.1;
-            transition: transform 0.15s ease;
         }
 
         .hud-val.bump { animation: bumpVal 0.3s ease; }
 
         .level-title {
-            font-size: 1.5rem;
+            font-size: 1.55rem;
             font-weight: 900;
-            color: var(--card);
+            color: var(--paper);
             text-shadow:
-                -2px -2px 0 var(--ink),
-                 2px -2px 0 var(--ink),
-                -2px  2px 0 var(--ink),
-                 2px  2px 0 var(--ink);
+                -2px -2px 0 var(--ink), 2px -2px 0 var(--ink),
+                -2px  2px 0 var(--ink), 2px  2px 0 var(--ink);
             letter-spacing: -0.5px;
             transform: rotate(-2deg);
         }
 
+        /* ---------- Goal meter ---------- */
+        .meter-wrap {
+            position: relative;
+            width: 100%;
+        }
+
         .meter-container {
             width: 100%;
-            height: 20px;
-            background: var(--card);
+            height: 22px;
+            background: var(--paper);
             border: var(--border-thick) solid var(--ink);
             border-radius: 999px;
             box-shadow: var(--shadow-small);
@@ -205,45 +245,72 @@
         }
 
         .meter-fill {
-            height: 100%;
+            position: absolute;
+            top: 0; left: 0; bottom: 0;
             width: 0%;
-            background: var(--aqua-500);
-            border-radius: 999px 0 0 999px;
-            transition: width 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.3s;
-        }
-
-        .meter-fill.full {
-            background: var(--aqua-700);
+            background: var(--accent);
             border-radius: 999px;
-            animation: pulse-meter 0.5s infinite alternate;
+            transition: width 0.45s cubic-bezier(0.22, 1, 0.36, 1), background-color 1.6s ease;
         }
 
+        /* Soft travelling glow that rides the leading edge of the fill */
+        .meter-cap {
+            position: absolute;
+            top: -4px; bottom: -4px;
+            left: 0;
+            width: 18px;
+            transform: translateX(-50%);
+            background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0) 70%);
+            opacity: 0;
+            pointer-events: none;
+            transition: left 0.45s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease;
+        }
+        .meter-cap.on { opacity: 0.85; animation: capBreathe 1.9s ease-in-out infinite; }
+
+        /* Unclipped layer so sparks can drift above the bar */
+        .meter-fx {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            overflow: visible;
+        }
+
+        .spark {
+            position: absolute;
+            border-radius: 50%;
+            background: var(--paper);
+            opacity: 0;
+            pointer-events: none;
+            animation: sparkFloat 0.85s ease-out forwards;
+        }
+
+        .meter-container.full .meter-fill { animation: pulse-meter 0.6s ease-in-out infinite alternate; }
+
+        /* ---------- Board ---------- */
         #board-wrap {
             flex: 1 1 auto;
             min-height: 0;
             width: 100%;
             display: flex;
-            align-items: flex-start;
+            align-items: center;
             justify-content: center;
-            overflow: hidden;
-            margin-top: 6px;
+            padding: 10px 4px;
         }
 
         #board-container {
             position: relative;
-            z-index: 1;
         }
 
         #pieces-layer {
             position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
+            inset: 0;
             pointer-events: none;
         }
 
         .piece {
             position: absolute;
-            width: calc(100% / var(--cols));
-            height: calc(100% / var(--rows));
+            width: calc(100% / 6);
+            height: calc(100% / 8);
             padding: 3px;
             transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
             will-change: transform;
@@ -255,7 +322,7 @@
         .piece-inner {
             width: 100%;
             height: 100%;
-            background: var(--card);
+            background: var(--paper);
             border: 3px solid var(--ink);
             border-radius: var(--radius-sm);
             box-shadow: 0px 4px 0px var(--ink);
@@ -266,19 +333,17 @@
             transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.15s ease;
         }
 
-        .piece-inner:hover { box-shadow: 0px 6px 0px var(--ink); }
-
         .piece.selected .piece-inner {
-            transform: scale(1.1) translate(0px, 4px);
+            transform: scale(1.08) translate(0px, 4px);
             box-shadow: 0px 0px 0px var(--ink);
-            background: var(--card-alt);
+            background: var(--paper-2);
         }
 
         .piece-inner.invalid { border-color: var(--coral-700); }
 
         .material-symbols-outlined {
             font-family: 'Material Symbols Outlined';
-            font-size: clamp(1.2rem, 5.5vw, 2.2rem);
+            font-size: calc(var(--cell) * 0.46);
             font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 0, 'opsz' 48;
             font-weight: normal;
             font-style: normal;
@@ -288,37 +353,84 @@
             white-space: nowrap;
             word-wrap: normal;
             direction: ltr;
+            position: relative;
+            z-index: 2;
             -webkit-font-feature-settings: 'liga';
             -webkit-font-smoothing: antialiased;
             pointer-events: none;
         }
 
-        .color-1 { color: var(--c1); }
-        .color-2 { color: var(--c2); }
-        .color-3 { color: var(--c3); }
-        .color-4 { color: var(--c4); }
-        .color-5 { color: var(--c5); }
-        .color-6 { color: var(--c6); }
-        .color-7 { color: var(--c7); }
+        /* ---------- Special piece markers ----------
+           Every special tints its card with its own colour family and adds a
+           geometric marker that states what it will do:
+             stripe  -> arrows pointing along the line it clears
+             wrap    -> ring + corner pips (blast radius)
+             bomb    -> full rainbow card (clears a whole colour)            */
+        .fx { position: absolute; inset: 0; border-radius: inherit; pointer-events: none; overflow: hidden; }
 
-        .color-bomb .material-symbols-outlined {
-            background: repeating-conic-gradient(from 0deg, var(--c1) 0 51deg, var(--c2) 51deg 102deg, var(--c3) 102deg 154deg, var(--c4) 154deg 205deg, var(--c5) 205deg 257deg, var(--c6) 257deg 308deg, var(--c7) 308deg 360deg);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: spin 2s linear infinite;
+        .sp-h, .sp-v, .sp-wrap { background: var(--tint); }
+
+        .sp-h .fx::before, .sp-h .fx::after,
+        .sp-v .fx::before, .sp-v .fx::after {
+            content: '';
+            position: absolute;
+            background: var(--pc);
+        }
+        .sp-h .fx::before {
+            left: 3px; top: 50%;
+            width: calc(var(--cell) * 0.13); height: calc(var(--cell) * 0.2);
+            transform: translateY(-50%);
+            clip-path: polygon(100% 0, 100% 100%, 0 50%);
+        }
+        .sp-h .fx::after {
+            right: 3px; top: 50%;
+            width: calc(var(--cell) * 0.13); height: calc(var(--cell) * 0.2);
+            transform: translateY(-50%);
+            clip-path: polygon(0 0, 0 100%, 100% 50%);
+        }
+        .sp-v .fx::before {
+            top: 3px; left: 50%;
+            height: calc(var(--cell) * 0.13); width: calc(var(--cell) * 0.2);
+            transform: translateX(-50%);
+            clip-path: polygon(0 100%, 100% 100%, 50% 0);
+        }
+        .sp-v .fx::after {
+            bottom: 3px; left: 50%;
+            height: calc(var(--cell) * 0.13); width: calc(var(--cell) * 0.2);
+            transform: translateX(-50%);
+            clip-path: polygon(0 0, 100% 0, 50% 100%);
         }
 
-        .stripe-h::after {
-            content: ''; position: absolute; width: 110%; height: 6px; background: var(--ink); top: 50%; transform: translateY(-50%); border-radius: 3px;
+        .sp-wrap .fx::before {
+            content: '';
+            position: absolute;
+            inset: 4px;
+            border: 2.5px solid var(--pc);
+            border-radius: 50%;
+            opacity: 0.55;
+            animation: wrapPulse 1.8s ease-in-out infinite;
         }
-        .stripe-v::after {
-            content: ''; position: absolute; height: 110%; width: 6px; background: var(--ink); left: 50%; transform: translateX(-50%); border-radius: 3px;
-        }
-        .wrap::before {
-            content: ''; position: absolute; top: -6px; left: -6px; right: -6px; bottom: -6px;
-            border: 3px dashed var(--ink); border-radius: inherit; animation: spin 4s linear infinite;
+        .sp-wrap .fx::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at 13% 13%, var(--pc) 0 2.4px, transparent 2.5px),
+                radial-gradient(circle at 87% 13%, var(--pc) 0 2.4px, transparent 2.5px),
+                radial-gradient(circle at 13% 87%, var(--pc) 0 2.4px, transparent 2.5px),
+                radial-gradient(circle at 87% 87%, var(--pc) 0 2.4px, transparent 2.5px);
         }
 
+        .sp-bomb .fx::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: conic-gradient(from 0deg, var(--c1), var(--c2), var(--c3), var(--c4), var(--c5), var(--c6), var(--c7), var(--c1));
+            animation: spin 7s linear infinite;
+        }
+        .sp-bomb .material-symbols-outlined { color: var(--ink); }
+
+        /* ---------- Feedback ---------- */
         .pop { animation: popOut 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
         .shake { animation: screenShake 0.3s cubic-bezier(.36,.07,.19,.97) both; }
         .wiggle { animation: wiggleTile 0.3s cubic-bezier(.36,.07,.19,.97) both; }
@@ -334,7 +446,7 @@
         .shockwave {
             position: absolute;
             width: 40px; height: 40px;
-            border: 4px solid var(--ink);
+            border: 4px solid var(--paper);
             border-radius: 50%;
             transform: translate(-50%, -50%);
             pointer-events: none;
@@ -351,7 +463,7 @@
             font-size: 1.5rem;
             font-weight: 900;
             text-align: center;
-            color: var(--card);
+            color: var(--paper);
             -webkit-text-stroke: 2px var(--ink);
             text-shadow: 4px 4px 0 var(--ink);
             pointer-events: none;
@@ -362,25 +474,26 @@
 
         .floating-text {
             position: absolute;
-            color: var(--card);
+            color: var(--paper);
             font-weight: 900;
-            font-size: 1.7rem;
+            font-size: 1.5rem;
             -webkit-text-stroke: 2px var(--ink);
-            text-shadow: 4px 4px 0 var(--ink);
+            text-shadow: 3px 3px 0 var(--ink);
             pointer-events: none;
             z-index: 40;
             animation: float-up 1s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
         }
 
         .flash {
-            position: absolute; top:0; left:0; right:0; bottom:0;
-            background: var(--card); z-index: 100; pointer-events: none;
+            position: absolute; inset: 0;
+            background: var(--paper); z-index: 100; pointer-events: none;
+            border-radius: var(--radius-md);
             animation: flash-fade 0.2s ease-out forwards;
         }
 
         .confetti {
-            position: absolute;
-            width: 15px; height: 15px;
+            position: fixed;
+            width: 14px; height: 14px;
             border: 2px solid var(--ink);
             z-index: 150;
             pointer-events: none;
@@ -393,6 +506,10 @@
             100% { transform: scale(0) rotate(-15deg); }
         }
         @keyframes spin { 100% { transform: rotate(360deg); } }
+        @keyframes wrapPulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.09); opacity: 0.85; }
+        }
         @keyframes wiggleTile {
             0%, 100% { transform: translateX(0); }
             25% { transform: translateX(-15%); }
@@ -400,8 +517,8 @@
         }
         @keyframes screenShake {
             0%, 100% { transform: translate3d(0, 0, 0); }
-            20%, 60% { transform: translate3d(-6px, 4px, 0); }
-            40%, 80% { transform: translate3d(6px, -4px, 0); }
+            20%, 60% { transform: translate3d(-5px, 3px, 0); }
+            40%, 80% { transform: translate3d(5px, -3px, 0); }
         }
         @keyframes particle-burst {
             0% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
@@ -424,7 +541,13 @@
             100% { transform: translate(-50%, -300%) scale(1) rotate(0deg); opacity: 0; }
         }
         @keyframes flash-fade { 0% { opacity: 1; } 100% { opacity: 0; } }
-        @keyframes pulse-meter { 0% { transform: scaleY(1); } 100% { transform: scaleY(1.15); } }
+        @keyframes pulse-meter { 0% { filter: brightness(1); } 100% { filter: brightness(1.25); } }
+        @keyframes capBreathe { 0%, 100% { opacity: 0.55; } 50% { opacity: 0.95; } }
+        @keyframes sparkFloat {
+            0% { transform: translate(-50%, -50%) scale(0.4); opacity: 0; }
+            25% { opacity: 1; }
+            100% { transform: translate(calc(-50% + var(--mx)), calc(-50% + var(--my))) scale(0); opacity: 0; }
+        }
         @keyframes bumpVal { 0% { transform: scale(1); } 40% { transform: scale(1.3); } 100% { transform: scale(1); } }
         @keyframes confetti-fall {
             0% { transform: translateY(-10vh) rotate(0deg); }
@@ -436,60 +559,62 @@
             100% { transform: scale(1) rotate(0deg); opacity: 1; }
         }
 
+        /* ---------- Overlay ---------- */
         .overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(27, 36, 44, 0.92);
-            backdrop-filter: blur(4px);
+            position: absolute; inset: 0;
+            background: rgba(10, 18, 24, 0.72);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.2s;
+            z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.25s;
         }
         .overlay.active { opacity: 1; pointer-events: auto; }
 
         .overlay-card {
-            background: var(--card);
+            background: var(--paper);
             border: var(--border-thick) solid var(--ink);
             border-radius: var(--radius-lg);
             box-shadow: var(--shadow-hard);
-            padding: 36px 32px;
-            max-width: 90vw;
+            padding: 32px 30px;
+            max-width: min(90vw, 360px);
             text-align: center;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 16px;
-            transform: scale(0.8);
+            gap: 14px;
+            transform: scale(0.85);
             transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         .overlay.active .overlay-card { transform: scale(1); }
 
         .overlay h2 {
-            font-size: 2.6rem;
+            font-size: 2.4rem;
             font-weight: 900;
-            color: var(--card);
+            color: var(--paper);
             -webkit-text-stroke: 2px var(--ink);
             text-shadow: 4px 4px 0 var(--ink);
             transform: rotate(-2deg);
         }
 
         .overlay p {
-            font-size: 1.15rem;
+            font-size: 1.05rem;
             font-weight: 700;
-            color: var(--ink);
+            color: var(--navy-700);
+            line-height: 1.35;
         }
 
         .stars-row {
             display: flex;
-            gap: 6px;
-            height: 2.4rem;
+            gap: 8px;
+            height: 2.3rem;
         }
         .stars-row .star {
-            font-size: 2.4rem;
-            color: var(--card-alt);
-            font-variation-settings: 'FILL' 0, 'wght' 600;
+            font-size: 2.3rem;
+            color: var(--paper-2);
+            font-variation-settings: 'FILL' 1, 'wght' 600;
         }
         .stars-row .star.filled {
             color: var(--gold-500);
-            font-variation-settings: 'FILL' 1, 'wght' 700;
             text-shadow: 2px 2px 0 var(--ink);
             animation: starPop 0.5s both;
         }
@@ -497,30 +622,35 @@
         .stars-row .star.filled:nth-child(3) { animation-delay: 0.2s; }
 
         .overlay button {
-            padding: 14px 36px;
-            font-size: 1.3rem;
+            margin-top: 4px;
+            padding: 13px 38px;
+            font-size: 1.25rem;
             font-weight: 900;
+            letter-spacing: 0.5px;
             border: var(--border-thick) solid var(--ink);
             border-radius: var(--radius-md);
-            background: var(--ocean-500);
+            background: var(--accent);
             color: var(--ink);
             cursor: pointer;
             box-shadow: var(--shadow-hard);
-            transition: all 0.1s;
+            transition: transform 0.1s, box-shadow 0.1s, background-color 1.6s ease;
         }
-        .overlay button:hover { transform: translate(-2px, -2px); }
         .overlay button:active {
             transform: translate(4px, 4px);
-            box-shadow: 2px 2px 0 var(--ink);
+            box-shadow: 1px 1px 0 var(--ink);
         }
     </style>
 </head>
 <body>
 
+    <div id="bg"></div>
+
     <div id="app">
-        <button class="mute-btn" id="mute-btn" aria-label="Toggle Sound">
-            <span class="material-symbols-outlined" id="mute-icon">volume_up</span>
-        </button>
+        <div class="topbar">
+            <button class="icon-btn" id="mute-btn" aria-label="Toggle Sound">
+                <span class="material-symbols-outlined" id="mute-icon">volume_up</span>
+            </button>
+        </div>
 
         <div class="hud">
             <div class="hud-top">
@@ -534,8 +664,12 @@
                     <div class="hud-val" id="score-txt">0</div>
                 </div>
             </div>
-            <div class="meter-container">
-                <div class="meter-fill" id="goal-meter"></div>
+            <div class="meter-wrap">
+                <div class="meter-container" id="meter-container">
+                    <div class="meter-fill" id="goal-meter"></div>
+                    <div class="meter-cap" id="meter-cap"></div>
+                </div>
+                <div class="meter-fx" id="meter-fx"></div>
             </div>
         </div>
 
@@ -558,11 +692,24 @@
     </div>
 
 <script>
+/* Targets are tuned against a bot playing random valid moves on this 6x8 board:
+   that baseline is roughly 1.4k / 2.2k / 1.8k / 2.1k per level, so a target of
+   ~0.8x baseline reads as a warm-up and ~1.4x demands deliberate play.
+   Six colours is the ceiling here - seven leaves only ~7 tiles per colour on 48
+   squares, which starves the board of matches. */
 const LEVELS = [
-    { id: 1, moves: 15, target: 1500, colors: 5, desc: "FILL THE METER TO WIN!" },
-    { id: 2, moves: 20, target: 3500, colors: 6, desc: "BIGGER TARGET, MORE COLORS!" },
-    { id: 3, moves: 25, target: 6000, colors: 6, desc: "CREATE SPECIAL COMBOS!" },
-    { id: 4, moves: 20, target: 8000, colors: 7, desc: "EXPERT MODE!" }
+    { id: 1, moves: 18, target: 1200, colors: 5, desc: "MATCH 3 OR MORE TO FILL THE METER!" },
+    { id: 2, moves: 22, target: 2000, colors: 5, desc: "BIGGER TARGET. KEEP THE CASCADES GOING!" },
+    { id: 3, moves: 26, target: 2400, colors: 6, desc: "MORE COLOURS. BUILD SPECIAL TILES!" },
+    { id: 4, moves: 30, target: 3000, colors: 6, desc: "EXPERT MODE. COMBINE THE SPECIALS!" }
+];
+
+/* Each level dresses the background in a new colour story. */
+const THEMES = [
+    { base: '#10242E', accent: '#55B7CB', blobs: ['#2E8DA4', '#429C94', '#55B7CB', '#71C4BB', '#7197E8'] },
+    { base: '#1B1730', accent: '#9B7BE0', blobs: ['#7455B5', '#9B7BE0', '#C56BCB', '#7197E8', '#DFA7E2'] },
+    { base: '#2B1A22', accent: '#DE6399', blobs: ['#B44474', '#DE6399', '#EC7165', '#EA8D3F', '#F0A2C5'] },
+    { base: '#152618', accent: '#68B77B', blobs: ['#438D57', '#68B77B', '#A5C45C', '#E0B74A', '#71C4BB'] }
 ];
 
 const SPECIALS = { NONE: 0, H_STRIPE: 1, V_STRIPE: 2, WRAP: 3, BOMB: 4 };
@@ -580,9 +727,15 @@ const COLORS = {
     1: '#429C94', 2: '#7197E8', 3: '#9B7BE0', 4: '#DE6399',
     5: '#EC7165', 6: '#EA8D3F', 7: '#E0B74A'
 };
+/* -100 shades of the same families, used to tint special tiles */
+const TINTS = {
+    1: '#E2F6F3', 2: '#E3ECFF', 3: '#EEE7FF', 4: '#FBE3EE',
+    5: '#FFE5E1', 6: '#FFEBD8', 7: '#FFF3CF'
+};
 
-const COLS = 7;
-const ROWS = 10;
+const COLS = 6;
+const ROWS = 8;
+const MAX_CELL = 88;
 const ANIM_DUR = 250;
 const wait = (ms) => new Promise(res => setTimeout(res, ms));
 
@@ -628,30 +781,81 @@ class Match3Game {
         this.moves = 0;
         this.currentLevelIdx = 0;
         this.isProcessing = false;
+        this.lastProgress = 0;
         this.sfx = new SFX();
 
         this.dragStart = null;
         this.selectedPiece = null;
 
+        this.createBlobs();
+        this.applyTheme(0);
         this.layoutBoard();
+        requestAnimationFrame(() => this.layoutBoard());
         this.bindEvents();
         this.showScreen(`LEVEL ${LEVELS[0].id}`, LEVELS[0].desc, "PLAY");
     }
 
+    /* ---------- Background ---------- */
+
+    createBlobs() {
+        const bg = document.getElementById('bg');
+        this.blobs = [];
+        for (let i = 0; i < 5; i++) {
+            const b = document.createElement('div');
+            b.className = 'blob';
+            const size = 40 + Math.random() * 45;
+            b.style.width = `${size}vmax`;
+            b.style.height = `${size}vmax`;
+            b.style.left = `${10 + Math.random() * 80}%`;
+            b.style.top = `${10 + Math.random() * 80}%`;
+            b.style.opacity = (0.34 + Math.random() * 0.26).toFixed(2);
+            b.style.setProperty('--dx', `${(Math.random() * 2 - 1) * 18}vw`);
+            b.style.setProperty('--dy', `${(Math.random() * 2 - 1) * 14}vh`);
+            b.style.setProperty('--s2', (0.82 + Math.random() * 0.45).toFixed(2));
+            b.style.animationDuration = `${34 + Math.random() * 30}s`;
+            b.style.animationDelay = `-${Math.random() * 30}s`;
+            bg.appendChild(b);
+            this.blobs.push(b);
+        }
+    }
+
+    applyTheme(levelIdx) {
+        const t = THEMES[levelIdx % THEMES.length];
+        this.theme = t;
+        document.documentElement.style.backgroundColor = t.base;
+        document.getElementById('bg').style.backgroundColor = t.base;
+        document.documentElement.style.setProperty('--accent', t.accent);
+        // Set the transitioned properties directly so they animate reliably.
+        document.getElementById('goal-meter').style.backgroundColor = t.accent;
+        document.getElementById('screen-btn').style.backgroundColor = t.accent;
+        const meta = document.querySelector('meta[name="theme-color"]');
+        if (meta) meta.setAttribute('content', t.base);
+        this.blobs.forEach((b, i) => { b.style.color = t.blobs[i % t.blobs.length]; });
+    }
+
+    /* ---------- Layout ---------- */
+
     layoutBoard() {
-        const w = this.boardWrap.clientWidth;
-        const h = this.boardWrap.clientHeight;
-        const cell = Math.max(1, Math.floor(Math.min(w / COLS, h / ROWS)));
+        const rect = this.boardWrap.getBoundingClientRect();
+        const cs = getComputedStyle(this.boardWrap);
+        const availW = rect.width - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+        const availH = rect.height - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+        const cell = Math.max(24, Math.min(MAX_CELL, Math.floor(Math.min(availW / COLS, availH / ROWS))));
+
         this.boardEl.style.width = `${cell * COLS}px`;
         this.boardEl.style.height = `${cell * ROWS}px`;
+        document.documentElement.style.setProperty('--cell', `${cell}px`);
+        document.documentElement.style.setProperty('--board-w', `${cell * COLS}px`);
     }
 
     bindEvents() {
         this.layer.addEventListener('pointerdown', (e) => this.handlePointerDown(e));
         window.addEventListener('pointerup', (e) => this.handlePointerUp(e));
         window.addEventListener('resize', () => this.layoutBoard());
-        window.addEventListener('orientationchange', () => this.layoutBoard());
-        document.body.addEventListener('touchmove', e => e.preventDefault(), {passive: false});
+        window.addEventListener('orientationchange', () => setTimeout(() => this.layoutBoard(), 120));
+        document.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
+        document.addEventListener('gesturestart', e => e.preventDefault());
+        document.addEventListener('dblclick', e => e.preventDefault());
         document.getElementById('mute-btn').addEventListener('click', () => this.toggleMute());
     }
 
@@ -688,10 +892,13 @@ class Match3Game {
         const config = LEVELS[this.currentLevelIdx] || LEVELS[LEVELS.length - 1];
         this.moves = config.moves;
         this.score = 0;
+        this.lastProgress = 0;
         this.targetScore = config.target;
         this.numColors = config.colors;
 
-        document.getElementById('goal-meter').classList.remove('full');
+        this.applyTheme(this.currentLevelIdx);
+        document.getElementById('meter-container').classList.remove('full');
+        document.getElementById('meter-cap').classList.remove('on');
         this.updateHUD();
         this.layoutBoard();
         this.layer.innerHTML = '<div class="combo-banner" id="combo-banner"></div>';
@@ -703,16 +910,44 @@ class Match3Game {
     }
 
     updateHUD() {
-        const movesEl = document.getElementById('moves-txt');
-        const scoreEl = document.getElementById('score-txt');
-        movesEl.innerText = this.moves;
+        document.getElementById('moves-txt').innerText = this.moves;
         document.getElementById('level-txt').innerText = `LVL ${this.currentLevelIdx + 1}`;
-        scoreEl.innerText = this.score;
+        document.getElementById('score-txt').innerText = this.score;
 
         const progress = Math.min(100, (this.score / this.targetScore) * 100);
-        const meter = document.getElementById('goal-meter');
-        meter.style.width = `${progress}%`;
-        meter.classList.toggle('full', progress >= 100);
+        document.getElementById('goal-meter').style.width = `${progress}%`;
+        document.getElementById('meter-container').classList.toggle('full', progress >= 100);
+
+        const cap = document.getElementById('meter-cap');
+        cap.style.left = `${progress}%`;
+        cap.classList.toggle('on', progress > 0.5 && progress < 100);
+
+        if (progress > this.lastProgress) this.emitMeterSparks(progress);
+        this.lastProgress = progress;
+    }
+
+    /* A few sparks skip off the leading edge whenever the meter advances. */
+    emitMeterSparks(progress) {
+        const fx = document.getElementById('meter-fx');
+        if (!fx) return;
+        const w = fx.clientWidth;
+        if (!w) return;
+        const x = Math.min(w, (progress / 100) * w);
+        const count = 3;
+        for (let i = 0; i < count; i++) {
+            const s = document.createElement('div');
+            s.className = 'spark';
+            const size = 3 + Math.random() * 3;
+            s.style.width = `${size}px`;
+            s.style.height = `${size}px`;
+            s.style.left = `${x}px`;
+            s.style.top = '50%';
+            s.style.setProperty('--mx', `${(Math.random() * 2 - 1) * 16}px`);
+            s.style.setProperty('--my', `${-10 - Math.random() * 16}px`);
+            s.style.animationDelay = `${Math.random() * 0.12}s`;
+            fx.appendChild(s);
+            setTimeout(() => s.remove(), 1000);
+        }
     }
 
     bumpHUD(el) {
@@ -746,23 +981,26 @@ class Match3Game {
         el.className = 'piece';
 
         const inner = document.createElement('div');
-        inner.className = special === SPECIALS.BOMB ? 'piece-inner color-bomb' : `piece-inner color-${color}`;
+        inner.className = 'piece-inner';
+        if (special === SPECIALS.H_STRIPE) inner.classList.add('sp-h');
+        else if (special === SPECIALS.V_STRIPE) inner.classList.add('sp-v');
+        else if (special === SPECIALS.WRAP) inner.classList.add('sp-wrap');
+        else if (special === SPECIALS.BOMB) inner.classList.add('sp-bomb');
 
-        // Add Material Symbol Icon
+        if (special !== SPECIALS.BOMB) {
+            inner.style.setProperty('--pc', COLORS[color]);
+            inner.style.setProperty('--tint', TINTS[color]);
+        }
+
+        const fx = document.createElement('div');
+        fx.className = 'fx';
+        inner.appendChild(fx);
+
         const icon = document.createElement('span');
         icon.className = 'material-symbols-outlined';
         icon.innerText = special === SPECIALS.BOMB ? 'auto_awesome' : ICONS[color];
-
-        // Apply color to icon if not a bomb
-        if (special !== SPECIALS.BOMB) {
-            icon.style.color = COLORS[color];
-        }
-
+        if (special !== SPECIALS.BOMB) icon.style.color = COLORS[color];
         inner.appendChild(icon);
-
-        if (special === SPECIALS.H_STRIPE) inner.classList.add('stripe-h');
-        if (special === SPECIALS.V_STRIPE) inner.classList.add('stripe-v');
-        if (special === SPECIALS.WRAP) inner.classList.add('wrap');
 
         el.appendChild(inner);
         this.layer.appendChild(el);
@@ -782,14 +1020,15 @@ class Match3Game {
         const y = (piece.r * cellH) + (cellH / 2);
 
         const big = piece.special !== SPECIALS.NONE;
-        // Map particle color to tile icon color
-        const col = piece.special === SPECIALS.BOMB ? '#E2F6F3' : COLORS[piece.color];
         const count = big ? 10 : 6;
 
         for (let i = 0; i < count; i++) {
             const p = document.createElement('div');
             p.className = 'particle';
-            p.style.background = col;
+            // Colour bombs scatter the whole rainbow; everything else its own colour.
+            p.style.background = piece.special === SPECIALS.BOMB
+                ? COLORS[Math.floor(Math.random() * 7) + 1]
+                : COLORS[piece.color];
             p.style.borderRadius = Math.random() > 0.5 ? '50%' : '4px';
 
             const base = big ? 12 : 8;
@@ -812,19 +1051,17 @@ class Match3Game {
     spawnShockwave(r, c) {
         const cellW = this.boardEl.clientWidth / COLS;
         const cellH = this.boardEl.clientHeight / ROWS;
-        const x = (c * cellW) + (cellW / 2);
-        const y = (r * cellH) + (cellH / 2);
         const el = document.createElement('div');
         el.className = 'shockwave';
-        el.style.left = `${x}px`;
-        el.style.top = `${y}px`;
+        el.style.left = `${(c * cellW) + (cellW / 2)}px`;
+        el.style.top = `${(r * cellH) + (cellH / 2)}px`;
         this.layer.appendChild(el);
         setTimeout(() => el.remove(), 500);
     }
 
     createConfetti() {
-        const colors = ['#429C94', '#7197E8', '#9B7BE0', '#DE6399', '#EC7165', '#EA8D3F', '#E0B74A'];
-        for(let i=0; i<50; i++) {
+        const colors = Object.values(COLORS);
+        for (let i = 0; i < 50; i++) {
             const conf = document.createElement('div');
             conf.className = 'confetti';
             conf.style.left = `${Math.random() * 100}vw`;
@@ -843,7 +1080,7 @@ class Match3Game {
         el.innerText = text;
         el.style.left = `${c * (100 / COLS) + (100 / COLS) / 2}%`;
         el.style.top = `${r * (100 / ROWS) + (100 / ROWS) / 2}%`;
-        if(scale !== 1) el.style.transform = `translate(-50%, -50%) scale(${scale})`;
+        if (scale !== 1) el.style.transform = `translate(-50%, -50%) scale(${scale})`;
         this.layer.appendChild(el);
         setTimeout(() => el.remove(), 1000);
     }
@@ -891,8 +1128,9 @@ class Match3Game {
         if (!this.dragStart || this.isProcessing) return;
         const dx = e.clientX - this.dragStart.x;
         const dy = e.clientY - this.dragStart.y;
+        const threshold = Math.max(18, this.boardEl.clientWidth / COLS * 0.4);
 
-        if (Math.abs(dx) > 30 || Math.abs(dy) > 30) {
+        if (Math.abs(dx) > threshold || Math.abs(dy) > threshold) {
             let tr = this.dragStart.piece.r, tc = this.dragStart.piece.c;
             if (Math.abs(dx) > Math.abs(dy)) tc += (dx > 0 ? 1 : -1); else tr += (dy > 0 ? 1 : -1);
             if (tr >= 0 && tr < ROWS && tc >= 0 && tc < COLS) this.attemptSwap(this.dragStart.piece, this.board[tr][tc]);
@@ -906,7 +1144,7 @@ class Match3Game {
     }
 
     getPieceFromElement(el) {
-        for(let r=0; r<ROWS; r++) for(let c=0; c<COLS; c++) if(this.board[r][c]?.el === el) return this.board[r][c];
+        for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) if (this.board[r][c]?.el === el) return this.board[r][c];
         return null;
     }
 
@@ -914,7 +1152,6 @@ class Match3Game {
         this.isProcessing = true;
         this.sfx.swap();
 
-        // Swap visually
         this.swapData(p1, p2);
         this.updatePositions();
         await wait(ANIM_DUR);
@@ -922,16 +1159,15 @@ class Match3Game {
         const comboResult = this.checkSpecialCombo(p1, p2);
         let matchGroups = comboResult.isCombo ? [] : this.findMatches();
 
-        // Invalid Move logic: Wiggle and swap back (does not cost a move)
+        // Invalid move: wiggle and swap back (does not cost a move)
         if (!comboResult.isCombo && matchGroups.length === 0) {
             this.sfx.invalid();
-            p1.el.firstChild.classList.add('wiggle', 'invalid');
-            p2.el.firstChild.classList.add('wiggle', 'invalid');
-            await wait(300); // Wiggle duration
-            p1.el.firstChild.classList.remove('wiggle', 'invalid');
-            p2.el.firstChild.classList.remove('wiggle', 'invalid');
+            p1.inner.classList.add('wiggle', 'invalid');
+            p2.inner.classList.add('wiggle', 'invalid');
+            await wait(300);
+            p1.inner.classList.remove('wiggle', 'invalid');
+            p2.inner.classList.remove('wiggle', 'invalid');
 
-            // Swap back
             this.swapData(p1, p2);
             this.updatePositions();
             await wait(ANIM_DUR);
@@ -944,7 +1180,7 @@ class Match3Game {
         this.bumpHUD(document.getElementById('moves-txt'));
         this.updateHUD();
 
-        this.lastSwap = {p1, p2};
+        this.lastSwap = { p1, p2 };
         await this.resolveBoard(matchGroups, comboResult);
     }
 
@@ -955,7 +1191,7 @@ class Match3Game {
     }
 
     updatePositions() {
-        for (let r=0; r<ROWS; r++) for (let c=0; c<COLS; c++) if (this.board[r][c]) this.board[r][c].el.style.transform = `translate(${c * 100}%, ${r * 100}%)`;
+        for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) if (this.board[r][c]) this.board[r][c].el.style.transform = `translate(${c * 100}%, ${r * 100}%)`;
     }
 
     findMatches() {
@@ -1026,9 +1262,7 @@ class Match3Game {
     }
 
     async ensureSolvable() {
-        if (!this.hasPossibleMove()) {
-            await this.reshuffleBoard();
-        }
+        if (!this.hasPossibleMove()) await this.reshuffleBoard();
     }
 
     async reshuffleBoard() {
@@ -1062,7 +1296,7 @@ class Match3Game {
         const s1 = p1.special, s2 = p2.special;
         if (s1 === SPECIALS.NONE && s2 === SPECIALS.NONE) return { isCombo: false };
 
-        // Exactly one piece is special: only a color-bomb auto-triggers on swap.
+        // Exactly one piece is special: only a colour bomb auto-triggers on swap.
         if (s1 === SPECIALS.NONE || s2 === SPECIALS.NONE) {
             const bomb = s1 === SPECIALS.BOMB ? p1 : (s2 === SPECIALS.BOMB ? p2 : null);
             if (bomb) {
@@ -1097,43 +1331,43 @@ class Match3Game {
             if (combo?.isCombo) {
                 this.sfx.special();
                 if (combo.type === 'BOMB_BOMB') {
-                    for(let r=0; r<ROWS; r++) for(let c=0; c<COLS; c++) if(this.board[r][c]) toDestroy.add(this.board[r][c]);
+                    for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) if (this.board[r][c]) toDestroy.add(this.board[r][c]);
                     this.screenFlash();
-                    this.spawnShockwave(ROWS/2, COLS/2);
+                    this.spawnShockwave(ROWS / 2, COLS / 2);
                 } else if (combo.type === 'BOMB_COLOR') {
                     toDestroy.add(combo.origin);
-                    for(let r=0; r<ROWS; r++) for(let c=0; c<COLS; c++) if(this.board[r][c]?.color === combo.color) toDestroy.add(this.board[r][c]);
+                    for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) if (this.board[r][c]?.color === combo.color) toDestroy.add(this.board[r][c]);
                     this.screenFlash();
                     this.spawnShockwave(combo.origin.r, combo.origin.c);
                 } else if (combo.type === 'BOMB_SPECIAL') {
                     toDestroy.add(combo.origin); toDestroy.add(combo.other);
-                    for(let r=0; r<ROWS; r++) for(let c=0; c<COLS; c++) if(this.board[r][c]?.color === combo.other.color) toDestroy.add(this.board[r][c]);
+                    for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) if (this.board[r][c]?.color === combo.other.color) toDestroy.add(this.board[r][c]);
                     this.screenFlash();
                     this.spawnShockwave(combo.origin.r, combo.origin.c);
                 } else if (combo.type === 'WRAP_WRAP') {
                     toDestroy.add(combo.origin);
-                    for(let r = Math.max(0, combo.origin.r-2); r <= Math.min(ROWS-1, combo.origin.r+2); r++)
-                        for(let c = Math.max(0, combo.origin.c-2); c <= Math.min(COLS-1, combo.origin.c+2); c++)
+                    for (let r = Math.max(0, combo.origin.r - 2); r <= Math.min(ROWS - 1, combo.origin.r + 2); r++)
+                        for (let c = Math.max(0, combo.origin.c - 2); c <= Math.min(COLS - 1, combo.origin.c + 2); c++)
                             if (this.board[r][c]) toDestroy.add(this.board[r][c]);
                     this.screenFlash();
                     this.spawnShockwave(combo.origin.r, combo.origin.c);
                 } else if (combo.type === 'STRIPE_WRAP') {
                     toDestroy.add(combo.origin);
-                    for(let dr=-1; dr<=1; dr++) {
+                    for (let dr = -1; dr <= 1; dr++) {
                         const rr = combo.origin.r + dr;
                         if (rr < 0 || rr >= ROWS) continue;
-                        for(let c=0; c<COLS; c++) if (this.board[rr][c]) toDestroy.add(this.board[rr][c]);
+                        for (let c = 0; c < COLS; c++) if (this.board[rr][c]) toDestroy.add(this.board[rr][c]);
                     }
-                    for(let dc=-1; dc<=1; dc++) {
+                    for (let dc = -1; dc <= 1; dc++) {
                         const cc = combo.origin.c + dc;
                         if (cc < 0 || cc >= COLS) continue;
-                        for(let r=0; r<ROWS; r++) if (this.board[r][cc]) toDestroy.add(this.board[r][cc]);
+                        for (let r = 0; r < ROWS; r++) if (this.board[r][cc]) toDestroy.add(this.board[r][cc]);
                     }
                     this.spawnShockwave(combo.origin.r, combo.origin.c);
                 } else if (combo.type === 'STRIPE_STRIPE') {
                     toDestroy.add(combo.origin);
-                    for(let c=0; c<COLS; c++) if (this.board[combo.origin.r][c]) toDestroy.add(this.board[combo.origin.r][c]);
-                    for(let r=0; r<ROWS; r++) if (this.board[r][combo.origin.c]) toDestroy.add(this.board[r][combo.origin.c]);
+                    for (let c = 0; c < COLS; c++) if (this.board[combo.origin.r][c]) toDestroy.add(this.board[combo.origin.r][c]);
+                    for (let r = 0; r < ROWS; r++) if (this.board[r][combo.origin.c]) toDestroy.add(this.board[r][combo.origin.c]);
                     this.spawnShockwave(combo.origin.r, combo.origin.c);
                 }
                 combo = null;
@@ -1168,19 +1402,19 @@ class Match3Game {
                 if (done.has(p)) continue;
                 done.add(p); toDestroy.add(p);
 
-                if (p.special === 1) for(let c=0; c<COLS; c++) { if(this.board[p.r][c] && !done.has(this.board[p.r][c])) q.push(this.board[p.r][c]); }
-                else if (p.special === 2) for(let r=0; r<ROWS; r++) { if(this.board[r][p.c] && !done.has(this.board[r][p.c])) q.push(this.board[r][p.c]); }
-                else if (p.special === 3) {
-                    for(let r = Math.max(0, p.r-1); r <= Math.min(ROWS-1, p.r+1); r++)
-                        for(let c = Math.max(0, p.c-1); c <= Math.min(COLS-1, p.c+1); c++)
+                if (p.special === SPECIALS.H_STRIPE) { for (let c = 0; c < COLS; c++) if (this.board[p.r][c] && !done.has(this.board[p.r][c])) q.push(this.board[p.r][c]); }
+                else if (p.special === SPECIALS.V_STRIPE) { for (let r = 0; r < ROWS; r++) if (this.board[r][p.c] && !done.has(this.board[r][p.c])) q.push(this.board[r][p.c]); }
+                else if (p.special === SPECIALS.WRAP) {
+                    for (let r = Math.max(0, p.r - 1); r <= Math.min(ROWS - 1, p.r + 1); r++)
+                        for (let c = Math.max(0, p.c - 1); c <= Math.min(COLS - 1, p.c + 1); c++)
                             if (this.board[r][c] && !done.has(this.board[r][c])) q.push(this.board[r][c]);
-                } else if (p.special === 4) {
+                } else if (p.special === SPECIALS.BOMB) {
                     let tc = Math.floor(Math.random() * this.numColors) + 1;
-                    for(let r=0; r<ROWS; r++) for(let c=0; c<COLS; c++) if (this.board[r][c]?.color === tc && !done.has(this.board[r][c])) q.push(this.board[r][c]);
+                    for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) if (this.board[r][c]?.color === tc && !done.has(this.board[r][c])) q.push(this.board[r][c]);
                 }
             }
 
-            if (toDestroy.size > 8) {
+            if (toDestroy.size > 7) {
                 this.boardEl.classList.add('shake');
                 setTimeout(() => this.boardEl.classList.remove('shake'), 300);
             }
@@ -1207,9 +1441,7 @@ class Match3Game {
             groups = this.findMatches();
         }
 
-        if (this.moves > 0 && this.score < this.targetScore) {
-            await this.ensureSolvable();
-        }
+        if (this.moves > 0 && this.score < this.targetScore) await this.ensureSolvable();
 
         this.checkWinLoss();
     }
@@ -1238,8 +1470,8 @@ class Match3Game {
 
     computeStars() {
         const ratio = this.score / this.targetScore;
-        if (ratio >= 1.6) return 3;
-        if (ratio >= 1.25) return 2;
+        if (ratio >= 1.35) return 3;
+        if (ratio >= 1.15) return 2;
         return 1;
     }
 
@@ -1259,7 +1491,6 @@ class Match3Game {
             this.sfx.lose();
             this.showScreen("OUT OF MOVES", `SCORE: ${this.score} / ${this.targetScore}`, "TRY AGAIN");
         } else {
-            // Ready for next input
             this.isProcessing = false;
         }
     }
