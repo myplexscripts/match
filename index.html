@@ -669,6 +669,87 @@
             100% { transform: scale(1) rotate(0deg); opacity: 1; }
         }
 
+        /* ---------- Power-ups ---------- */
+        .powerup-tray {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            min-height: 40px;
+        }
+
+        .pu-btn {
+            position: relative;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--paper);
+            border: var(--border-thick) solid var(--ink);
+            border-radius: var(--radius-sm);
+            box-shadow: var(--shadow-small);
+            cursor: pointer;
+            transition: transform 0.1s ease, box-shadow 0.1s ease, background-color 0.15s ease;
+        }
+        .pu-btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
+        .pu-btn .material-symbols-outlined { font-size: 1.15rem; color: var(--ink); font-variation-settings: 'FILL' 1, 'wght' 600; }
+        .pu-btn.empty { opacity: 0.32; pointer-events: none; }
+        .pu-btn.armed { background: var(--gold-300); animation: armedPulse 0.9s ease-in-out infinite; }
+
+        .pu-count {
+            position: absolute;
+            top: -7px;
+            right: -7px;
+            min-width: 17px;
+            height: 17px;
+            padding: 0 3px;
+            background: var(--coral-500);
+            color: #fff;
+            font-size: 0.62rem;
+            font-weight: 900;
+            border-radius: 999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--ink);
+        }
+
+        .reward-row {
+            display: flex;
+            gap: 12px;
+        }
+        .reward-card {
+            width: 128px;
+            padding: 18px 10px 14px;
+            background: var(--paper-2);
+            border: var(--border-thick) solid var(--ink);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-small);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+        }
+        .reward-card:active { transform: translate(3px, 3px); box-shadow: 0px 0px 0 var(--ink); }
+        .reward-card .material-symbols-outlined { font-size: 2rem; color: var(--ocean-700); font-variation-settings: 'FILL' 1, 'wght' 600; }
+        .reward-card .rc-name { font-weight: 900; font-size: 0.95rem; }
+        .reward-card .rc-desc { font-size: 0.68rem; color: var(--navy-500); text-align: center; line-height: 1.3; font-weight: 600; }
+
+        @keyframes armedPulse {
+            0%, 100% { box-shadow: var(--shadow-small); }
+            50% { box-shadow: var(--shadow-small), 0 0 12px 3px rgba(224, 183, 74, 0.8); }
+        }
+
+        .confetti-lottie {
+            position: fixed;
+            inset: 0;
+            z-index: 250;
+            pointer-events: none;
+        }
+        .confetti-lottie svg { width: 100%; height: 100%; }
+
         /* ---------- Overlay ---------- */
         .overlay {
             position: absolute; inset: 0;
@@ -788,6 +869,7 @@
                 </div>
                 <div class="meter-glow" id="meter-glow"></div>
             </div>
+            <div class="powerup-tray" id="powerup-tray"></div>
         </div>
 
         <div id="board-wrap">
@@ -803,11 +885,22 @@
                 <h2 id="screen-title">LEVEL 1</h2>
                 <p id="screen-desc">SCORE POINTS TO FILL THE METER!</p>
                 <div class="stars-row" id="screen-stars"></div>
-                <button id="screen-btn" onclick="game.startLevel()">PLAY</button>
+                <button id="screen-btn" onclick="game.onScreenButton()">PLAY</button>
             </div>
         </div>
+
+        <div class="overlay" id="reward-overlay">
+            <div class="overlay-card">
+                <h2>PICK A REWARD</h2>
+                <p>Keep one power-up for later - use it whenever you like.</p>
+                <div class="reward-row" id="reward-row"></div>
+            </div>
+        </div>
+
+        <div class="confetti-lottie" id="confetti-lottie"></div>
     </div>
 
+<script src="lib/lottie-light.min.js"></script>
 <script>
 /* Targets are tuned against a bot playing random valid moves on this 6x8 board:
    that baseline is roughly 1.4k / 2.2k / 1.8k / 2.1k per level, so a target of
@@ -830,6 +923,15 @@ const THEMES = [
 ];
 
 const SPECIALS = { NONE: 0, H_STRIPE: 1, V_STRIPE: 2, WRAP: 3, BOMB: 4 };
+
+/* Power-ups: earned by picking one on the level-clear reward screen, used
+   whenever the player likes (they don't cost a move). */
+const POWER_UPS = {
+    hammer: { icon: 'construction', name: 'Hammer', desc: 'Tap any tile to smash it instantly.' },
+    shuffle: { icon: 'shuffle', name: 'Shuffle', desc: 'Reshuffle the whole board.' },
+    extraMoves: { icon: 'add_circle', name: '+5 Moves', desc: 'Adds 5 extra moves to spend.' },
+    colorBomb: { icon: 'auto_awesome', name: 'Color Bomb', desc: 'Drops a color bomb onto the board.' }
+};
 const ACTION_WORDS = ["BAM!", "RAD!", "BOOM!", "SICK!", "WILD!", "POP!", "SWEET!", "TASTY!"];
 const ICONS = {
     1: 'star',
@@ -855,6 +957,91 @@ const ROWS = 8;
 const MAX_CELL = 88;
 const ANIM_DUR = 250;
 const wait = (ms) => new Promise(res => setTimeout(res, ms));
+
+/* ---------- Lottie confetti ---------- */
+
+const CONFETTI_PALETTE = ['#429C94', '#7197E8', '#9B7BE0', '#DE6399', '#EC7165', '#EA8D3F', '#E0B74A', '#68B77B', '#55B7CB'];
+
+function hexToLottieColor(hex) {
+    const n = parseInt(hex.replace('#', ''), 16);
+    return [((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255, 1];
+}
+
+/* Builds a Lottie animated-property keyframe array from plain {t, v} points.
+   Every keyframe but the last needs both its start ("s") AND end ("e") value
+   plus bezier ease handles ("i"/"o") - without them lottie-web's SVG
+   renderer computes nothing for that property and silently drops the whole
+   layer (display:none, empty <path>), with no console warning at all. This
+   cost real time to track down via a minimal repro, so it's spelled out. */
+function lottieKeyframes(points) {
+    const EASE = { i: { x: [0.42], y: [1] }, o: { x: [0.58], y: [0] } };
+    return points.map((p, i) => i === points.length - 1
+        ? { t: p.t, s: p.v }
+        : { t: p.t, s: p.v, e: points[i + 1].v, ...EASE });
+}
+
+/* Generates a self-contained Lottie composition (no external .json asset) so
+   the confetti is drawn straight from this app's own palette every time,
+   sized to whatever viewport is actually playing. */
+function buildConfettiLottieData(w, h) {
+    const fr = 30, op = 80, count = 70;
+    const layers = [];
+    for (let i = 0; i < count; i++) {
+        const startFrame = Math.random() * 15;
+        const fadeInEnd = startFrame + 6;
+        const fadeOutStart = op - 16;
+        const startX = Math.random() * w;
+        const endX = startX + (Math.random() * 2 - 1) * 90;
+        const startY = -40 - Math.random() * h * 0.3;
+        const endY = h + 60;
+        const rotStart = Math.random() * 360;
+        const rotEnd = rotStart + (Math.random() < 0.5 ? -1 : 1) * (360 + Math.random() * 540);
+        const color = hexToLottieColor(CONFETTI_PALETTE[Math.floor(Math.random() * CONFETTI_PALETTE.length)]);
+        const isCircle = Math.random() < 0.4;
+        const sizeW = isCircle ? 10 + Math.random() * 8 : 7 + Math.random() * 6;
+        const sizeH = isCircle ? sizeW : 12 + Math.random() * 10;
+
+        const shape = { nm: 'shape', p: { a: 0, k: [0, 0] }, s: { a: 0, k: [sizeW, sizeH] } };
+        if (isCircle) { shape.ty = 'el'; } else { shape.ty = 'rc'; shape.r = { a: 0, k: 2 }; shape.d = 1; }
+
+        layers.push({
+            ddd: 0, ind: i + 1, ty: 4, nm: `c${i}`, sr: 1, ao: 0, ip: 0, op, st: 0,
+            ks: {
+                o: { a: 1, k: lottieKeyframes([
+                    { t: startFrame, v: [0] },
+                    { t: fadeInEnd, v: [100] },
+                    { t: fadeOutStart, v: [100] },
+                    { t: op, v: [0] }
+                ]) },
+                r: { a: 1, k: lottieKeyframes([
+                    { t: startFrame, v: [rotStart] },
+                    { t: op, v: [rotEnd] }
+                ]) },
+                p: { a: 1, k: lottieKeyframes([
+                    { t: startFrame, v: [startX, startY, 0] },
+                    { t: op, v: [endX, endY, 0] }
+                ]) },
+                a: { a: 0, k: [0, 0, 0] },
+                s: { a: 0, k: [100, 100, 100] }
+            },
+            // Lottie's SVG renderer expects the drawable + its style + its own
+            // transform bundled inside a "gr" (group) item - shapes listed
+            // flat under the layer (no group wrapper) silently render nothing.
+            shapes: [
+                {
+                    ty: 'gr',
+                    nm: 'piece',
+                    it: [
+                        shape,
+                        { ty: 'fl', nm: 'fill', c: { a: 0, k: color }, o: { a: 0, k: 100 } },
+                        { ty: 'tr', p: { a: 0, k: [0, 0] }, a: { a: 0, k: [0, 0] }, s: { a: 0, k: [100, 100] }, r: { a: 0, k: 0 }, o: { a: 0, k: 100 } }
+                    ]
+                }
+            ]
+        });
+    }
+    return { v: '5.9.6', fr, ip: 0, op, w, h, nm: 'confetti', ddd: 0, assets: [], layers };
+}
 
 class SFX {
     constructor() { this.ctx = null; this.muted = false; }
@@ -909,6 +1096,9 @@ class Match3Game {
         this.selectedPiece = null;
         this.activePointerId = null;
 
+        this.inventory = { hammer: 0, shuffle: 0, extraMoves: 0, colorBomb: 0 };
+        this.pendingPowerUp = null;
+
         this.createBlobs();
         this.applyTheme(0);
         this.layoutBoard();
@@ -916,6 +1106,7 @@ class Match3Game {
         this.bindEvents();
         this.startIdleWatcher();
         this.startWatchdog();
+        this.updatePowerUpTray();
         this.showScreen(`LEVEL ${LEVELS[0].id}`, LEVELS[0].desc, "PLAY");
     }
 
@@ -989,10 +1180,11 @@ class Match3Game {
         document.getElementById('mute-icon').innerText = this.sfx.muted ? 'volume_off' : 'volume_up';
     }
 
-    showScreen(title, desc, btnText, stars = null) {
+    showScreen(title, desc, btnText, stars = null, action = 'play') {
         document.getElementById('screen-title').innerText = title;
         document.getElementById('screen-desc').innerText = desc;
         document.getElementById('screen-btn').innerText = btnText;
+        this.screenAction = action;
         const starsRow = document.getElementById('screen-stars');
         starsRow.innerHTML = '';
         if (stars !== null) {
@@ -1008,6 +1200,17 @@ class Match3Game {
 
     hideScreen() {
         document.getElementById('screen-overlay').classList.remove('active');
+    }
+
+    /* The overlay button either starts a level directly, or - after clearing
+       a level that has one to follow - opens the reward picker first. */
+    onScreenButton() {
+        if (this.screenAction === 'reward') {
+            this.hideScreen();
+            this.showRewardPicker();
+            return;
+        }
+        this.startLevel();
     }
 
     async startLevel() {
@@ -1032,6 +1235,8 @@ class Match3Game {
         document.getElementById('meter-glow').classList.remove('on');
         [1, 2, 3].forEach(i => document.getElementById(`mstar-${i}`).classList.remove('filled', 'pop'));
         this.resetIdleTimer();
+        this.pendingPowerUp = null;
+        this.updatePowerUpTray();
         this.updateHUD();
         this.layoutBoard();
         this.layer.innerHTML = '<div class="combo-banner" id="combo-banner"></div>';
@@ -1273,6 +1478,8 @@ class Match3Game {
         setTimeout(() => el.remove(), 500);
     }
 
+    /* Plain CSS confetti - kept as a fallback for playLottieConfetti() below,
+       in case lib/lottie-light.min.js ever fails to load. */
     createConfetti() {
         const colors = Object.values(COLORS);
         for (let i = 0; i < 50; i++) {
@@ -1286,6 +1493,134 @@ class Match3Game {
             document.body.appendChild(conf);
             setTimeout(() => conf.remove(), 5000);
         }
+    }
+
+    /* Builds a Lottie composition of confetti pieces on the fly, in our own
+       palette, sized to the current viewport - no external animation asset,
+       just the (self-hosted) Lottie renderer driving a generated scene. */
+    playLottieConfetti() {
+        const container = document.getElementById('confetti-lottie');
+        if (!container) return;
+        if (typeof lottie === 'undefined') { this.createConfetti(); return; }
+
+        container.innerHTML = '';
+        const w = Math.max(1, window.innerWidth);
+        const h = Math.max(1, window.innerHeight);
+        const data = buildConfettiLottieData(w, h);
+        let anim;
+        try {
+            anim = lottie.loadAnimation({ container, renderer: 'svg', loop: false, autoplay: true, animationData: data });
+        } catch (e) {
+            this.createConfetti();
+            return;
+        }
+        const cleanup = () => { try { anim.destroy(); } catch (e) {} container.innerHTML = ''; };
+        anim.addEventListener('complete', cleanup);
+        setTimeout(cleanup, (data.op / data.fr) * 1000 + 500);
+    }
+
+    /* ---------- Power-ups ---------- */
+
+    updatePowerUpTray() {
+        const tray = document.getElementById('powerup-tray');
+        if (!tray) return;
+        tray.innerHTML = '';
+        Object.keys(POWER_UPS).forEach(type => {
+            const count = this.inventory[type] || 0;
+            const def = POWER_UPS[type];
+            const btn = document.createElement('button');
+            btn.className = 'pu-btn' + (count === 0 ? ' empty' : '') + (this.pendingPowerUp === type ? ' armed' : '');
+            btn.setAttribute('aria-label', `${def.name} (${count})`);
+            btn.innerHTML = `<span class="material-symbols-outlined">${def.icon}</span><span class="pu-count">${count}</span>`;
+            btn.addEventListener('click', () => this.usePowerUp(type));
+            tray.appendChild(btn);
+        });
+    }
+
+    usePowerUp(type) {
+        if (this.isProcessing) return;
+        if (!this.inventory[type]) return;
+
+        // Hammer needs a target tile, so tapping it just arms/disarms
+        // targeting mode; the actual use happens in handlePointerDown.
+        if (type === 'hammer') {
+            this.pendingPowerUp = this.pendingPowerUp === 'hammer' ? null : 'hammer';
+            this.updatePowerUpTray();
+            return;
+        }
+
+        this.inventory[type]--;
+        this.sfx.special();
+
+        if (type === 'shuffle') {
+            this.isProcessing = true;
+            this.updatePowerUpTray();
+            this.reshuffleBoard().then(() => { this.isProcessing = false; });
+        } else if (type === 'extraMoves') {
+            this.moves += 5;
+            this.bumpHUD(document.getElementById('moves-txt'));
+            this.updateHUD();
+            this.updatePowerUpTray();
+        } else if (type === 'colorBomb') {
+            this.dropColorBomb();
+            this.updatePowerUpTray();
+        }
+    }
+
+    /* Smashes one tile directly - no move spent, and deliberately does not
+       chain into a full cascade check the way a real match would; it's a
+       simple, predictable utility rather than another match trigger. */
+    async useHammer(piece) {
+        this.pendingPowerUp = null;
+        this.inventory.hammer--;
+        this.updatePowerUpTray();
+        this.isProcessing = true;
+        this.sfx.pop(1);
+        this.createParticles(piece);
+        piece.el.classList.add('pop');
+        this.board[piece.r][piece.c] = null;
+        this.addScore(20);
+        setTimeout(() => piece.el.remove(), 260);
+        await wait(260);
+        await this.applyGravity();
+        if (this.moves > 0 && this.score < this.targetScore) await this.ensureSolvable();
+        this.checkWinLoss();
+    }
+
+    dropColorBomb() {
+        const candidates = [];
+        for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
+            if (this.board[r][c] && this.board[r][c].special === SPECIALS.NONE) candidates.push([r, c]);
+        }
+        if (!candidates.length) return;
+        const [r, c] = candidates[Math.floor(Math.random() * candidates.length)];
+        const old = this.board[r][c];
+        old.el.remove();
+        this.board[r][c] = null;
+        this.spawnShockwave(r, c);
+        this.spawnPiece(r, c, 0, SPECIALS.BOMB);
+    }
+
+    showRewardPicker() {
+        const picks = Object.keys(POWER_UPS).sort(() => Math.random() - 0.5).slice(0, 2);
+        const row = document.getElementById('reward-row');
+        row.innerHTML = '';
+        picks.forEach(type => {
+            const def = POWER_UPS[type];
+            const card = document.createElement('div');
+            card.className = 'reward-card';
+            card.innerHTML = `<span class="material-symbols-outlined">${def.icon}</span><span class="rc-name">${def.name}</span><span class="rc-desc">${def.desc}</span>`;
+            card.addEventListener('click', () => this.pickReward(type));
+            row.appendChild(card);
+        });
+        document.getElementById('reward-overlay').classList.add('active');
+    }
+
+    pickReward(type) {
+        this.inventory[type] = (this.inventory[type] || 0) + 1;
+        this.updatePowerUpTray();
+        document.getElementById('reward-overlay').classList.remove('active');
+        this.startLevel();
     }
 
     showFloatingText(r, c, text, scale = 1) {
@@ -1353,6 +1688,16 @@ class Match3Game {
                         if (!this.board[r][c]) { this.repairBoard(); return; }
                     }
                 }
+                // Continuous hygiene, independent of the stuck/hole checks above:
+                // once the board is settled, any .piece element that isn't the
+                // current occupant of its cell is a leftover from a timer that
+                // fired late (a real device under load can run setTimeout well
+                // past its requested delay). Sweep those every tick so a stray
+                // tile can never sit there indefinitely looking like it's
+                // "always reacting" to input meant for the real tile above it.
+                const valid = new Set();
+                for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) if (this.board[r][c]) valid.add(this.board[r][c].el);
+                this.layer.querySelectorAll('.piece').forEach(el => { if (!valid.has(el)) el.remove(); });
             }
         }, 1000);
     }
@@ -1458,6 +1803,11 @@ class Match3Game {
 
         this.activePointerId = e.pointerId;
         this.sfx.ensure();
+
+        if (this.pendingPowerUp === 'hammer') {
+            this.useHammer(piece);
+            return;
+        }
 
         if (this.selectedPiece) {
             if (this.selectedPiece === piece) { this.clearSelection(); return; }
@@ -1852,19 +2202,22 @@ class Match3Game {
         if (this.score >= this.targetScore) {
             this.stopMeterSparks();
             this.sfx.win();
-            this.createConfetti();
+            this.playLottieConfetti();
             const stars = this.computeStars();
             this.currentLevelIdx++;
             if (this.currentLevelIdx >= LEVELS.length) {
-                this.showScreen("YOU WIN!", `FINAL SCORE: ${this.score}`, "PLAY AGAIN", stars);
+                this.showScreen("YOU WIN!", `FINAL SCORE: ${this.score}`, "PLAY AGAIN", stars, 'play');
                 this.currentLevelIdx = 0;
+                // A full clear ends the run - start the next one with a clean slate.
+                this.inventory = { hammer: 0, shuffle: 0, extraMoves: 0, colorBomb: 0 };
+                this.updatePowerUpTray();
             } else {
-                this.showScreen("LEVEL CLEAR!", `SCORE: ${this.score} / ${this.targetScore}`, "NEXT LEVEL", stars);
+                this.showScreen("LEVEL CLEAR!", `SCORE: ${this.score} / ${this.targetScore}`, "CONTINUE", stars, 'reward');
             }
         } else if (this.moves <= 0) {
             this.stopMeterSparks();
             this.sfx.lose();
-            this.showScreen("OUT OF MOVES", `SCORE: ${this.score} / ${this.targetScore}`, "TRY AGAIN");
+            this.showScreen("OUT OF MOVES", `SCORE: ${this.score} / ${this.targetScore}`, "TRY AGAIN", null, 'play');
         } else {
             this.isProcessing = false;
         }
