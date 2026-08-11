@@ -228,7 +228,8 @@ button{touch-action:manipulation}
   align-items:center;
   justify-content:center;
   gap:7px;
-  background:linear-gradient(155deg,var(--color-true-yellow-light),var(--color-yellow-orange-light));
+  background:var(--neutral-0);
+  color:var(--neutral-900);
 }
 
 .coin-chip span:last-child{
@@ -238,24 +239,16 @@ button{touch-action:manipulation}
 }
 
 .coin-icon{
-  width:30px;
-  height:20px;
+  width:18px;
+  height:18px;
   display:block;
   overflow:visible;
+  color:currentColor;
+  flex:0 0 auto;
 }
 
-.coin-icon ellipse{
-  fill:var(--neutral-0);
-  stroke:var(--neutral-900);
-  stroke-width:2.4;
-}
-
-.coin-icon path{
-  fill:none;
-  stroke:var(--neutral-900);
-  stroke-width:2.4;
-  stroke-linecap:round;
-  stroke-linejoin:round;
+.coin-icon *{
+  vector-effect:non-scaling-stroke;
 }
 
 .icon-btn{
@@ -656,16 +649,29 @@ symbol{
   line-height:1.4;
 }
 
-.stars-row{ display:flex; gap:8px; height:2.2rem; }
+.stars-row{
+  display:flex;
+  gap:10px;
+  height:2.8rem;
+  align-items:center;
+  justify-content:center;
+}
+
 .stars-row .star{
-  font-size:2.2rem;
+  display:inline-block;
+  font-size:2.55rem;
+  line-height:1;
   color:var(--neutral-100);
   font-variation-settings:'FILL' 1,'wght' 600;
+  -webkit-text-stroke:2px var(--neutral-900);
+  text-shadow:3px 3px 0 var(--neutral-900);
 }
+
 .stars-row .star.filled{
   color:var(--color-true-yellow-base);
   animation:starPop .5s both;
 }
+
 .stars-row .star.filled:nth-child(2){ animation-delay:.1s; }
 .stars-row .star.filled:nth-child(3){ animation-delay:.2s; }
 @keyframes starPop{
@@ -689,9 +695,15 @@ symbol{
 }
 .overlay button.primary:active{ transform:translate(5px,5px); box-shadow:0 0 0 var(--neutral-900); }
 
-.reward-row{ display:flex; gap:10px; }
+.reward-row{
+  display:flex;
+  gap:10px;
+  align-items:stretch;
+}
+
 .reward-card{
   width:126px;
+  min-height:184px;
   padding:18px 10px 14px;
   background:var(--neutral-50);
   border:var(--border-thick) solid var(--neutral-900);
@@ -703,38 +715,73 @@ symbol{
   gap:8px;
   cursor:pointer;
   transition:transform .1s ease, box-shadow .1s ease;
+  color:var(--neutral-900);
+  text-align:center;
 }
-.reward-card:active{ transform:translate(3px,3px); box-shadow:0 0 0 var(--neutral-900); }
-.reward-card .material-symbols-outlined{ font-size:1.9rem; color:var(--color-blue-dark); font-variation-settings:'FILL' 1,'wght' 600; }
-.reward-card .rc-name{ font-weight:800; font-size:.92rem; font-family:Manrope,sans-serif; }
-.reward-card .rc-desc{ font-size:.72rem; color:var(--muted); text-align:center; line-height:1.3; font-weight:600; }
 
-.reward-card.premium{
-  background:linear-gradient(155deg,var(--color-true-yellow-light),var(--color-yellow-orange-light));
-  border-color:var(--neutral-900);
+.reward-card:active{
+  transform:translate(3px,3px);
+  box-shadow:0 0 0 var(--neutral-900);
 }
-.reward-card.premium .material-symbols-outlined{ color:var(--color-yellow-orange-dark); }
-.reward-card.premium .rc-cost{
+
+.reward-card .material-symbols-outlined{
+  font-size:1.9rem;
+  color:var(--neutral-900);
+  font-variation-settings:'FILL' 0,'wght' 600;
+}
+
+.reward-card .rc-name{
+  font-weight:800;
+  font-size:.92rem;
+  font-family:Manrope,sans-serif;
+  color:var(--neutral-900);
+}
+
+.reward-card .rc-desc{
+  font-size:.72rem;
+  color:var(--neutral-900);
+  text-align:center;
+  line-height:1.3;
+  font-weight:600;
+}
+
+.reward-card .rc-cost{
+  margin-top:auto;
   display:flex;
   align-items:center;
-  gap:3px;
+  gap:4px;
   font-weight:800;
   font-size:.76rem;
-  color:var(--color-yellow-orange-dark);
-  background:rgba(255,255,255,.6);
+  color:var(--neutral-900);
+  background:var(--neutral-0);
   padding:2px 8px;
   border-radius:999px;
   border:1.5px solid var(--neutral-900);
 }
-.reward-card.premium .rc-cost .material-symbols-outlined{ font-size:.76rem; color:var(--color-yellow-orange-dark); }
-.reward-card.premium.unaffordable{ opacity:.5; cursor:not-allowed; }
+
+.reward-card .rc-cost .material-symbols-outlined{
+  font-size:.76rem;
+  color:var(--neutral-900);
+  font-variation-settings:'FILL' 0,'wght' 600;
+}
+
+.reward-card.premium{
+  background:var(--color-true-yellow-light);
+  border-color:var(--neutral-900);
+}
+
+.reward-card.premium.unaffordable{
+  opacity:.5;
+  cursor:not-allowed;
+}
 
 .shop-balance{
   display:flex;
   align-items:center;
   gap:6px;
   padding:5px 16px;
-  background:linear-gradient(155deg,var(--color-true-yellow-light),var(--color-yellow-orange-light));
+  background:var(--neutral-0);
+  color:var(--neutral-900);
   border:var(--border-thick) solid var(--neutral-900);
   border-radius:999px;
   font-weight:800;
@@ -742,7 +789,7 @@ symbol{
   box-shadow:var(--shadow-small);
 }
 .shop-balance .coin-icon{
-  width:26px;
+  width:18px;
   height:18px;
 }
 
@@ -823,30 +870,55 @@ symbol{
     </symbol>
 <symbol id="piece-bomb" viewBox="0 0 480 480">
   <path
-    class="piece-bomb-bottom"
+    class="piece-part piece-bomb-top"
     stroke-width="19.2"
-    d="M400 480H80a160 160 0 1 1 320 0Z"
+    d="M134 103
+       C109 103 89 121 84 145
+       C79 171 89 196 111 213
+       C130 227 153 234 180 238
+       C193 240 205 230 208 217
+       C210 207 207 197 200 189
+       L163 121
+       C157 110 146 103 134 103Z"
   />
   <path
-    class="piece-bomb-top"
+    class="piece-part piece-bomb-right"
     stroke-width="19.2"
-    d="M80 0h320A160 160 0 1 1 80 0Z"
+    transform="rotate(90 240 240)"
+    d="M134 103
+       C109 103 89 121 84 145
+       C79 171 89 196 111 213
+       C130 227 153 234 180 238
+       C193 240 205 230 208 217
+       C210 207 207 197 200 189
+       L163 121
+       C157 110 146 103 134 103Z"
   />
   <path
-    class="piece-bomb-left"
+    class="piece-part piece-bomb-bottom"
     stroke-width="19.2"
-    d="M0 400V80a160 160 0 1 1 0 320Z"
+    transform="rotate(180 240 240)"
+    d="M134 103
+       C109 103 89 121 84 145
+       C79 171 89 196 111 213
+       C130 227 153 234 180 238
+       C193 240 205 230 208 217
+       C210 207 207 197 200 189
+       L163 121
+       C157 110 146 103 134 103Z"
   />
   <path
-    class="piece-bomb-right"
+    class="piece-part piece-bomb-left"
     stroke-width="19.2"
-    d="M480 80v320a160 160 0 1 1 0-320Z"
-  />
-  <circle
-    stroke-width="19.2"
-    cx="240"
-    cy="240"
-    r="80"
+    transform="rotate(270 240 240)"
+    d="M134 103
+       C109 103 89 121 84 145
+       C79 171 89 196 111 213
+       C130 227 153 234 180 238
+       C193 240 205 230 208 217
+       C210 207 207 197 200 189
+       L163 121
+       C157 110 146 103 134 103Z"
   />
 </symbol>
 
@@ -854,13 +926,12 @@ symbol{
   <path d="M50 6 L58 34 L79 21 L66 41 L94 50 L66 59 L79 79 L58 66 L50 94 L42 66 L21 79 L34 59 L6 50 L34 41 L21 21 L42 34Z"/>
 </symbol>
 
-<symbol id="icon-coins" viewBox="0 0 64 40">
-  <ellipse cx="22" cy="24" rx="14" ry="8"/>
-  <path d="M8 24v7c0 4.4 6.3 8 14 8s14-3.6 14-8v-7"/>
-  <g transform="rotate(35 44 16)">
-    <ellipse cx="44" cy="16" rx="14" ry="8"/>
-    <path d="M30 16v7c0 4.4 6.3 8 14 8s14-3.6 14-8v-7"/>
-  </g>
+<symbol id="icon-coins" viewBox="0 0 256 256">
+  <rect width="256" height="256" fill="none"/>
+  <line x1="128" y1="72" x2="128" y2="88" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/>
+  <line x1="128" y1="168" x2="128" y2="184" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/>
+  <circle cx="128" cy="128" r="96" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/>
+  <path d="M104,168h36a20,20,0,0,0,0-40H116a20,20,0,0,1,0-40h36" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/>
 </symbol>
   </defs>
 </svg>
@@ -879,9 +950,9 @@ symbol{
 
   <div class="topbar-right">
     <div class="coin-chip" id="coin-chip">
-      <svg class="coin-icon" viewBox="0 0 64 40" aria-hidden="true">
-        <use href="#icon-coins"></use>
-      </svg>
+      <svg class="coin-icon" viewBox="0 0 256 256" aria-hidden="true">
+  <use href="#icon-coins"></use>
+</svg>
       <span id="coin-txt">0</span>
     </div>
 
@@ -947,9 +1018,9 @@ symbol{
   <div class="overlay-card">
     <h2>Shop</h2>
     <div class="shop-balance">
-  <svg class="coin-icon" viewBox="0 0 64 40" aria-hidden="true">
-    <use href="#icon-coins"></use>
-  </svg>
+<svg class="coin-icon" viewBox="0 0 256 256" aria-hidden="true">
+  <use href="#icon-coins"></use>
+</svg>
   <span id="shop-coin-txt">0</span>
 </div>
     <div class="reward-row" id="shop-row"></div>
@@ -2096,7 +2167,15 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
             const affordable = this.coins >= def.cost;
             const card = document.createElement('div');
             card.className = 'reward-card premium' + (affordable ? '' : ' unaffordable');
-            card.innerHTML = `<span class="material-symbols-outlined">${def.icon}</span><span class="rc-name">${def.name}</span><span class="rc-desc">${def.desc}</span><span class="rc-cost"><span class="material-symbols-outlined">paid</span>${def.cost}</span>`;
+            card.innerHTML = `
+  <span class="material-symbols-outlined">${def.icon}</span>
+  <span class="rc-name">${def.name}</span>
+  <span class="rc-desc">${def.desc}</span>
+  <span class="rc-cost">
+    <span class="material-symbols-outlined">paid</span>
+    ${def.cost}
+  </span>
+`;
             if (affordable) card.addEventListener('click', () => this.buyPremium(type));
             row.appendChild(card);
         });
