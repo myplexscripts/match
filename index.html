@@ -253,19 +253,47 @@
             transition: width 0.45s cubic-bezier(0.22, 1, 0.36, 1), background-color 1.6s ease;
         }
 
-        /* Soft travelling glow that rides the leading edge of the fill */
-        .meter-cap {
+        /* Thin markers on the track showing the 2-star / 3-star thresholds */
+        .meter-tick {
             position: absolute;
-            top: -4px; bottom: -4px;
-            left: 0;
-            width: 18px;
+            top: 3px; bottom: 3px;
+            width: 2px;
+            background: rgba(41, 52, 62, 0.3);
             transform: translateX(-50%);
-            background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0) 70%);
-            opacity: 0;
+            z-index: 1;
             pointer-events: none;
-            transition: left 0.45s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease;
         }
-        .meter-cap.on { opacity: 0.85; animation: capBreathe 1.9s ease-in-out infinite; }
+
+        /* Mini stars that light up live as the score crosses each threshold */
+        .meter-stars {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+        }
+        /* Extra specificity beats the general .material-symbols-outlined rule,
+           which otherwise scales these to tile-icon size via --cell.
+           Positioning uses margin, not transform: the .pop animation below
+           drives transform for its scale/rotate flourish, and a CSS animation
+           replaces the whole transform value rather than composing with it -
+           so anything using transform to center itself would get clobbered
+           the instant it pops. */
+        .meter-stars .mstar {
+            position: absolute;
+            top: 50%;
+            width: 14px;
+            height: 14px;
+            margin-top: -7px;
+            margin-left: -7px;
+            font-size: 14px;
+            line-height: 1;
+            text-align: center;
+            color: rgba(41, 52, 62, 0.32);
+            font-variation-settings: 'FILL' 1, 'wght' 700;
+            text-shadow: 1px 1px 0 rgba(0,0,0,0.15);
+            transition: color 0.2s ease;
+        }
+        .meter-stars .mstar.filled { color: var(--gold-500); }
+        .meter-stars .mstar.pop { animation: starPop 0.5s both; }
 
         /* Unclipped layer so sparks can drift above the bar */
         .meter-fx {
@@ -366,7 +394,13 @@
              stripe  -> arrows pointing along the line it clears
              wrap    -> ring + corner pips (blast radius)
              bomb    -> full rainbow card (clears a whole colour)            */
-        .fx { position: absolute; inset: 0; border-radius: inherit; pointer-events: none; overflow: hidden; }
+        .fx {
+            position: absolute; inset: 0; border-radius: inherit; pointer-events: none; overflow: hidden;
+            /* Safari fails to clip a rotating/transformed descendant with plain
+               overflow:hidden + border-radius; a mask forces real clipping. */
+            -webkit-mask-image: -webkit-radial-gradient(circle, #fff 100%, #000 100%);
+            mask-image: radial-gradient(circle, #fff 100%, #000 100%);
+        }
 
         .sp-h, .sp-v, .sp-wrap { background: var(--tint); }
 
@@ -424,7 +458,9 @@
         .sp-bomb .fx::before {
             content: '';
             position: absolute;
-            inset: 0;
+            /* Oversized so its corners never sweep inside the visible tile while
+               spinning, as a defensive belt-and-braces alongside the mask above. */
+            inset: -50%;
             background: conic-gradient(from 0deg, var(--c1), var(--c2), var(--c3), var(--c4), var(--c5), var(--c6), var(--c7), var(--c1));
             animation: spin 7s linear infinite;
         }
@@ -434,6 +470,10 @@
         .pop { animation: popOut 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
         .shake { animation: screenShake 0.3s cubic-bezier(.36,.07,.19,.97) both; }
         .wiggle { animation: wiggleTile 0.3s cubic-bezier(.36,.07,.19,.97) both; }
+        .land { animation: landSquash 0.22s ease-out; }
+        .piece-inner.hint { animation: hintWiggle 1.1s ease-in-out; }
+
+        .tap-particle { border: 1.5px solid var(--ink); }
 
         .particle {
             position: absolute;
@@ -515,6 +555,19 @@
             25% { transform: translateX(-15%); }
             75% { transform: translateX(15%); }
         }
+        @keyframes landSquash {
+            0% { transform: scaleY(0.8) scaleX(1.08); }
+            60% { transform: scaleY(1.06) scaleX(0.96); }
+            100% { transform: scaleY(1) scaleX(1); }
+        }
+        @keyframes hintWiggle {
+            0%, 100% { transform: translateX(0); box-shadow: 0px 4px 0px var(--ink); }
+            15% { transform: translateX(-9%); box-shadow: 0px 4px 0px var(--ink), 0 0 14px 4px rgba(255,255,255,0.65); }
+            30% { transform: translateX(7%); }
+            45% { transform: translateX(-5%); box-shadow: 0px 4px 0px var(--ink), 0 0 14px 4px rgba(255,255,255,0.65); }
+            60% { transform: translateX(3%); }
+            75% { transform: translateX(0); box-shadow: 0px 4px 0px var(--ink); }
+        }
         @keyframes screenShake {
             0%, 100% { transform: translate3d(0, 0, 0); }
             20%, 60% { transform: translate3d(-5px, 3px, 0); }
@@ -542,7 +595,6 @@
         }
         @keyframes flash-fade { 0% { opacity: 1; } 100% { opacity: 0; } }
         @keyframes pulse-meter { 0% { filter: brightness(1); } 100% { filter: brightness(1.25); } }
-        @keyframes capBreathe { 0%, 100% { opacity: 0.55; } 50% { opacity: 0.95; } }
         @keyframes sparkFloat {
             0% { transform: translate(-50%, -50%) scale(0.4); opacity: 0; }
             25% { opacity: 1; }
@@ -667,9 +719,15 @@
             <div class="meter-wrap">
                 <div class="meter-container" id="meter-container">
                     <div class="meter-fill" id="goal-meter"></div>
-                    <div class="meter-cap" id="meter-cap"></div>
+                    <span class="meter-tick" style="left:74.074%"></span>
+                    <span class="meter-tick" style="left:85.185%"></span>
                 </div>
                 <div class="meter-fx" id="meter-fx"></div>
+                <div class="meter-stars">
+                    <span class="material-symbols-outlined mstar" id="mstar-1" style="left:74.074%">star</span>
+                    <span class="material-symbols-outlined mstar" id="mstar-2" style="left:85.185%">star</span>
+                    <span class="material-symbols-outlined mstar" id="mstar-3" style="left:auto; right:1px; margin-left:0;">star</span>
+                </div>
             </div>
         </div>
 
@@ -782,6 +840,10 @@ class Match3Game {
         this.currentLevelIdx = 0;
         this.isProcessing = false;
         this.lastProgress = 0;
+        this.lastBankedStars = 0;
+        this.sparkInterval = null;
+        this.hintActive = false;
+        this.lastActionAt = Date.now();
         this.sfx = new SFX();
 
         this.dragStart = null;
@@ -792,6 +854,7 @@ class Match3Game {
         this.layoutBoard();
         requestAnimationFrame(() => this.layoutBoard());
         this.bindEvents();
+        this.startIdleWatcher();
         this.showScreen(`LEVEL ${LEVELS[0].id}`, LEVELS[0].desc, "PLAY");
     }
 
@@ -893,12 +956,18 @@ class Match3Game {
         this.moves = config.moves;
         this.score = 0;
         this.lastProgress = 0;
+        this.lastBankedStars = 0;
         this.targetScore = config.target;
+        // Bar maps 0 -> this max, so the 2-star/3-star thresholds are visible as
+        // real distance along the track instead of only existing after the win.
+        this.starMax = config.target * 1.35;
         this.numColors = config.colors;
 
         this.applyTheme(this.currentLevelIdx);
         document.getElementById('meter-container').classList.remove('full');
-        document.getElementById('meter-cap').classList.remove('on');
+        this.stopMeterSparks();
+        [1, 2, 3].forEach(i => document.getElementById(`mstar-${i}`).classList.remove('filled', 'pop'));
+        this.resetIdleTimer();
         this.updateHUD();
         this.layoutBoard();
         this.layer.innerHTML = '<div class="combo-banner" id="combo-banner"></div>';
@@ -914,26 +983,54 @@ class Match3Game {
         document.getElementById('level-txt').innerText = `LVL ${this.currentLevelIdx + 1}`;
         document.getElementById('score-txt').innerText = this.score;
 
-        const progress = Math.min(100, (this.score / this.targetScore) * 100);
+        const progress = Math.min(100, (this.score / this.starMax) * 100);
         document.getElementById('goal-meter').style.width = `${progress}%`;
-        document.getElementById('meter-container').classList.toggle('full', progress >= 100);
+        // "Full" here means the goal itself is reached (1 star), not the bar's
+        // physical end - the bar's end is the 3-star mark.
+        document.getElementById('meter-container').classList.toggle('full', this.score >= this.targetScore);
 
-        const cap = document.getElementById('meter-cap');
-        cap.style.left = `${progress}%`;
-        cap.classList.toggle('on', progress > 0.5 && progress < 100);
-
-        if (progress > this.lastProgress) this.emitMeterSparks(progress);
+        if (progress > this.lastProgress) this.emitMeterSparks(progress, 3);
         this.lastProgress = progress;
+        this.manageMeterSparks(progress);
+
+        const banked = this.computeBankedStars();
+        if (banked !== this.lastBankedStars) {
+            this.updateMeterStars(banked);
+            this.lastBankedStars = banked;
+        }
+    }
+
+    computeBankedStars() {
+        const ratio = this.score / this.targetScore;
+        if (ratio >= 1.35) return 3;
+        if (ratio >= 1.15) return 2;
+        if (ratio >= 1) return 1;
+        return 0;
+    }
+
+    /* Mini stars on the track light up live, in sync with the real thresholds,
+       so "how does scoring work" is answered by just watching the bar. */
+    updateMeterStars(banked) {
+        for (let i = 1; i <= 3; i++) {
+            const el = document.getElementById(`mstar-${i}`);
+            if (i <= banked) {
+                el.classList.add('filled');
+                el.classList.remove('pop');
+                void el.offsetWidth;
+                el.classList.add('pop');
+            } else {
+                el.classList.remove('filled', 'pop');
+            }
+        }
     }
 
     /* A few sparks skip off the leading edge whenever the meter advances. */
-    emitMeterSparks(progress) {
+    emitMeterSparks(progress, count = 3) {
         const fx = document.getElementById('meter-fx');
         if (!fx) return;
         const w = fx.clientWidth;
         if (!w) return;
         const x = Math.min(w, (progress / 100) * w);
-        const count = 3;
         for (let i = 0; i < count; i++) {
             const s = document.createElement('div');
             s.className = 'spark';
@@ -948,6 +1045,21 @@ class Match3Game {
             fx.appendChild(s);
             setTimeout(() => s.remove(), 1000);
         }
+    }
+
+    /* Constant gentle sparks once the bar passes its halfway point, on top of
+       the reactive bursts above - stops the instant the bar empties or maxes. */
+    manageMeterSparks(progress) {
+        const active = progress >= 51 && progress < 100;
+        if (active && !this.sparkInterval) {
+            this.sparkInterval = setInterval(() => this.emitMeterSparks(this.lastProgress, 1), 260);
+        } else if (!active) {
+            this.stopMeterSparks();
+        }
+    }
+
+    stopMeterSparks() {
+        if (this.sparkInterval) { clearInterval(this.sparkInterval); this.sparkInterval = null; }
     }
 
     bumpHUD(el) {
@@ -1101,7 +1213,85 @@ class Match3Game {
         setTimeout(() => flash.remove(), 200);
     }
 
+    /* ---------- Idle hint ---------- */
+
+    resetIdleTimer() {
+        this.lastActionAt = Date.now();
+    }
+
+    startIdleWatcher() {
+        setInterval(() => {
+            if (this.isProcessing || this.hintActive) return;
+            if (document.getElementById('screen-overlay').classList.contains('active')) return;
+            if (Date.now() - this.lastActionAt < 10000) return;
+            this.showHint();
+        }, 1000);
+    }
+
+    findHintMove() {
+        for (let r = 0; r < ROWS; r++) {
+            for (let c = 0; c < COLS; c++) {
+                const p = this.board[r][c];
+                if (!p) continue;
+                if (c < COLS - 1) {
+                    const q = this.board[r][c + 1];
+                    if (q && (this.checkSpecialCombo(p, q).isCombo || this.simulateSwapHasMatch(r, c, r, c + 1))) return [p, q];
+                }
+                if (r < ROWS - 1) {
+                    const q = this.board[r + 1][c];
+                    if (q && (this.checkSpecialCombo(p, q).isCombo || this.simulateSwapHasMatch(r, c, r + 1, c))) return [p, q];
+                }
+            }
+        }
+        return null;
+    }
+
+    showHint() {
+        const move = this.findHintMove();
+        if (!move) return;
+        this.hintActive = true;
+        const [p1, p2] = move;
+        p1.inner.classList.add('hint');
+        p2.inner.classList.add('hint');
+        setTimeout(() => {
+            p1.inner.classList.remove('hint');
+            p2.inner.classList.remove('hint');
+            this.hintActive = false;
+            // Require another full 10s of idling before nudging again.
+            this.resetIdleTimer();
+        }, 1100);
+    }
+
+    /* A quick tactile burst right where the player's finger lands. */
+    tapBurst(piece) {
+        const cellW = this.boardEl.clientWidth / COLS;
+        const cellH = this.boardEl.clientHeight / ROWS;
+        const x = (piece.c * cellW) + (cellW / 2);
+        const y = (piece.r * cellH) + (cellH / 2);
+        const col = piece.special === SPECIALS.BOMB ? '#E2F6F3' : COLORS[piece.color];
+
+        for (let i = 0; i < 4; i++) {
+            const p = document.createElement('div');
+            p.className = 'particle tap-particle';
+            p.style.background = col;
+            p.style.borderRadius = '50%';
+            const size = 4 + Math.random() * 4;
+            p.style.width = `${size}px`;
+            p.style.height = `${size}px`;
+            p.style.left = `${x}px`;
+            p.style.top = `${y}px`;
+            const angle = Math.random() * Math.PI * 2;
+            const dist = 14 + Math.random() * 14;
+            p.style.setProperty('--tx', `${Math.cos(angle) * dist}px`);
+            p.style.setProperty('--ty', `${Math.sin(angle) * dist}px`);
+            p.style.animationDuration = '0.35s';
+            this.layer.appendChild(p);
+            setTimeout(() => p.remove(), 380);
+        }
+    }
+
     handlePointerDown(e) {
+        this.resetIdleTimer();
         if (this.isProcessing) return;
         const target = e.target.closest('.piece');
         if (!target) return;
@@ -1121,6 +1311,7 @@ class Match3Game {
 
         this.selectedPiece = piece;
         piece.el.classList.add('selected');
+        this.tapBurst(piece);
         this.dragStart = { x: e.clientX, y: e.clientY, piece: piece };
     }
 
@@ -1426,13 +1617,19 @@ class Match3Game {
                     this.comboBanner(`${word} COMBO x${comboCount}!`);
                 }
 
-                toDestroy.forEach(p => {
-                    this.createParticles(p);
+                // Stagger the pops into a little ripple instead of one flat pulse,
+                // and give the wait enough room to cover the longest delayed one.
+                const destroyList = Array.from(toDestroy);
+                const stagger = Math.min(18, 160 / Math.max(1, destroyList.length));
+                destroyList.forEach((p, i) => {
+                    const delay = i * stagger;
+                    setTimeout(() => this.createParticles(p), delay);
+                    p.el.style.animationDelay = `${delay}ms`;
                     p.el.classList.add('pop');
                     this.board[p.r][p.c] = null;
-                    setTimeout(() => p.el.remove(), 250);
+                    setTimeout(() => p.el.remove(), delay + 250);
                 });
-                await wait(280);
+                await wait(250 + Math.min(220, (destroyList.length - 1) * stagger) + 30);
             }
 
             spawnQ.forEach(s => this.spawnPiece(s.r, s.c, s.col, s.sp));
@@ -1448,6 +1645,7 @@ class Match3Game {
 
     async applyGravity() {
         let moved = false;
+        const movedPieces = [];
         for (let c = 0; c < COLS; c++) {
             let empty = 0;
             for (let r = ROWS - 1; r >= 0; r--) {
@@ -1455,16 +1653,22 @@ class Match3Game {
                 else if (empty > 0) {
                     let p = this.board[r][c];
                     this.board[r][c] = null; p.r = r + empty; this.board[p.r][c] = p; moved = true;
+                    movedPieces.push(p);
                 }
             }
             for (let r = empty - 1; r >= 0; r--) {
-                this.spawnPiece(r, c, Math.floor(Math.random() * this.numColors) + 1, SPECIALS.NONE, empty);
+                movedPieces.push(this.spawnPiece(r, c, Math.floor(Math.random() * this.numColors) + 1, SPECIALS.NONE, empty));
                 moved = true;
             }
         }
         if (moved) {
             this.updatePositions();
             await wait(300);
+            // A little squash on arrival gives falling tiles some weight.
+            movedPieces.forEach(p => {
+                p.inner.classList.add('land');
+                setTimeout(() => p.inner.classList.remove('land'), 220);
+            });
         }
     }
 
@@ -1477,6 +1681,7 @@ class Match3Game {
 
     checkWinLoss() {
         if (this.score >= this.targetScore) {
+            this.stopMeterSparks();
             this.sfx.win();
             this.createConfetti();
             const stars = this.computeStars();
@@ -1488,6 +1693,7 @@ class Match3Game {
                 this.showScreen("LEVEL CLEAR!", `SCORE: ${this.score} / ${this.targetScore}`, "NEXT LEVEL", stars);
             }
         } else if (this.moves <= 0) {
+            this.stopMeterSparks();
             this.sfx.lose();
             this.showScreen("OUT OF MOVES", `SCORE: ${this.score} / ${this.targetScore}`, "TRY AGAIN");
         } else {
