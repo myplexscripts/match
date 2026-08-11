@@ -315,7 +315,9 @@ button{touch-action:manipulation}
   stroke-linejoin:round;
   stroke-linecap:round;
   vector-effect:non-scaling-stroke;
+  overflow:visible;
 }
+symbol{ overflow:visible; }
 
 .type-1{ --tile-bg:var(--color-yellow-orange-base); --tile-shape:var(--color-yellow-orange-light); }
 .type-2{ --tile-bg:var(--color-pink-base); --tile-shape:var(--color-pink-light); }
@@ -1500,8 +1502,8 @@ class Game {
         const bEnd = this.tileTransform(a.r, a.c);
         const options = { duration: forward ? 155 : 170, easing: forward ? 'cubic-bezier(.22,.76,.22,1)' : 'cubic-bezier(.28,.75,.22,1)', fill: 'forwards' };
 
-        const aa = a.el.animate([{ transform: aStart, offset: 0 }, { transform: aEnd, offset: .72 }, { transform: aEnd, offset: 1 }], options);
-        const bb = b.el.animate([{ transform: bStart, offset: 0 }, { transform: bEnd, offset: .72 }, { transform: bEnd, offset: 1 }], options);
+        const aa = a.el.animate([{ transform: aStart, offset: 0 }, { transform: aEnd.replace('scale(1,1)', 'scale(1.045,1.045)'), offset: .72 }, { transform: aEnd, offset: 1 }], options);
+        const bb = b.el.animate([{ transform: bStart, offset: 0 }, { transform: bEnd.replace('scale(1,1)', 'scale(1.045,1.045)'), offset: .72 }, { transform: bEnd, offset: 1 }], options);
         await Promise.all([this.safeFinished(aa), this.safeFinished(bb)]);
         a.el.style.transform = aEnd; b.el.style.transform = bEnd;
     }
