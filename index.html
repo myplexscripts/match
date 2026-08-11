@@ -129,7 +129,12 @@
             position: fixed;
             inset: 0;
             z-index: 0;
-            background: radial-gradient(ellipse at 50% 38%, var(--bg-light) 0%, var(--bg-dark) 100%);
+            /* Plain linear gradient rather than radial: a radial's "farthest
+               corner" falloff plateaus to flat colour well before a tall
+               portrait viewport's actual bottom edge, which read as a hard
+               seam / a separate panel down there - a linear interpolates
+               evenly across the full height with no such flat zone possible. */
+            background: linear-gradient(180deg, var(--bg-light) 0%, var(--bg-dark) 100%);
             transition: --bg-light 1.3s ease, --bg-dark 1.3s ease;
         }
 
@@ -780,8 +785,14 @@
         .overlay h2 {
             font-size: 2.4rem;
             font-weight: 900;
-            color: var(--paper);
-            text-shadow: 4px 4px 0 var(--ink);
+            /* Sits on the light overlay-card, not the dark page background -
+               needs dark text, not the light/cream used elsewhere. It used
+               to get away with light text because a stroke outlined every
+               letter; once that stroke was removed the text itself was the
+               same colour as the card behind it (i.e. invisible), leaving
+               only fragments of the drop-shadow peeking out. */
+            color: var(--ink);
+            text-shadow: 2px 2px 0 rgba(41, 52, 62, 0.18);
             transform: rotate(-2deg);
         }
 
@@ -1583,7 +1594,7 @@ class Match3Game {
         setTimeout(() => piece.el.remove(), 260);
         await wait(260);
         await this.applyGravity();
-        if (this.moves > 0 && this.score < this.targetScore) await this.ensureSolvable();
+        if (this.moves > 0 && this.score < this.starMax) await this.ensureSolvable();
         this.checkWinLoss();
     }
 
@@ -2184,7 +2195,7 @@ class Match3Game {
             groups = this.findMatches();
         }
 
-        if (this.moves > 0 && this.score < this.targetScore) await this.ensureSolvable();
+        if (this.moves > 0 && this.score < this.starMax) await this.ensureSolvable();
 
         this.checkWinLoss();
     }
@@ -2226,8 +2237,21 @@ class Match3Game {
     }
 
     checkWinLoss() {
+        // Reaching the goal does NOT end the level by itself - the meter
+        // visibly keeps going past it toward the 2-star/3-star marks, so
+        // stopping the instant it's touched would make that bar a lie: the
+        // player would never have the moves-remaining chance to actually
+        // reach for the higher tiers it's showing them. The level only ends
+        // when there's nothing left to spend (out of moves) or nothing left
+        // to gain (already at the 3-star cap).
+        const done = this.moves <= 0 || this.score >= this.starMax;
+        if (!done) {
+            this.isProcessing = false;
+            return;
+        }
+
+        this.stopMeterSparks();
         if (this.score >= this.targetScore) {
-            this.stopMeterSparks();
             this.sfx.win();
             this.playLottieConfetti();
             const stars = this.computeStars();
@@ -2241,12 +2265,9 @@ class Match3Game {
             } else {
                 this.showScreen("LEVEL CLEAR!", `SCORE: ${this.score} / ${this.targetScore}`, "CONTINUE", stars, 'reward');
             }
-        } else if (this.moves <= 0) {
-            this.stopMeterSparks();
+        } else {
             this.sfx.lose();
             this.showScreen("OUT OF MOVES", `SCORE: ${this.score} / ${this.targetScore}`, "TRY AGAIN", null, 'play');
-        } else {
-            this.isProcessing = false;
         }
     }
 }
