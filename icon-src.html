@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  :root {
+    --aqua-100: #E2F6F3; --aqua-700: #429C94; --aqua-900: #246C67;
+    --ocean-700: #2E8DA4; --ocean-900: #1C6477;
+    --navy-900: #29343E;
+  }
+  html, body { margin: 0; padding: 0; width: 100vw; height: 100vh; overflow: hidden; }
+  .bg {
+    width: 100%; height: 100%;
+    background: linear-gradient(135deg, var(--ocean-700) 0%, var(--aqua-700) 55%, var(--aqua-900) 100%);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .gem {
+    width: 46%; height: 46%;
+    background: var(--aqua-100);
+    border: 2.6vw solid var(--navy-900);
+    border-radius: 22%;
+    transform: rotate(45deg);
+    position: relative;
+    box-shadow: 0 2vh 0 rgba(28, 42, 51, 0.35);
+  }
+  .gem::after {
+    content: '';
+    position: absolute;
+    top: 14%; left: 14%;
+    width: 30%; height: 30%;
+    background: #ffffff;
+    opacity: 0.55;
+    border-radius: 30%;
+  }
+</style>
+</head>
+<body>
+  <div class="bg"><div class="gem"></div></div>
+</body>
+</html>

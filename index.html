@@ -2,62 +2,93 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
     <title>Brutal Match</title>
+
+    <!-- Installable / full-screen mobile web app -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Brutal Match">
+    <meta name="theme-color" content="#29343E">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24..48,100..700,0..1,-50..200" />
     <style>
         :root {
-            /* Soft Neo-Brutalism Palette */
-            --bg-color: #103848;
-            --bg-color-2: #0A2530;
-            --board-bg: #FBF3E3; /* Warm cream */
-            --black: #263440; /* Soft ink, not pure black */
-            --white: #FBF3E3; /* Cream */
+            /* --- Palette --- */
+            --aqua-100: #E2F6F3; --aqua-300: #A8DDD7; --aqua-500: #71C4BB; --aqua-700: #429C94; --aqua-900: #246C67;
+            --ocean-100: #DDF4F8; --ocean-300: #9CD7E3; --ocean-500: #55B7CB; --ocean-700: #2E8DA4; --ocean-900: #1C6477;
+            --blue-100: #E3ECFF; --blue-300: #AAC2F7; --blue-500: #7197E8; --blue-700: #4F70BE; --blue-900: #344B86;
+            --violet-100: #EEE7FF; --violet-300: #C6B1F4; --violet-500: #9B7BE0; --violet-700: #7455B5; --violet-900: #513A81;
+            --grape-100: #F5E4F6; --grape-300: #DFA7E2; --grape-500: #C56BCB; --grape-700: #98479E; --grape-900: #6A3270;
+            --berry-100: #FBE3EE; --berry-300: #F0A2C5; --berry-500: #DE6399; --berry-700: #B44474; --berry-900: #7E3052;
+            --coral-100: #FFE5E1; --coral-300: #F8AAA0; --coral-500: #EC7165; --coral-700: #C24E45; --coral-900: #873731;
+            --orange-100: #FFEBD8; --orange-300: #F8BC7D; --orange-500: #EA8D3F; --orange-700: #BC6629; --orange-900: #80461E;
+            --gold-100: #FFF3CF; --gold-300: #F3D47A; --gold-500: #E0B74A; --gold-700: #AE872D; --gold-900: #755C20;
+            --lime-100: #F0F4D7; --lime-300: #CADB84; --lime-500: #A5C45C; --lime-700: #77943D; --lime-900: #50662C;
+            --green-100: #E1F2E5; --green-300: #A4D4AF; --green-500: #68B77B; --green-700: #438D57; --green-900: #2E633E;
+            --navy-100: #E5E9EC; --navy-300: #A8B2BA; --navy-500: #687985; --navy-700: #455762; --navy-900: #29343E;
 
-            /* Gentle Candy Colors */
-            --c1: #2E9C90;
-            --c2: #4FC7BE;
-            --c3: #A9E8DE;
-            --c4: #8C7FD1;
-            --c5: #F28FA6;
-            --c6: #FFB073;
-            --c7: #FFDD7A;
+            /* --- App tokens (built from the palette above) --- */
+            --bg-deep: #1B242C;
+            --bg-deep-2: var(--navy-900);
+            --ink: var(--navy-900);
+            --card: var(--navy-100);
+            --card-alt: #D7DEE3;
 
-            /* Structural Variables */
-            --board-size: min(92vw, 500px);
-            --border-thick: 4px;
+            /* Candy colors */
+            --c1: var(--aqua-700);
+            --c2: var(--blue-500);
+            --c3: var(--violet-500);
+            --c4: var(--berry-500);
+            --c5: var(--coral-500);
+            --c6: var(--orange-500);
+            --c7: var(--gold-500);
+
+            --cols: 7;
+            --rows: 10;
+
+            --border-thick: 3px;
             --radius-lg: 20px;
             --radius-md: 12px;
-            --radius-sm: 8px;
-            --shadow-hard: 6px 6px 0px var(--black), 10px 14px 24px rgba(8, 30, 40, 0.35);
-            --shadow-small: 3px 3px 0px var(--black), 5px 7px 14px rgba(8, 30, 40, 0.28);
+            --radius-sm: 9px;
+            --shadow-hard: 5px 5px 0px var(--ink), 8px 10px 20px rgba(6, 10, 14, 0.4);
+            --shadow-small: 3px 3px 0px var(--ink), 4px 5px 10px rgba(6, 10, 14, 0.32);
         }
 
         * {
             box-sizing: border-box;
             user-select: none;
+            -webkit-user-select: none;
             touch-action: none;
+            -webkit-touch-callout: none;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-user-drag: none;
             margin: 0;
             padding: 0;
             font-family: 'Oswald', sans-serif;
         }
 
-        html, body { height: 100%; }
+        html {
+            height: 100%;
+            overscroll-behavior: none;
+        }
 
         body {
-            background: radial-gradient(circle at 15% 10%, #17495c 0%, transparent 45%),
-                        radial-gradient(circle at 90% 90%, #123543 0%, transparent 50%),
-                        linear-gradient(160deg, var(--bg-color) 0%, var(--bg-color-2) 100%);
-            color: var(--black);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
+            height: 100dvh;
+            width: 100vw;
+            background: linear-gradient(165deg, var(--bg-deep) 0%, var(--bg-deep-2) 100%);
+            color: var(--ink);
             overflow: hidden;
+            overscroll-behavior: none;
             position: relative;
         }
 
@@ -66,68 +97,82 @@
             position: fixed;
             border-radius: 50%;
             filter: blur(70px);
-            opacity: 0.28;
+            opacity: 0.22;
             z-index: 0;
             pointer-events: none;
         }
-        body::before { width: 340px; height: 340px; background: var(--c4); top: -100px; left: -90px; }
-        body::after { width: 300px; height: 300px; background: var(--c5); bottom: -90px; right: -80px; }
+        body::before { width: 300px; height: 300px; background: var(--violet-500); top: -90px; left: -80px; }
+        body::after { width: 280px; height: 280px; background: var(--coral-500); bottom: -80px; right: -70px; }
+
+        #app {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            width: 100%;
+            padding-top: max(env(safe-area-inset-top), 10px);
+            padding-bottom: max(env(safe-area-inset-bottom), 8px);
+            padding-left: env(safe-area-inset-left);
+            padding-right: env(safe-area-inset-right);
+        }
 
         .mute-btn {
-            position: fixed;
-            top: 16px;
-            right: 16px;
-            width: 44px;
-            height: 44px;
+            position: absolute;
+            top: max(env(safe-area-inset-top), 10px);
+            right: max(env(safe-area-inset-right), 10px);
+            width: 40px;
+            height: 40px;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: var(--white);
-            border: var(--border-thick) solid var(--black);
+            background: var(--card);
+            border: var(--border-thick) solid var(--ink);
             border-radius: var(--radius-sm);
             box-shadow: var(--shadow-small);
             cursor: pointer;
             z-index: 300;
             transition: transform 0.1s ease, box-shadow 0.1s ease;
         }
-        .mute-btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--black); }
-        .mute-btn .material-symbols-outlined { font-size: 1.4rem; font-variation-settings: 'FILL' 1, 'wght' 600; color: var(--black); }
+        .mute-btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
+        .mute-btn .material-symbols-outlined { font-size: 1.25rem; font-variation-settings: 'FILL' 1, 'wght' 600; color: var(--ink); }
 
         .hud {
-            width: var(--board-size);
+            flex: 0 0 auto;
+            width: 100%;
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            margin-bottom: 20px;
-            z-index: 10;
-            position: relative;
+            gap: 8px;
+            padding: 0 14px;
+            padding-right: 60px; /* clear the mute button */
         }
 
         .hud-top {
             display: flex;
             justify-content: space-between;
-            align-items: flex-end;
+            align-items: center;
         }
 
         .hud-box {
-            background: var(--white);
-            padding: 8px 12px;
-            border: var(--border-thick) solid var(--black);
+            background: var(--card);
+            padding: 5px 12px;
+            border: var(--border-thick) solid var(--ink);
             border-radius: var(--radius-sm);
             box-shadow: var(--shadow-small);
             text-align: center;
-            min-width: 90px;
+            min-width: 66px;
         }
 
         .hud-label {
-            font-size: 0.7rem;
+            font-size: 0.6rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 1px;
+            opacity: 0.7;
         }
 
         .hud-val {
-            font-size: 1.6rem;
+            font-size: 1.35rem;
             font-weight: 900;
             line-height: 1.1;
             transition: transform 0.15s ease;
@@ -136,25 +181,24 @@
         .hud-val.bump { animation: bumpVal 0.3s ease; }
 
         .level-title {
-            font-size: 2.4rem;
+            font-size: 1.5rem;
             font-weight: 900;
-            color: var(--white);
+            color: var(--card);
             text-shadow:
-                -2px -2px 0 var(--black),
-                 2px -2px 0 var(--black),
-                -2px  2px 0 var(--black),
-                 2px  2px 0 var(--black),
-                 var(--shadow-hard);
-            letter-spacing: -1px;
+                -2px -2px 0 var(--ink),
+                 2px -2px 0 var(--ink),
+                -2px  2px 0 var(--ink),
+                 2px  2px 0 var(--ink);
+            letter-spacing: -0.5px;
             transform: rotate(-2deg);
         }
 
         .meter-container {
             width: 100%;
-            height: 32px;
-            background: var(--white);
-            border: var(--border-thick) solid var(--black);
-            border-radius: var(--radius-md);
+            height: 20px;
+            background: var(--card);
+            border: var(--border-thick) solid var(--ink);
+            border-radius: 999px;
             box-shadow: var(--shadow-small);
             position: relative;
             overflow: hidden;
@@ -163,71 +207,44 @@
         .meter-fill {
             height: 100%;
             width: 0%;
-            background: var(--c1);
-            border-right: var(--border-thick) solid var(--black);
+            background: var(--aqua-500);
+            border-radius: 999px 0 0 999px;
             transition: width 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.3s;
-            position: relative;
         }
 
         .meter-fill.full {
-            background: var(--c2);
+            background: var(--aqua-700);
+            border-radius: 999px;
             animation: pulse-meter 0.5s infinite alternate;
         }
 
-        .meter-text {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 1rem;
-            font-weight: 900;
-            color: var(--white);
-            -webkit-text-stroke: 1px var(--black);
-            text-shadow: 2px 2px 0 var(--black);
-            pointer-events: none;
-            z-index: 2;
+        #board-wrap {
+            flex: 1 1 auto;
+            min-height: 0;
+            width: 100%;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            overflow: hidden;
+            margin-top: 6px;
         }
 
         #board-container {
             position: relative;
-            width: var(--board-size);
-            height: var(--board-size);
-            background: var(--board-bg);
-            border: var(--border-thick) solid var(--black);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-hard);
-            padding: 4px;
             z-index: 1;
-            overflow: hidden;
-        }
-
-        #grid-bg {
-            display: grid;
-            grid-template-columns: repeat(8, 1fr);
-            grid-template-rows: repeat(8, 1fr);
-            width: 100%;
-            height: 100%;
-            gap: 2px;
-        }
-
-        .grid-cell {
-            background: rgba(38, 52, 64, 0.03);
-            border: 2px dashed rgba(38, 52, 64, 0.14);
-            border-radius: 6px;
         }
 
         #pieces-layer {
             position: absolute;
-            top: 4px; left: 4px; right: 4px; bottom: 4px;
+            top: 0; left: 0; right: 0; bottom: 0;
             pointer-events: none;
         }
 
         .piece {
             position: absolute;
-            width: 12.5%;
-            height: 12.5%;
-            padding: 2px;
-            /* Buttery smooth transitions */
+            width: calc(100% / var(--cols));
+            height: calc(100% / var(--rows));
+            padding: 3px;
             transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
             will-change: transform;
             pointer-events: auto;
@@ -238,10 +255,10 @@
         .piece-inner {
             width: 100%;
             height: 100%;
-            background: var(--white);
-            border: 3px solid var(--black);
+            background: var(--card);
+            border: 3px solid var(--ink);
             border-radius: var(--radius-sm);
-            box-shadow: 0px 4px 0px var(--black);
+            box-shadow: 0px 4px 0px var(--ink);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -249,25 +266,33 @@
             transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.15s ease;
         }
 
-        .piece-inner:hover { box-shadow: 0px 6px 0px var(--black); }
+        .piece-inner:hover { box-shadow: 0px 6px 0px var(--ink); }
 
-        /* Bouncy Selection */
         .piece.selected .piece-inner {
             transform: scale(1.1) translate(0px, 4px);
-            box-shadow: 0px 0px 0px var(--black);
-            background: #f0ece0;
+            box-shadow: 0px 0px 0px var(--ink);
+            background: var(--card-alt);
         }
 
-        .piece-inner.invalid { border-color: #D9534F; }
+        .piece-inner.invalid { border-color: var(--coral-700); }
 
-        /* Material Symbols Integration */
         .material-symbols-outlined {
-            font-size: clamp(1.5rem, 6vw, 2.5rem);
+            font-family: 'Material Symbols Outlined';
+            font-size: clamp(1.2rem, 5.5vw, 2.2rem);
             font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 0, 'opsz' 48;
-            pointer-events: none; /* Ensures drag/click registers on the piece */
+            font-weight: normal;
+            font-style: normal;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-feature-settings: 'liga';
+            -webkit-font-smoothing: antialiased;
+            pointer-events: none;
         }
 
-        /* Icon Colors */
         .color-1 { color: var(--c1); }
         .color-2 { color: var(--c2); }
         .color-3 { color: var(--c3); }
@@ -283,16 +308,15 @@
             animation: spin 2s linear infinite;
         }
 
-        /* Specials Details */
         .stripe-h::after {
-            content: ''; position: absolute; width: 110%; height: 6px; background: var(--black); top: 50%; transform: translateY(-50%); border-radius: 3px;
+            content: ''; position: absolute; width: 110%; height: 6px; background: var(--ink); top: 50%; transform: translateY(-50%); border-radius: 3px;
         }
         .stripe-v::after {
-            content: ''; position: absolute; height: 110%; width: 6px; background: var(--black); left: 50%; transform: translateX(-50%); border-radius: 3px;
+            content: ''; position: absolute; height: 110%; width: 6px; background: var(--ink); left: 50%; transform: translateX(-50%); border-radius: 3px;
         }
         .wrap::before {
             content: ''; position: absolute; top: -6px; left: -6px; right: -6px; bottom: -6px;
-            border: 3px dashed var(--black); border-radius: inherit; animation: spin 4s linear infinite;
+            border: 3px dashed var(--ink); border-radius: inherit; animation: spin 4s linear infinite;
         }
 
         .pop { animation: popOut 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
@@ -301,7 +325,7 @@
 
         .particle {
             position: absolute;
-            border: 2px solid var(--black);
+            border: 2px solid var(--ink);
             pointer-events: none;
             z-index: 20;
             animation: particle-burst 0.5s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
@@ -310,7 +334,7 @@
         .shockwave {
             position: absolute;
             width: 40px; height: 40px;
-            border: 4px solid var(--black);
+            border: 4px solid var(--ink);
             border-radius: 50%;
             transform: translate(-50%, -50%);
             pointer-events: none;
@@ -324,12 +348,12 @@
             left: 50%;
             transform: translate(-50%, -50%) scale(0.4);
             opacity: 0;
-            font-size: 1.7rem;
+            font-size: 1.5rem;
             font-weight: 900;
             text-align: center;
-            color: var(--white);
-            -webkit-text-stroke: 2px var(--black);
-            text-shadow: 4px 4px 0 var(--black);
+            color: var(--card);
+            -webkit-text-stroke: 2px var(--ink);
+            text-shadow: 4px 4px 0 var(--ink);
             pointer-events: none;
             z-index: 60;
             white-space: nowrap;
@@ -338,11 +362,11 @@
 
         .floating-text {
             position: absolute;
-            color: var(--white);
+            color: var(--card);
             font-weight: 900;
-            font-size: 2rem;
-            -webkit-text-stroke: 2px var(--black);
-            text-shadow: 4px 4px 0 var(--black);
+            font-size: 1.7rem;
+            -webkit-text-stroke: 2px var(--ink);
+            text-shadow: 4px 4px 0 var(--ink);
             pointer-events: none;
             z-index: 40;
             animation: float-up 1s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
@@ -350,15 +374,14 @@
 
         .flash {
             position: absolute; top:0; left:0; right:0; bottom:0;
-            background: var(--white); z-index: 100; pointer-events: none;
+            background: var(--card); z-index: 100; pointer-events: none;
             animation: flash-fade 0.2s ease-out forwards;
         }
 
-        /* Confetti */
         .confetti {
             position: absolute;
             width: 15px; height: 15px;
-            border: 2px solid var(--black);
+            border: 2px solid var(--ink);
             z-index: 150;
             pointer-events: none;
             animation: confetti-fall 3s linear forwards;
@@ -401,7 +424,7 @@
             100% { transform: translate(-50%, -300%) scale(1) rotate(0deg); opacity: 0; }
         }
         @keyframes flash-fade { 0% { opacity: 1; } 100% { opacity: 0; } }
-        @keyframes pulse-meter { 0% { transform: scaleY(1); } 100% { transform: scaleY(1.1); } }
+        @keyframes pulse-meter { 0% { transform: scaleY(1); } 100% { transform: scaleY(1.15); } }
         @keyframes bumpVal { 0% { transform: scale(1); } 40% { transform: scale(1.3); } 100% { transform: scale(1); } }
         @keyframes confetti-fall {
             0% { transform: translateY(-10vh) rotate(0deg); }
@@ -415,7 +438,7 @@
 
         .overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(16, 56, 72, 0.9);
+            background: rgba(27, 36, 44, 0.92);
             backdrop-filter: blur(4px);
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.2s;
@@ -423,11 +446,12 @@
         .overlay.active { opacity: 1; pointer-events: auto; }
 
         .overlay-card {
-            background: var(--white);
-            border: var(--border-thick) solid var(--black);
+            background: var(--card);
+            border: var(--border-thick) solid var(--ink);
             border-radius: var(--radius-lg);
             box-shadow: var(--shadow-hard);
-            padding: 40px;
+            padding: 36px 32px;
+            max-width: 90vw;
             text-align: center;
             display: flex;
             flex-direction: column;
@@ -439,47 +463,47 @@
         .overlay.active .overlay-card { transform: scale(1); }
 
         .overlay h2 {
-            font-size: 3.2rem;
+            font-size: 2.6rem;
             font-weight: 900;
-            color: var(--white);
-            -webkit-text-stroke: 2px var(--black);
-            text-shadow: 4px 4px 0 var(--black);
+            color: var(--card);
+            -webkit-text-stroke: 2px var(--ink);
+            text-shadow: 4px 4px 0 var(--ink);
             transform: rotate(-2deg);
         }
 
         .overlay p {
-            font-size: 1.3rem;
+            font-size: 1.15rem;
             font-weight: 700;
-            color: var(--black);
+            color: var(--ink);
         }
 
         .stars-row {
             display: flex;
             gap: 6px;
-            height: 2.6rem;
+            height: 2.4rem;
         }
         .stars-row .star {
-            font-size: 2.6rem;
-            color: rgba(38, 52, 64, 0.18);
+            font-size: 2.4rem;
+            color: var(--card-alt);
             font-variation-settings: 'FILL' 0, 'wght' 600;
         }
         .stars-row .star.filled {
-            color: #FFC94A;
+            color: var(--gold-500);
             font-variation-settings: 'FILL' 1, 'wght' 700;
-            text-shadow: 2px 2px 0 var(--black);
+            text-shadow: 2px 2px 0 var(--ink);
             animation: starPop 0.5s both;
         }
         .stars-row .star.filled:nth-child(2) { animation-delay: 0.1s; }
         .stars-row .star.filled:nth-child(3) { animation-delay: 0.2s; }
 
         .overlay button {
-            padding: 15px 40px;
-            font-size: 1.5rem;
+            padding: 14px 36px;
+            font-size: 1.3rem;
             font-weight: 900;
-            border: var(--border-thick) solid var(--black);
+            border: var(--border-thick) solid var(--ink);
             border-radius: var(--radius-md);
-            background: var(--c2);
-            color: var(--black);
+            background: var(--ocean-500);
+            color: var(--ink);
             cursor: pointer;
             box-shadow: var(--shadow-hard);
             transition: all 0.1s;
@@ -487,47 +511,49 @@
         .overlay button:hover { transform: translate(-2px, -2px); }
         .overlay button:active {
             transform: translate(4px, 4px);
-            box-shadow: 2px 2px 0 var(--black);
+            box-shadow: 2px 2px 0 var(--ink);
         }
     </style>
 </head>
 <body>
 
-    <button class="mute-btn" id="mute-btn" aria-label="Toggle Sound">
-        <span class="material-symbols-outlined" id="mute-icon">volume_up</span>
-    </button>
+    <div id="app">
+        <button class="mute-btn" id="mute-btn" aria-label="Toggle Sound">
+            <span class="material-symbols-outlined" id="mute-icon">volume_up</span>
+        </button>
 
-    <div class="hud">
-        <div class="hud-top">
-            <div class="hud-box">
-                <div class="hud-label">MOVES</div>
-                <div class="hud-val" id="moves-txt">0</div>
+        <div class="hud">
+            <div class="hud-top">
+                <div class="hud-box">
+                    <div class="hud-label">MOVES</div>
+                    <div class="hud-val" id="moves-txt">0</div>
+                </div>
+                <div class="level-title" id="level-txt">LVL 1</div>
+                <div class="hud-box">
+                    <div class="hud-label">SCORE</div>
+                    <div class="hud-val" id="score-txt">0</div>
+                </div>
             </div>
-            <div class="level-title" id="level-txt">LVL 1</div>
-            <div class="hud-box">
-                <div class="hud-label">SCORE</div>
-                <div class="hud-val" id="score-txt">0</div>
+            <div class="meter-container">
+                <div class="meter-fill" id="goal-meter"></div>
             </div>
         </div>
-        <div class="meter-container">
-            <div class="meter-fill" id="goal-meter"></div>
-            <div class="meter-text" id="meter-text">GOAL PROGRESS</div>
-        </div>
-    </div>
 
-    <div id="board-container">
-        <div id="grid-bg"></div>
-        <div id="pieces-layer">
-            <div class="combo-banner" id="combo-banner"></div>
+        <div id="board-wrap">
+            <div id="board-container">
+                <div id="pieces-layer">
+                    <div class="combo-banner" id="combo-banner"></div>
+                </div>
+            </div>
         </div>
-    </div>
 
-    <div class="overlay" id="screen-overlay">
-        <div class="overlay-card">
-            <h2 id="screen-title">LEVEL 1</h2>
-            <p id="screen-desc">SCORE POINTS TO FILL THE METER!</p>
-            <div class="stars-row" id="screen-stars"></div>
-            <button id="screen-btn" onclick="game.startLevel()">PLAY</button>
+        <div class="overlay" id="screen-overlay">
+            <div class="overlay-card">
+                <h2 id="screen-title">LEVEL 1</h2>
+                <p id="screen-desc">SCORE POINTS TO FILL THE METER!</p>
+                <div class="stars-row" id="screen-stars"></div>
+                <button id="screen-btn" onclick="game.startLevel()">PLAY</button>
+            </div>
         </div>
     </div>
 
@@ -551,11 +577,12 @@ const ICONS = {
     7: 'bolt'
 };
 const COLORS = {
-    1: '#2E9C90', 2: '#4FC7BE', 3: '#A9E8DE', 4: '#8C7FD1',
-    5: '#F28FA6', 6: '#FFB073', 7: '#FFDD7A'
+    1: '#429C94', 2: '#7197E8', 3: '#9B7BE0', 4: '#DE6399',
+    5: '#EC7165', 6: '#EA8D3F', 7: '#E0B74A'
 };
 
-const SIZE = 8;
+const COLS = 7;
+const ROWS = 10;
 const ANIM_DUR = 250;
 const wait = (ms) => new Promise(res => setTimeout(res, ms));
 
@@ -593,9 +620,10 @@ class SFX {
 
 class Match3Game {
     constructor() {
-        this.board = Array(SIZE).fill().map(() => Array(SIZE).fill(null));
+        this.board = Array(ROWS).fill().map(() => Array(COLS).fill(null));
         this.layer = document.getElementById('pieces-layer');
         this.boardEl = document.getElementById('board-container');
+        this.boardWrap = document.getElementById('board-wrap');
         this.score = 0;
         this.moves = 0;
         this.currentLevelIdx = 0;
@@ -605,24 +633,25 @@ class Match3Game {
         this.dragStart = null;
         this.selectedPiece = null;
 
-        this.initGridBg();
+        this.layoutBoard();
         this.bindEvents();
         this.showScreen(`LEVEL ${LEVELS[0].id}`, LEVELS[0].desc, "PLAY");
     }
 
-    initGridBg() {
-        const bg = document.getElementById('grid-bg');
-        for (let i = 0; i < SIZE * SIZE; i++) {
-            const cell = document.createElement('div');
-            cell.className = 'grid-cell';
-            bg.appendChild(cell);
-        }
+    layoutBoard() {
+        const w = this.boardWrap.clientWidth;
+        const h = this.boardWrap.clientHeight;
+        const cell = Math.max(1, Math.floor(Math.min(w / COLS, h / ROWS)));
+        this.boardEl.style.width = `${cell * COLS}px`;
+        this.boardEl.style.height = `${cell * ROWS}px`;
     }
 
     bindEvents() {
         this.layer.addEventListener('pointerdown', (e) => this.handlePointerDown(e));
         window.addEventListener('pointerup', (e) => this.handlePointerUp(e));
-        this.boardEl.addEventListener('touchmove', e => e.preventDefault(), {passive: false});
+        window.addEventListener('resize', () => this.layoutBoard());
+        window.addEventListener('orientationchange', () => this.layoutBoard());
+        document.body.addEventListener('touchmove', e => e.preventDefault(), {passive: false});
         document.getElementById('mute-btn').addEventListener('click', () => this.toggleMute());
     }
 
@@ -664,8 +693,9 @@ class Match3Game {
 
         document.getElementById('goal-meter').classList.remove('full');
         this.updateHUD();
+        this.layoutBoard();
         this.layer.innerHTML = '<div class="combo-banner" id="combo-banner"></div>';
-        this.board = Array(SIZE).fill().map(() => Array(SIZE).fill(null));
+        this.board = Array(ROWS).fill().map(() => Array(COLS).fill(null));
 
         this.fillBoardInitial();
         await this.ensureSolvable();
@@ -682,13 +712,7 @@ class Match3Game {
         const progress = Math.min(100, (this.score / this.targetScore) * 100);
         const meter = document.getElementById('goal-meter');
         meter.style.width = `${progress}%`;
-
-        if (progress >= 100) {
-            meter.classList.add('full');
-            document.getElementById('meter-text').innerText = "GOAL REACHED!";
-        } else {
-            document.getElementById('meter-text').innerText = `${Math.floor(progress)}%`;
-        }
+        meter.classList.toggle('full', progress >= 100);
     }
 
     bumpHUD(el) {
@@ -704,8 +728,8 @@ class Match3Game {
     }
 
     fillBoardInitial() {
-        for (let r = 0; r < SIZE; r++) {
-            for (let c = 0; c < SIZE; c++) {
+        for (let r = 0; r < ROWS; r++) {
+            for (let c = 0; c < COLS; c++) {
                 let color;
                 do { color = Math.floor(Math.random() * this.numColors) + 1; }
                 while (
@@ -752,14 +776,14 @@ class Match3Game {
     }
 
     createParticles(piece) {
-        const cellW = this.boardEl.clientWidth / 8;
-        const cellH = this.boardEl.clientHeight / 8;
+        const cellW = this.boardEl.clientWidth / COLS;
+        const cellH = this.boardEl.clientHeight / ROWS;
         const x = (piece.c * cellW) + (cellW / 2);
         const y = (piece.r * cellH) + (cellH / 2);
 
         const big = piece.special !== SPECIALS.NONE;
         // Map particle color to tile icon color
-        const col = piece.special === SPECIALS.BOMB ? '#F5F3EB' : COLORS[piece.color];
+        const col = piece.special === SPECIALS.BOMB ? '#E2F6F3' : COLORS[piece.color];
         const count = big ? 10 : 6;
 
         for (let i = 0; i < count; i++) {
@@ -786,8 +810,8 @@ class Match3Game {
     }
 
     spawnShockwave(r, c) {
-        const cellW = this.boardEl.clientWidth / 8;
-        const cellH = this.boardEl.clientHeight / 8;
+        const cellW = this.boardEl.clientWidth / COLS;
+        const cellH = this.boardEl.clientHeight / ROWS;
         const x = (c * cellW) + (cellW / 2);
         const y = (r * cellH) + (cellH / 2);
         const el = document.createElement('div');
@@ -799,7 +823,7 @@ class Match3Game {
     }
 
     createConfetti() {
-        const colors = ['#2E9C90', '#4FC7BE', '#A9E8DE', '#8C7FD1', '#F28FA6', '#FFB073', '#FFDD7A'];
+        const colors = ['#429C94', '#7197E8', '#9B7BE0', '#DE6399', '#EC7165', '#EA8D3F', '#E0B74A'];
         for(let i=0; i<50; i++) {
             const conf = document.createElement('div');
             conf.className = 'confetti';
@@ -817,8 +841,8 @@ class Match3Game {
         const el = document.createElement('div');
         el.className = 'floating-text';
         el.innerText = text;
-        el.style.left = `${c * 12.5 + 6.25}%`;
-        el.style.top = `${r * 12.5 + 6.25}%`;
+        el.style.left = `${c * (100 / COLS) + (100 / COLS) / 2}%`;
+        el.style.top = `${r * (100 / ROWS) + (100 / ROWS) / 2}%`;
         if(scale !== 1) el.style.transform = `translate(-50%, -50%) scale(${scale})`;
         this.layer.appendChild(el);
         setTimeout(() => el.remove(), 1000);
@@ -871,7 +895,7 @@ class Match3Game {
         if (Math.abs(dx) > 30 || Math.abs(dy) > 30) {
             let tr = this.dragStart.piece.r, tc = this.dragStart.piece.c;
             if (Math.abs(dx) > Math.abs(dy)) tc += (dx > 0 ? 1 : -1); else tr += (dy > 0 ? 1 : -1);
-            if (tr >= 0 && tr < SIZE && tc >= 0 && tc < SIZE) this.attemptSwap(this.dragStart.piece, this.board[tr][tc]);
+            if (tr >= 0 && tr < ROWS && tc >= 0 && tc < COLS) this.attemptSwap(this.dragStart.piece, this.board[tr][tc]);
             this.clearSelection();
         }
         this.dragStart = null;
@@ -882,7 +906,7 @@ class Match3Game {
     }
 
     getPieceFromElement(el) {
-        for(let r=0; r<SIZE; r++) for(let c=0; c<SIZE; c++) if(this.board[r][c]?.el === el) return this.board[r][c];
+        for(let r=0; r<ROWS; r++) for(let c=0; c<COLS; c++) if(this.board[r][c]?.el === el) return this.board[r][c];
         return null;
     }
 
@@ -931,27 +955,27 @@ class Match3Game {
     }
 
     updatePositions() {
-        for (let r=0; r<SIZE; r++) for (let c=0; c<SIZE; c++) if (this.board[r][c]) this.board[r][c].el.style.transform = `translate(${c * 100}%, ${r * 100}%)`;
+        for (let r=0; r<ROWS; r++) for (let c=0; c<COLS; c++) if (this.board[r][c]) this.board[r][c].el.style.transform = `translate(${c * 100}%, ${r * 100}%)`;
     }
 
     findMatches() {
         let horiz = [], vert = [];
-        for (let r = 0; r < SIZE; r++) {
-            for (let c = 0; c < SIZE - 2; c++) {
+        for (let r = 0; r < ROWS; r++) {
+            for (let c = 0; c < COLS - 2; c++) {
                 let col = this.board[r][c]?.color;
                 if (!col) continue;
-                let len = 1; while (c + len < SIZE && this.board[r][c + len]?.color === col) len++;
+                let len = 1; while (c + len < COLS && this.board[r][c + len]?.color === col) len++;
                 if (len >= 3) {
                     let g = []; for (let i = 0; i < len; i++) g.push(this.board[r][c + i]);
                     horiz.push(g); c += len - 1;
                 }
             }
         }
-        for (let c = 0; c < SIZE; c++) {
-            for (let r = 0; r < SIZE - 2; r++) {
+        for (let c = 0; c < COLS; c++) {
+            for (let r = 0; r < ROWS - 2; r++) {
                 let col = this.board[r][c]?.color;
                 if (!col) continue;
-                let len = 1; while (r + len < SIZE && this.board[r + len][c]?.color === col) len++;
+                let len = 1; while (r + len < ROWS && this.board[r + len][c]?.color === col) len++;
                 if (len >= 3) {
                     let g = []; for (let i = 0; i < len; i++) g.push(this.board[r + i][c]);
                     vert.push(g); r += len - 1;
@@ -984,15 +1008,15 @@ class Match3Game {
     }
 
     hasPossibleMove() {
-        for (let r = 0; r < SIZE; r++) {
-            for (let c = 0; c < SIZE; c++) {
+        for (let r = 0; r < ROWS; r++) {
+            for (let c = 0; c < COLS; c++) {
                 const p = this.board[r][c];
                 if (!p) continue;
-                if (c < SIZE - 1) {
+                if (c < COLS - 1) {
                     const q = this.board[r][c + 1];
                     if (q && (this.checkSpecialCombo(p, q).isCombo || this.simulateSwapHasMatch(r, c, r, c + 1))) return true;
                 }
-                if (r < SIZE - 1) {
+                if (r < ROWS - 1) {
                     const q = this.board[r + 1][c];
                     if (q && (this.checkSpecialCombo(p, q).isCombo || this.simulateSwapHasMatch(r, c, r + 1, c))) return true;
                 }
@@ -1011,8 +1035,8 @@ class Match3Game {
         this.comboBanner("SHUFFLING!");
         this.sfx.shuffle();
 
-        for (let r = 0; r < SIZE; r++) {
-            for (let c = 0; c < SIZE; c++) {
+        for (let r = 0; r < ROWS; r++) {
+            for (let c = 0; c < COLS; c++) {
                 const p = this.board[r][c];
                 if (p) {
                     p.el.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
@@ -1026,7 +1050,7 @@ class Match3Game {
         let attempts = 0;
         do {
             this.layer.innerHTML = '<div class="combo-banner" id="combo-banner"></div>';
-            this.board = Array(SIZE).fill().map(() => Array(SIZE).fill(null));
+            this.board = Array(ROWS).fill().map(() => Array(COLS).fill(null));
             this.fillBoardInitial();
             attempts++;
         } while (!this.hasPossibleMove() && attempts < 20);
@@ -1073,23 +1097,23 @@ class Match3Game {
             if (combo?.isCombo) {
                 this.sfx.special();
                 if (combo.type === 'BOMB_BOMB') {
-                    for(let r=0; r<SIZE; r++) for(let c=0; c<SIZE; c++) if(this.board[r][c]) toDestroy.add(this.board[r][c]);
+                    for(let r=0; r<ROWS; r++) for(let c=0; c<COLS; c++) if(this.board[r][c]) toDestroy.add(this.board[r][c]);
                     this.screenFlash();
-                    this.spawnShockwave(3.5, 3.5);
+                    this.spawnShockwave(ROWS/2, COLS/2);
                 } else if (combo.type === 'BOMB_COLOR') {
                     toDestroy.add(combo.origin);
-                    for(let r=0; r<SIZE; r++) for(let c=0; c<SIZE; c++) if(this.board[r][c]?.color === combo.color) toDestroy.add(this.board[r][c]);
+                    for(let r=0; r<ROWS; r++) for(let c=0; c<COLS; c++) if(this.board[r][c]?.color === combo.color) toDestroy.add(this.board[r][c]);
                     this.screenFlash();
                     this.spawnShockwave(combo.origin.r, combo.origin.c);
                 } else if (combo.type === 'BOMB_SPECIAL') {
                     toDestroy.add(combo.origin); toDestroy.add(combo.other);
-                    for(let r=0; r<SIZE; r++) for(let c=0; c<SIZE; c++) if(this.board[r][c]?.color === combo.other.color) toDestroy.add(this.board[r][c]);
+                    for(let r=0; r<ROWS; r++) for(let c=0; c<COLS; c++) if(this.board[r][c]?.color === combo.other.color) toDestroy.add(this.board[r][c]);
                     this.screenFlash();
                     this.spawnShockwave(combo.origin.r, combo.origin.c);
                 } else if (combo.type === 'WRAP_WRAP') {
                     toDestroy.add(combo.origin);
-                    for(let r = Math.max(0, combo.origin.r-2); r <= Math.min(SIZE-1, combo.origin.r+2); r++)
-                        for(let c = Math.max(0, combo.origin.c-2); c <= Math.min(SIZE-1, combo.origin.c+2); c++)
+                    for(let r = Math.max(0, combo.origin.r-2); r <= Math.min(ROWS-1, combo.origin.r+2); r++)
+                        for(let c = Math.max(0, combo.origin.c-2); c <= Math.min(COLS-1, combo.origin.c+2); c++)
                             if (this.board[r][c]) toDestroy.add(this.board[r][c]);
                     this.screenFlash();
                     this.spawnShockwave(combo.origin.r, combo.origin.c);
@@ -1097,21 +1121,19 @@ class Match3Game {
                     toDestroy.add(combo.origin);
                     for(let dr=-1; dr<=1; dr++) {
                         const rr = combo.origin.r + dr;
-                        if (rr < 0 || rr >= SIZE) continue;
-                        for(let c=0; c<SIZE; c++) if (this.board[rr][c]) toDestroy.add(this.board[rr][c]);
+                        if (rr < 0 || rr >= ROWS) continue;
+                        for(let c=0; c<COLS; c++) if (this.board[rr][c]) toDestroy.add(this.board[rr][c]);
                     }
                     for(let dc=-1; dc<=1; dc++) {
                         const cc = combo.origin.c + dc;
-                        if (cc < 0 || cc >= SIZE) continue;
-                        for(let r=0; r<SIZE; r++) if (this.board[r][cc]) toDestroy.add(this.board[r][cc]);
+                        if (cc < 0 || cc >= COLS) continue;
+                        for(let r=0; r<ROWS; r++) if (this.board[r][cc]) toDestroy.add(this.board[r][cc]);
                     }
                     this.spawnShockwave(combo.origin.r, combo.origin.c);
                 } else if (combo.type === 'STRIPE_STRIPE') {
                     toDestroy.add(combo.origin);
-                    for(let i=0; i<SIZE; i++) {
-                        if (this.board[combo.origin.r][i]) toDestroy.add(this.board[combo.origin.r][i]);
-                        if (this.board[i][combo.origin.c]) toDestroy.add(this.board[i][combo.origin.c]);
-                    }
+                    for(let c=0; c<COLS; c++) if (this.board[combo.origin.r][c]) toDestroy.add(this.board[combo.origin.r][c]);
+                    for(let r=0; r<ROWS; r++) if (this.board[r][combo.origin.c]) toDestroy.add(this.board[r][combo.origin.c]);
                     this.spawnShockwave(combo.origin.r, combo.origin.c);
                 }
                 combo = null;
@@ -1146,15 +1168,15 @@ class Match3Game {
                 if (done.has(p)) continue;
                 done.add(p); toDestroy.add(p);
 
-                if (p.special === 1) for(let c=0; c<SIZE; c++) { if(this.board[p.r][c] && !done.has(this.board[p.r][c])) q.push(this.board[p.r][c]); }
-                else if (p.special === 2) for(let r=0; r<SIZE; r++) { if(this.board[r][p.c] && !done.has(this.board[r][p.c])) q.push(this.board[r][p.c]); }
+                if (p.special === 1) for(let c=0; c<COLS; c++) { if(this.board[p.r][c] && !done.has(this.board[p.r][c])) q.push(this.board[p.r][c]); }
+                else if (p.special === 2) for(let r=0; r<ROWS; r++) { if(this.board[r][p.c] && !done.has(this.board[r][p.c])) q.push(this.board[r][p.c]); }
                 else if (p.special === 3) {
-                    for(let r = Math.max(0, p.r-1); r <= Math.min(SIZE-1, p.r+1); r++)
-                        for(let c = Math.max(0, p.c-1); c <= Math.min(SIZE-1, p.c+1); c++)
+                    for(let r = Math.max(0, p.r-1); r <= Math.min(ROWS-1, p.r+1); r++)
+                        for(let c = Math.max(0, p.c-1); c <= Math.min(COLS-1, p.c+1); c++)
                             if (this.board[r][c] && !done.has(this.board[r][c])) q.push(this.board[r][c]);
                 } else if (p.special === 4) {
                     let tc = Math.floor(Math.random() * this.numColors) + 1;
-                    for(let r=0; r<SIZE; r++) for(let c=0; c<SIZE; c++) if (this.board[r][c]?.color === tc && !done.has(this.board[r][c])) q.push(this.board[r][c]);
+                    for(let r=0; r<ROWS; r++) for(let c=0; c<COLS; c++) if (this.board[r][c]?.color === tc && !done.has(this.board[r][c])) q.push(this.board[r][c]);
                 }
             }
 
@@ -1194,9 +1216,9 @@ class Match3Game {
 
     async applyGravity() {
         let moved = false;
-        for (let c = 0; c < SIZE; c++) {
+        for (let c = 0; c < COLS; c++) {
             let empty = 0;
-            for (let r = SIZE - 1; r >= 0; r--) {
+            for (let r = ROWS - 1; r >= 0; r--) {
                 if (this.board[r][c] === null) empty++;
                 else if (empty > 0) {
                     let p = this.board[r][c];
