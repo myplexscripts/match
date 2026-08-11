@@ -80,14 +80,26 @@
   --neutral-800:#26242A;
   --neutral-900:#17161A;
 
-  --accent: var(--color-blue-light);
+--accent: var(--color-blue-light);
 
-  --board-pad:4px;
-  --gap:7px;
+--board-pad:4px;
+--gap:7px;
+--border-thick:2px;
 
-  --border-thick:3px;
-  --shadow-hard:5px 5px 0 var(--neutral-900);
-  --shadow-small:3px 3px 0 var(--neutral-900);
+--shadow-x:3px;
+--shadow-y:3px;
+
+--shadow-small:
+  var(--shadow-x)
+  var(--shadow-y)
+  0
+  var(--neutral-900);
+
+--shadow-hard:
+  5px
+  5px
+  0
+  var(--neutral-900);
 }
 
 *{box-sizing:border-box}
@@ -149,27 +161,16 @@ button{touch-action:manipulation}
 }
 
 .topbar{
-  display:flex;
-  justify-content:space-between;
+  display:grid;
+  grid-template-columns:auto 1fr auto;
   align-items:center;
   gap:10px;
 }
-.brand{
-  font:800 13px/1.15 Manrope,sans-serif;
-  letter-spacing:.02em;
-  text-transform:uppercase;
-  color:var(--muted);
-}
-.brand b{
-  display:block;
-  font-size:19px;
-  letter-spacing:-.03em;
-  color:var(--ink);
-  text-transform:none;
-  margin-top:1px;
-}
-.stats{display:flex;gap:7px}
-.pill{
+
+.brand-card,
+.pill,
+.coin-chip{
+  position:relative;
   min-width:68px;
   height:40px;
   display:grid;
@@ -180,7 +181,19 @@ button{touch-action:manipulation}
   border:var(--border-thick) solid var(--neutral-900);
   box-shadow:var(--shadow-small);
 }
-.pill b{font-size:13.5px;line-height:1}
+
+.brand-card{
+  width:62px;
+  justify-self:start;
+}
+
+.brand-card b,
+.pill b{
+  font-size:13.5px;
+  line-height:1;
+}
+
+.brand-card span,
 .pill span{
   margin-top:3px;
   font-size:8.5px;
@@ -188,34 +201,66 @@ button{touch-action:manipulation}
   text-transform:uppercase;
   letter-spacing:.08em;
 }
-.pill.bump{animation:bumpVal .3s ease}
 
-.subbar{
+.stats{
+  justify-self:center;
   display:flex;
-  justify-content:space-between;
   align-items:center;
-  gap:10px;
-  margin-top:8px;
+  gap:7px;
 }
+
+.pill.bump,
+.coin-chip.bump{
+  animation:bumpVal .3s ease;
+}
+
+.topbar-right{
+  justify-self:end;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
 .coin-chip{
+  min-width:78px;
+  padding:0 12px;
   display:flex;
   align-items:center;
-  gap:5px;
-  height:34px;
-  padding:0 12px;
-  border-radius:999px;
+  justify-content:center;
+  gap:7px;
   background:linear-gradient(155deg,var(--color-true-yellow-light),var(--color-yellow-orange-light));
-  border:var(--border-thick) solid var(--neutral-900);
-  box-shadow:var(--shadow-small);
 }
-.coin-chip .material-symbols-outlined{font-size:1rem;color:var(--color-yellow-orange-dark);font-variation-settings:'FILL' 1,'wght' 600}
-.coin-chip span:last-child{font-weight:800;font-size:.85rem;color:var(--neutral-900)}
-.coin-chip.bump{animation:bumpVal .3s ease}
 
-.icon-actions{display:flex;gap:8px}
+.coin-chip span:last-child{
+  font-weight:800;
+  font-size:.85rem;
+  color:var(--neutral-900);
+}
+
+.coin-icon{
+  width:30px;
+  height:20px;
+  display:block;
+  overflow:visible;
+}
+
+.coin-icon ellipse{
+  fill:var(--neutral-0);
+  stroke:var(--neutral-900);
+  stroke-width:2.4;
+}
+
+.coin-icon path{
+  fill:none;
+  stroke:var(--neutral-900);
+  stroke-width:2.4;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+
 .icon-btn{
-  width:38px;
-  height:38px;
+  width:40px;
+  height:40px;
   display:flex;
   align-items:center;
   justify-content:center;
@@ -235,8 +280,8 @@ button{touch-action:manipulation}
   flex:1;
   display:flex;
   align-items:center;
-  justify-content:center;
-  padding-top:32px;
+  justify-content:flex-start;
+  padding-top:66px;
 }
 
 .shell{
@@ -288,7 +333,7 @@ button{touch-action:manipulation}
   inset:0;
   border-radius:24%;
   background:var(--neutral-900);
-  transform:translate3d(0,5px,0);
+  transform:translate3d(4px,4px,0);
   pointer-events:none;
   z-index:0;
 }
@@ -300,7 +345,7 @@ button{touch-action:manipulation}
   border-radius:24%;
   overflow:hidden;
   background:var(--tile-bg,var(--neutral-50));
-  border:4px solid var(--neutral-900);
+  border:3px solid var(--neutral-900);
   transform:translateZ(0);
   will-change:transform,opacity;
   z-index:1;
@@ -317,21 +362,15 @@ button{touch-action:manipulation}
 }
 .tile-icon use{
   fill:var(--tile-shape);
-  stroke:var(--neutral-900);
-  stroke-width:5.5;
+  stroke:var(--neutral-800);
+  stroke-width:19.2;
   stroke-linejoin:round;
   stroke-linecap:round;
-  vector-effect:non-scaling-stroke;
   overflow:visible;
 }
-symbol{ overflow:visible; }
-/* The burst/sparkle/8-tip-star pieces have tight concave notches close
-   together - a stroke that thick on them makes the offset curves overlap
-   and cancel out, so their outline reads inconsistent with the rounder
-   shapes. Back their stroke off a little so it stays a clean, even ring
-   on every piece rather than looking bold on some and washed out on others. */
-.type-1 .tile-icon use, .type-2 .tile-icon use, .type-6 .tile-icon use{
-  stroke-width:4;
+
+symbol{
+  overflow:visible;
 }
 
 .type-1{ --tile-bg:var(--color-yellow-orange-base); --tile-shape:var(--color-yellow-orange-light); }
@@ -350,11 +389,8 @@ symbol{ overflow:visible; }
 .tile.special-bomb .tile-icon use{ fill:var(--neutral-0); stroke:var(--neutral-900); }
 
 .tile.has-special .gem{
-  animation:specialPulse 1.4s ease-in-out infinite;
-}
-@keyframes specialPulse{
-  0%,100%{ box-shadow:none; }
-  50%{ box-shadow:0 0 0 5px rgba(255,255,255,.5); }
+  animation:none;
+  box-shadow:none;
 }
 
 .tile.selected .tile-inner{
@@ -370,18 +406,21 @@ symbol{ overflow:visible; }
   position:absolute;
   left:6px;
   right:6px;
-  top:-32px;
-  height:24px;
+  top:-54px;
+  height:42px;
   z-index:30;
 }
 .progress-track{
   position:absolute;
-  inset:5px 0 3px;
+  left:0;
+  right:0;
+  top:50%;
+  transform:translateY(-50%);
   height:16px;
   border-radius:999px;
   background:var(--neutral-0);
-  border:3px solid var(--neutral-800);
-  box-shadow:0 4px 0 var(--neutral-800);
+  border:2px solid var(--neutral-800);
+  box-shadow:3px 3px 0 var(--neutral-800);
   overflow:visible;
 }
 .progress-fill{
@@ -403,9 +442,9 @@ symbol{ overflow:visible; }
   position:absolute;
   left:0;
   top:50%;
-  width:36px;
-  height:36px;
-  transform:translate(-50%,-50%) translateZ(0);
+  width:42px;
+  height:42px;
+  transform:translate(-50%,-50%);
   pointer-events:none;
   z-index:8;
   transition:left .48s cubic-bezier(.16,.84,.24,1);
@@ -420,10 +459,9 @@ symbol{ overflow:visible; }
 .progress-head-icon use{
   fill:var(--color-true-yellow-light);
   stroke:var(--neutral-800);
-  stroke-width:4;
+  stroke-width:3.5;
   stroke-linejoin:round;
   stroke-linecap:round;
-  vector-effect:non-scaling-stroke;
 }
 @keyframes starSpin{ from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
 
@@ -445,14 +483,6 @@ symbol{ overflow:visible; }
   transition:transform .22s ease,background .22s ease,opacity .22s ease;
 }
 .milestone-dot.passed{ opacity:0; transform:translate(-50%,-50%) scale(.45); }
-.progress-percent{
-  position:absolute;
-  right:2px;
-  top:-9px;
-  color:var(--muted);
-  font-size:9px;
-  font-weight:800;
-}
 
 .fx-canvas{
   position:absolute;
@@ -556,6 +586,37 @@ symbol{ overflow:visible; }
   border:2px solid var(--neutral-900);
 }
 
+.screen-actions{
+  display:flex;
+  gap:10px;
+  justify-content:center;
+  flex-wrap:wrap;
+  width:100%;
+}
+
+.overlay button.secondary{
+  margin-top:4px;
+  padding:14px 24px;
+  font:800 .98rem Manrope,sans-serif;
+  letter-spacing:.01em;
+  border:var(--border-thick) solid var(--neutral-900);
+  border-radius:16px;
+  background:var(--neutral-0);
+  color:var(--neutral-900);
+  cursor:pointer;
+  box-shadow:var(--shadow-hard);
+  transition:transform .1s ease, box-shadow .1s ease;
+}
+
+.overlay button.secondary:active{
+  transform:translate(5px,5px);
+  box-shadow:0 0 0 var(--neutral-900);
+}
+
+.overlay button.secondary[hidden]{
+  display:none;
+}
+
 .overlay{
   position:absolute; inset:0;
   background:rgba(23,22,26,.55);
@@ -626,7 +687,7 @@ symbol{ overflow:visible; }
   box-shadow:var(--shadow-hard);
   transition:transform .1s ease, box-shadow .1s ease;
 }
-.overlay button.primary:active{ transform:translate(4px,4px); box-shadow:0 0 0 var(--neutral-900); }
+.overlay button.primary:active{ transform:translate(5px,5px); box-shadow:0 0 0 var(--neutral-900); }
 
 .reward-row{ display:flex; gap:10px; }
 .reward-card{
@@ -680,7 +741,10 @@ symbol{ overflow:visible; }
   font-size:1rem;
   box-shadow:var(--shadow-small);
 }
-.shop-balance .material-symbols-outlined{ color:var(--color-yellow-orange-dark); font-variation-settings:'FILL' 1,'wght' 600; }
+.shop-balance .coin-icon{
+  width:26px;
+  height:18px;
+}
 
 .confetti-lottie{ position:fixed; inset:0; z-index:250; pointer-events:none; }
 .confetti-lottie svg{ width:100%; height:100%; }
@@ -726,63 +790,116 @@ symbol{ overflow:visible; }
       <path d="M343.3 282.8A239 239 0 0 1 480 240c-50.8 0-98-15.8-136.8-42.8 8.4-46.5 30.6-91 66.5-127-36 36-80.4 58.2-127 66.5C255.9 98 240 50.8 240 0c0 50.8-15.8 98-42.8 136.8-46.5-8.4-91-30.6-127-66.5 36 36 58.2 80.4 66.5 127C98 224.1 50.8 240 0 240c50.8 0 98 15.8 136.8 42.8-8.4 46.5-30.6 91-66.5 127 36-36 80.4-58.2 127-66.6A239 239 0 0 1 240 480c0-50.8 15.8-98 42.8-136.8 46.5 8.4 91 30.6 127 66.5-36-36-58.2-80.4-66.5-127Z"/>
     </symbol>
 
-    <symbol id="piece-arrow-h" viewBox="0 0 480 480">
-      <path d="M40 240 140 180 140 210 340 210 340 180 440 240 340 300 340 270 140 270 140 300Z"/>
-    </symbol>
-    <symbol id="piece-arrow-v" viewBox="0 0 480 480">
-      <path d="M240 40 180 140 210 140 210 340 180 340 240 440 300 340 270 340 270 140 300 140Z"/>
-    </symbol>
+<symbol id="piece-arrow-h" viewBox="0 0 480 480">
+  <path
+    class="piece-horiz-row-right"
+    stroke-width="19.2"
+    d="m320 400l-80-160 80-160c42.43 0 83.13 16.86 113.14 46.86 30 30.01 46.86 70.71 46.86 113.14 0 42.43-16.86 83.13-46.86 113.14-30.01 30-70.71 46.86-113.14 46.86z"
+  />
+  <path
+    class="piece-horiz-row-left"
+    stroke-width="19.2"
+    d="M160 80l80 160-80 160c-42.43 0-83.13-16.86-113.14-46.86-30-30.01-46.86-70.71-46.86-113.14 0-42.43 16.86-83.13 46.86-113.14 30.01-30 70.71-46.86 113.14-46.86z"
+  />
+</symbol>
+
+<symbol id="piece-arrow-v" viewBox="0 0 480 480">
+  <path
+    class="piece-vert-row-top"
+    stroke-width="19.2"
+    d="m400 160-160 80-160-80a160 160 0 1 1 320 0Z"
+  />
+  <path
+    class="piece-vert-row-bottom"
+    stroke-width="19.2"
+    d="M80 320l160-80 160 80a160 160 0 1 1-320 0Z"
+  />
+</symbol>
     <symbol id="piece-corners" viewBox="0 0 480 480">
       <g transform="rotate(45 240 240)"><path d="M230 220 360 220 360 185 440 240 360 295 360 260 230 260Z"/></g>
       <g transform="rotate(135 240 240)"><path d="M230 220 360 220 360 185 440 240 360 295 360 260 230 260Z"/></g>
       <g transform="rotate(225 240 240)"><path d="M230 220 360 220 360 185 440 240 360 295 360 260 230 260Z"/></g>
       <g transform="rotate(315 240 240)"><path d="M230 220 360 220 360 185 440 240 360 295 360 260 230 260Z"/></g>
     </symbol>
-    <symbol id="piece-bomb" viewBox="0 0 480 480">
-      <path d="M400 480H80a160 160 0 1 1 320 0ZM80 0h320A160 160 0 1 1 80 0ZM0 400V80a160 160 0 1 1 0 320ZM480 80v320a160 160 0 1 1 0-320Z"/>
-      <circle cx="240" cy="240" r="80"/>
-    </symbol>
+<symbol id="piece-bomb" viewBox="0 0 480 480">
+  <path
+    class="piece-bomb-bottom"
+    stroke-width="19.2"
+    d="M400 480H80a160 160 0 1 1 320 0Z"
+  />
+  <path
+    class="piece-bomb-top"
+    stroke-width="19.2"
+    d="M80 0h320A160 160 0 1 1 80 0Z"
+  />
+  <path
+    class="piece-bomb-left"
+    stroke-width="19.2"
+    d="M0 400V80a160 160 0 1 1 0 320Z"
+  />
+  <path
+    class="piece-bomb-right"
+    stroke-width="19.2"
+    d="M480 80v320a160 160 0 1 1 0-320Z"
+  />
+  <circle
+    stroke-width="19.2"
+    cx="240"
+    cy="240"
+    r="80"
+  />
+</symbol>
 
     <symbol id="progress-star" viewBox="0 0 100 100">
-      <path d="M50 6 L58 34 L79 21 L66 41 L94 50 L66 59 L79 79 L58 66 L50 94 L42 66 L21 79 L34 59 L6 50 L34 41 L21 21 L42 34Z"/>
-    </symbol>
+  <path d="M50 6 L58 34 L79 21 L66 41 L94 50 L66 59 L79 79 L58 66 L50 94 L42 66 L21 79 L34 59 L6 50 L34 41 L21 21 L42 34Z"/>
+</symbol>
+
+<symbol id="icon-coins" viewBox="0 0 64 40">
+  <ellipse cx="22" cy="24" rx="14" ry="8"/>
+  <path d="M8 24v7c0 4.4 6.3 8 14 8s14-3.6 14-8v-7"/>
+  <g transform="rotate(35 44 16)">
+    <ellipse cx="44" cy="16" rx="14" ry="8"/>
+    <path d="M30 16v7c0 4.4 6.3 8 14 8s14-3.6 14-8v-7"/>
+  </g>
+</symbol>
   </defs>
 </svg>
 
 <div class="app">
-  <header class="topbar">
-    <div class="brand">LEVEL<b id="level-txt">1</b></div>
-    <div class="stats">
-      <div class="pill"><b id="score-txt">0</b><span>score</span></div>
-      <div class="pill"><b id="moves-txt">0</b><span>moves</span></div>
-    </div>
-  </header>
+<header class="topbar">
+  <div class="brand-card">
+    <b id="level-txt">1</b>
+    <span>LVL</span>
+  </div>
 
-  <div class="subbar">
+  <div class="stats">
+    <div class="pill"><b id="score-txt">0</b><span>score</span></div>
+    <div class="pill"><b id="moves-txt">0</b><span>moves</span></div>
+  </div>
+
+  <div class="topbar-right">
     <div class="coin-chip" id="coin-chip">
-      <span class="material-symbols-outlined">paid</span>
+      <svg class="coin-icon" viewBox="0 0 64 40" aria-hidden="true">
+        <use href="#icon-coins"></use>
+      </svg>
       <span id="coin-txt">0</span>
     </div>
-    <div class="icon-actions">
-      <button class="icon-btn" id="shop-btn" aria-label="Shop">
-        <span class="material-symbols-outlined">storefront</span>
-      </button>
-      <button class="icon-btn" id="mute-btn" aria-label="Toggle Sound">
-        <span class="material-symbols-outlined" id="mute-icon">volume_up</span>
-      </button>
-    </div>
+
+    <button class="icon-btn" id="mute-btn" aria-label="Toggle Sound">
+      <span class="material-symbols-outlined" id="mute-icon">volume_up</span>
+    </button>
   </div>
+</header>
 
   <main class="stage">
     <div class="shell" id="shell">
       <div class="level-progress">
         <div class="progress-track" id="progressTrack">
-          <div class="progress-fill" id="progressFill"></div>
-          <i class="milestone-dot" id="mile1"></i>
-          <i class="milestone-dot" id="mile2"></i>
-          <i class="milestone-dot" id="mile3"></i>
-          <span class="progress-percent" id="progressPercent">0%</span>
-        </div>
+  <div class="progress-fill" id="progressFill"></div>
+  <i class="milestone-dot" id="mile1"></i>
+  <i class="milestone-dot" id="mile2"></i>
+  <i class="milestone-dot" id="mile3"></i>
+</div>
         <span class="progress-head" id="progressHead">
           <svg class="progress-head-icon" viewBox="0 0 100 100" aria-hidden="true">
             <use href="#progress-star"></use>
@@ -811,7 +928,10 @@ symbol{ overflow:visible; }
     <h2 id="screen-title">LEVEL 1</h2>
     <p id="screen-desc">SCORE POINTS TO FILL THE METER!</p>
     <div class="stars-row" id="screen-stars"></div>
-    <button class="primary" id="screen-btn">PLAY</button>
+    <div class="screen-actions">
+      <button class="primary" id="screen-btn">PLAY</button>
+      <button class="secondary" id="screen-shop-btn" hidden>SHOP</button>
+    </div>
   </div>
 </div>
 
@@ -827,9 +947,11 @@ symbol{ overflow:visible; }
   <div class="overlay-card">
     <h2>Shop</h2>
     <div class="shop-balance">
-      <span class="material-symbols-outlined">paid</span>
-      <span id="shop-coin-txt">0</span>
-    </div>
+  <svg class="coin-icon" viewBox="0 0 64 40" aria-hidden="true">
+    <use href="#icon-coins"></use>
+  </svg>
+  <span id="shop-coin-txt">0</span>
+</div>
     <div class="reward-row" id="shop-row"></div>
     <button class="primary" id="shop-close-btn">CLOSE</button>
   </div>
@@ -1003,11 +1125,10 @@ class Game {
         this.stageEl = document.querySelector('.stage');
         this.scoreEl = document.getElementById('score-txt');
         this.movesEl = document.getElementById('moves-txt');
-        this.levelEl = document.getElementById('level-txt');
-        this.progressFill = document.getElementById('progressFill');
-        this.progressPercent = document.getElementById('progressPercent');
-        this.progressHead = document.getElementById('progressHead');
-        this.progressTrack = document.getElementById('progressTrack');
+this.levelEl = document.getElementById('level-txt');
+this.progressFill = document.getElementById('progressFill');
+this.progressHead = document.getElementById('progressHead');
+this.progressTrack = document.getElementById('progressTrack');
         this.bgWash = document.getElementById('bgWash');
         this.mileEls = [document.getElementById('mile1'), document.getElementById('mile2'), document.getElementById('mile3')];
         this.textLayer = document.getElementById('textLayer');
@@ -1136,10 +1257,10 @@ class Game {
         document.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
         document.addEventListener('gesturestart', e => e.preventDefault());
         document.addEventListener('dblclick', e => e.preventDefault());
-        document.getElementById('mute-btn').addEventListener('click', () => this.toggleMute());
-        document.getElementById('shop-btn').addEventListener('click', () => this.openShop());
-        document.getElementById('shop-close-btn').addEventListener('click', () => this.closeShop());
-        document.getElementById('screen-btn').addEventListener('click', () => this.onScreenButton());
+document.getElementById('mute-btn').addEventListener('click', () => this.toggleMute());
+document.getElementById('shop-close-btn').addEventListener('click', () => this.closeShop());
+document.getElementById('screen-btn').addEventListener('click', () => this.onScreenButton());
+document.getElementById('screen-shop-btn').addEventListener('click', () => this.openShop());
     }
 
     toggleMute() {
@@ -1148,23 +1269,24 @@ class Game {
         document.getElementById('mute-icon').innerText = this.sfx.muted ? 'volume_off' : 'volume_up';
     }
 
-    showScreen(title, desc, btnText, stars, action) {
-        document.getElementById('screen-title').innerText = title;
-        document.getElementById('screen-desc').innerText = desc;
-        document.getElementById('screen-btn').innerText = btnText;
-        this.screenAction = action;
-        const starsRow = document.getElementById('screen-stars');
-        starsRow.innerHTML = '';
-        if (stars !== null && stars !== undefined) {
-            for (let i = 0; i < 3; i++) {
-                const s = document.createElement('span');
-                s.className = 'material-symbols-outlined star' + (i < stars ? ' filled' : '');
-                s.innerText = 'star';
-                starsRow.appendChild(s);
-            }
+    showScreen(title, desc, btnText, stars, action, showShop = false) {
+    document.getElementById('screen-title').innerText = title;
+    document.getElementById('screen-desc').innerText = desc;
+    document.getElementById('screen-btn').innerText = btnText;
+    document.getElementById('screen-shop-btn').hidden = !showShop;
+    this.screenAction = action;
+    const starsRow = document.getElementById('screen-stars');
+    starsRow.innerHTML = '';
+    if (stars !== null && stars !== undefined) {
+        for (let i = 0; i < 3; i++) {
+            const s = document.createElement('span');
+            s.className = 'material-symbols-outlined star' + (i < stars ? ' filled' : '');
+            s.innerText = 'star';
+            starsRow.appendChild(s);
         }
-        document.getElementById('screen-overlay').classList.add('active');
     }
+    document.getElementById('screen-overlay').classList.add('active');
+}
 
     hideScreen() { document.getElementById('screen-overlay').classList.remove('active'); }
 
@@ -1292,10 +1414,9 @@ class Game {
         this.scoreEl.innerText = this.score;
 
         const progress = Math.max(0, Math.min(100, (this.score / this.starMax) * 100));
-        this.progressFill.style.width = `${progress}%`;
-        this.progressHead.style.left = `calc(3px + (100% - 6px) * ${progress / 100})`;
-        this.progressPercent.textContent = `${Math.round(progress)}%`;
-        this.progressTrack.classList.toggle('full', this.score >= this.starMax);
+this.progressFill.style.width = `${progress}%`;
+this.progressHead.style.left = `calc(2px + (100% - 4px) * ${progress / 100})`;
+this.progressTrack.classList.toggle('full', this.score >= this.starMax);
 
         const banked = this.computeBankedStars();
         this.progressTrack.classList.toggle('tier-2', banked >= 2);
@@ -2128,14 +2249,14 @@ class Game {
             this.addCoins(coinsEarned);
             this.currentLevelIdx++;
             if (this.currentLevelIdx >= LEVELS.length) {
-                this.showScreen('You Win!', `FINAL SCORE: ${this.score} · +${coinsEarned} COINS`, 'PLAY AGAIN', stars, 'play');
+                this.showScreen('You Win!', `FINAL SCORE: ${this.score} · +${coinsEarned} COINS`, 'PLAY AGAIN', stars, 'play', true);
                 this.currentLevelIdx = 0;
                 this.inventory = { hammer: 0, shuffle: 0, extraMoves: 0, colorBomb: 0, megaHammer: 0, doubleBomb: 0 };
                 this.coins = 0;
                 this.updatePowerUpTray();
                 this.updateCoinDisplay();
             } else {
-                this.showScreen('Level Clear!', `SCORE: ${this.score} / ${this.targetScore} · +${coinsEarned} COINS`, 'CONTINUE', stars, 'reward');
+                this.showScreen('Level Clear!', `SCORE: ${this.score} / ${this.targetScore} · +${coinsEarned} COINS`, 'CONTINUE', stars, 'reward', true);
             }
         } else {
             this.sfx.lose();
