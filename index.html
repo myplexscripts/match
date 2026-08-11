@@ -1,1035 +1,834 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
-    <title>Brutal Match</title>
-
-    <!-- Installable / full-screen mobile web app -->
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Brutal Match">
-    <meta name="theme-color" content="#10242E">
-    <meta name="format-detection" content="telephone=no">
-    <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
-    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24..48,100..700,0..1,-50..200" />
-    <style>
-        /* Registering this as a real <angle> is what lets it be keyframed
-           directly (animating an unregistered custom property is a no-op) -
-           and because it's the gradient's angle that moves, not any
-           transform on the element, there's nothing for Safari's
-           overflow+border-radius+transform clipping bug to ever catch. */
-        @property --spin-angle {
-            syntax: '<angle>';
-            inherits: false;
-            initial-value: 0deg;
-        }
-
-        /* Registered as real <color>s so the background gradient can
-           transition itself natively whenever JS retints it after a match -
-           no manual interpolation loop needed. */
-        @property --bg-light {
-            syntax: '<color>';
-            inherits: true;
-            initial-value: #9CD7E3;
-        }
-        @property --bg-dark {
-            syntax: '<color>';
-            inherits: true;
-            initial-value: #1C6477;
-        }
-
-        :root {
-            /* --- Palette --- */
-            --aqua-100: #E2F6F3; --aqua-300: #A8DDD7; --aqua-500: #71C4BB; --aqua-700: #429C94; --aqua-900: #246C67;
-            --ocean-100: #DDF4F8; --ocean-300: #9CD7E3; --ocean-500: #55B7CB; --ocean-700: #2E8DA4; --ocean-900: #1C6477;
-            --blue-100: #E3ECFF; --blue-300: #AAC2F7; --blue-500: #7197E8; --blue-700: #4F70BE; --blue-900: #344B86;
-            --violet-100: #EEE7FF; --violet-300: #C6B1F4; --violet-500: #9B7BE0; --violet-700: #7455B5; --violet-900: #513A81;
-            --grape-100: #F5E4F6; --grape-300: #DFA7E2; --grape-500: #C56BCB; --grape-700: #98479E; --grape-900: #6A3270;
-            --berry-100: #FBE3EE; --berry-300: #F0A2C5; --berry-500: #DE6399; --berry-700: #B44474; --berry-900: #7E3052;
-            --coral-100: #FFE5E1; --coral-300: #F8AAA0; --coral-500: #EC7165; --coral-700: #C24E45; --coral-900: #873731;
-            --orange-100: #FFEBD8; --orange-300: #F8BC7D; --orange-500: #EA8D3F; --orange-700: #BC6629; --orange-900: #80461E;
-            --gold-100: #FFF3CF; --gold-300: #F3D47A; --gold-500: #E0B74A; --gold-700: #AE872D; --gold-900: #755C20;
-            --lime-100: #F0F4D7; --lime-300: #CADB84; --lime-500: #A5C45C; --lime-700: #77943D; --lime-900: #50662C;
-            --green-100: #E1F2E5; --green-300: #A4D4AF; --green-500: #68B77B; --green-700: #438D57; --green-900: #2E633E;
-            --navy-100: #E5E9EC; --navy-300: #A8B2BA; --navy-500: #687985; --navy-700: #455762; --navy-900: #29343E;
-
-            /* --- Neutrals + theme tokens --- */
-            --ink: var(--navy-900);
-            --paper: #F2F6F8;
-            --paper-2: #DCE4E9;
-            --accent: var(--ocean-500);
-
-            /* Candy colors */
-            --c1: var(--aqua-700);
-            --c2: var(--blue-500);
-            --c3: var(--violet-500);
-            --c4: var(--berry-500);
-            --c5: var(--coral-500);
-            --c6: var(--orange-500);
-            --c7: var(--gold-500);
-
-            --cell: 56px;
-            --board-w: 340px;
-
-            --border-thick: 3px;
-            --radius-lg: 22px;
-            --radius-md: 14px;
-            --radius-sm: 12px;
-            --shadow-hard: 5px 5px 0px var(--ink), 8px 12px 22px rgba(4, 10, 14, 0.4);
-            --shadow-small: 3px 3px 0px var(--ink), 4px 6px 12px rgba(4, 10, 14, 0.32);
-        }
-
-        * {
-            box-sizing: border-box;
-            user-select: none;
-            -webkit-user-select: none;
-            touch-action: none;
-            -webkit-touch-callout: none;
-            -webkit-tap-highlight-color: transparent;
-            -webkit-user-drag: none;
-            margin: 0;
-            padding: 0;
-            font-family: 'Quicksand', sans-serif;
-        }
-
-        html {
-            height: 100%;
-            background-color: var(--bg-dark);
-            overscroll-behavior: none;
-        }
-
-        /* Fixed body kills iOS toolbar resize gaps + rubber-band white flashes */
-        body {
-            position: fixed;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            overscroll-behavior: none;
-            background: transparent;
-            color: var(--ink);
-        }
-
-        /* ---------- Reactive background ----------
-           A single subtle radial gradient, light at the centre fading to dark
-           at the edges. --bg-light/--bg-dark are registered below so the
-           browser can animate the colours themselves on change, rather than
-           us cross-fading two flat layers - whenever a match resolves, the
-           gradient gracefully retints to that match's own colour family. */
-        #bg {
-            position: fixed;
-            inset: 0;
-            z-index: 0;
-            /* Plain linear gradient rather than radial: a radial's "farthest
-               corner" falloff plateaus to flat colour well before a tall
-               portrait viewport's actual bottom edge, which read as a hard
-               seam / a separate panel down there - a linear interpolates
-               evenly across the full height with no such flat zone possible. */
-            background: linear-gradient(180deg, var(--bg-light) 0%, var(--bg-dark) 100%);
-            transition: --bg-light 1.3s ease, --bg-dark 1.3s ease;
-        }
-
-        /* ---------- App shell ---------- */
-        #app {
-            position: relative;
-            z-index: 1;
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            width: 100%;
-            padding-top: max(env(safe-area-inset-top), 8px);
-            padding-left: max(env(safe-area-inset-left), 10px);
-            padding-right: max(env(safe-area-inset-right), 10px);
-        }
-
-        .topbar {
-            flex: 0 0 auto;
-            width: var(--board-w);
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            height: 38px;
-        }
-
-        .topbar-right { display: flex; gap: 8px; }
-
-        .coin-chip {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            height: 38px;
-            padding: 0 12px;
-            background: var(--gold-100);
-            border: var(--border-thick) solid var(--ink);
-            border-radius: var(--radius-sm);
-            box-shadow: var(--shadow-small);
-        }
-        .coin-chip .material-symbols-outlined { font-size: 1.05rem; color: var(--gold-700); font-variation-settings: 'FILL' 1, 'wght' 600; }
-        .coin-chip span:last-child { font-weight: 900; font-size: 0.95rem; color: var(--ink); }
-        .coin-chip.bump { animation: bumpVal 0.3s ease; }
-
-        .icon-btn {
-            width: 38px;
-            height: 38px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--paper);
-            border: var(--border-thick) solid var(--ink);
-            border-radius: var(--radius-sm);
-            box-shadow: var(--shadow-small);
-            cursor: pointer;
-            transition: transform 0.1s ease, box-shadow 0.1s ease;
-        }
-        .icon-btn:active { transform: translate(3px, 3px); box-shadow: 0px 0px 0 var(--ink); }
-        .icon-btn .material-symbols-outlined { font-size: 1.2rem; font-variation-settings: 'FILL' 1, 'wght' 600; color: var(--ink); }
-
-        .hud {
-            flex: 0 0 auto;
-            width: var(--board-w);
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            padding-top: 6px;
-        }
-
-        .hud-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .hud-box {
-            background: var(--paper);
-            padding: 5px 13px;
-            border: var(--border-thick) solid var(--ink);
-            border-radius: var(--radius-sm);
-            box-shadow: var(--shadow-small);
-            text-align: center;
-            min-width: 74px;
-        }
-
-        .hud-label {
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1.2px;
-            color: var(--navy-500);
-        }
-
-        .hud-val {
-            font-size: 1.4rem;
-            font-weight: 900;
-            line-height: 1.1;
-        }
-
-        .hud-val.bump { animation: bumpVal 0.3s ease; }
-
-        .level-title {
-            font-size: 1.55rem;
-            font-weight: 900;
-            color: var(--paper);
-            text-shadow:
-                -2px -2px 0 var(--ink), 2px -2px 0 var(--ink),
-                -2px  2px 0 var(--ink), 2px  2px 0 var(--ink);
-            letter-spacing: -0.5px;
-            transform: rotate(-2deg);
-        }
-
-        /* ---------- Goal meter ---------- */
-        .meter-wrap {
-            position: relative;
-            width: 100%;
-        }
-
-        .meter-container {
-            width: 100%;
-            height: 22px;
-            background: var(--paper);
-            border: var(--border-thick) solid var(--ink);
-            border-radius: 999px;
-            box-shadow: var(--shadow-small);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .meter-fill {
-            position: absolute;
-            top: 0; left: 0; bottom: 0;
-            width: 0%;
-            background: var(--accent);
-            border-radius: 999px;
-            transition: width 0.45s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.35s ease;
-        }
-
-        /* The bright flash that floods the currently-filled portion the
-           instant a star threshold is crossed. Clipped to .meter-fill's own
-           box, so it only ever sweeps across the filled part of the bar. */
-        .meter-rush {
-            position: absolute;
-            inset: 0;
-            border-radius: inherit;
-            pointer-events: none;
-            background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.95) 50%, transparent 100%);
-            background-size: 220% 100%;
-            background-position: -110% 0;
-            animation: rushSweep 0.65s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-        }
-
-        /* Thin markers on the track showing the 2-star / 3-star thresholds */
-        .meter-tick {
-            position: absolute;
-            top: 3px; bottom: 3px;
-            width: 2px;
-            background: rgba(41, 52, 62, 0.3);
-            transform: translateX(-50%);
-            z-index: 1;
-            pointer-events: none;
-        }
-
-        /* Mini stars that light up live as the score crosses each threshold */
-        .meter-stars {
-            position: absolute;
-            inset: 0;
-            pointer-events: none;
-        }
-        /* Extra specificity beats the general .material-symbols-outlined rule,
-           which otherwise scales these to tile-icon size via --cell.
-           Positioning uses margin, not transform: the .pop animation below
-           drives transform for its scale/rotate flourish, and a CSS animation
-           replaces the whole transform value rather than composing with it -
-           so anything using transform to center itself would get clobbered
-           the instant it pops. */
-        .meter-stars .mstar {
-            position: absolute;
-            top: 50%;
-            width: 14px;
-            height: 14px;
-            margin-top: -7px;
-            margin-left: -7px;
-            font-size: 0.875rem;
-            line-height: 1;
-            text-align: center;
-            color: rgba(41, 52, 62, 0.32);
-            font-variation-settings: 'FILL' 1, 'wght' 700;
-            text-shadow: 1px 1px 0 rgba(0,0,0,0.15);
-            transition: color 0.2s ease;
-        }
-        .meter-stars .mstar.filled { color: var(--gold-500); }
-        .meter-stars .mstar.pop { animation: starPop 0.5s both; }
-
-        /* Unclipped layer so sparks can drift above the bar */
-        .meter-fx {
-            position: absolute;
-            inset: 0;
-            pointer-events: none;
-            overflow: visible;
-            z-index: 4;
-        }
-
-        .spark {
-            position: absolute;
-            border-radius: 50%;
-            opacity: 0;
-            pointer-events: none;
-            animation: sparkFloat 0.9s ease-out forwards;
-        }
-
-        /* A constant pulsing glow riding the fill's leading edge once the bar
-           passes halfway - pure CSS, so it's always visible regardless of
-           how reliably any JS timer fires. Centered with margins, not
-           transform: glowPulse below animates transform for the pulse, and
-           an active animation replaces transform outright rather than
-           composing with it. */
-        .meter-glow {
-            position: absolute;
-            top: 50%;
-            left: 0;
-            width: 30px;
-            height: 30px;
-            margin-top: -15px;
-            margin-left: -15px;
-            border-radius: 50%;
-            opacity: 0;
-            pointer-events: none;
-            z-index: 5;
-            transition: left 0.45s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease;
-        }
-        .meter-glow.on { opacity: 1; animation: glowPulse 0.85s ease-in-out infinite; }
-
-        .meter-container.full .meter-fill { animation: pulse-meter 0.6s ease-in-out infinite alternate; }
-
-        /* ---------- Board ---------- */
-        #board-wrap {
-            flex: 1 1 auto;
-            min-height: 0;
-            width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 10px 4px;
-        }
-
-        #board-container {
-            position: relative;
-        }
-
-        #pieces-layer {
-            position: absolute;
-            inset: 0;
-            pointer-events: none;
-        }
-
-        .piece {
-            position: absolute;
-            width: calc(100% / 6);
-            height: calc(100% / 8);
-            padding: 3px;
-            transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-            will-change: transform;
-            pointer-events: auto;
-            cursor: pointer;
-            z-index: 5;
-        }
-
-        .piece-inner {
-            width: 100%;
-            height: 100%;
-            background: var(--paper);
-            border: 3px solid var(--ink);
-            border-radius: var(--radius-sm);
-            box-shadow: 0px 4px 0px var(--ink);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.15s ease;
-        }
-
-        .piece.selected .piece-inner {
-            transform: scale(1.08) translate(0px, 4px);
-            box-shadow: 0px 0px 0px var(--ink);
-            background: var(--paper-2);
-        }
-
-        .piece-inner.invalid { border-color: var(--coral-700); }
-
-        .material-symbols-outlined {
-            font-family: 'Material Symbols Outlined';
-            /* Scales with the JS-computed tile size, but never below the
-               12px floor even on the smallest permitted cell. */
-            font-size: max(0.75rem, calc(var(--cell) * 0.46));
-            font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 0, 'opsz' 48;
-            font-weight: normal;
-            font-style: normal;
-            line-height: 1;
-            letter-spacing: normal;
-            text-transform: none;
-            white-space: nowrap;
-            word-wrap: normal;
-            direction: ltr;
-            position: relative;
-            z-index: 2;
-            -webkit-font-feature-settings: 'liga';
-            -webkit-font-smoothing: antialiased;
-            pointer-events: none;
-        }
-
-        /* ---------- Special piece markers ----------
-           Every special tints its card with its own colour family and adds a
-           geometric marker that states what it will do:
-             stripe  -> arrows pointing along the line it clears
-             wrap    -> ring + corner pips (blast radius)
-             bomb    -> full rainbow card (clears a whole colour)            */
-        .fx {
-            position: absolute; inset: 0; border-radius: inherit; pointer-events: none; overflow: hidden;
-            /* Safari fails to clip a rotating/transformed descendant with plain
-               overflow:hidden + border-radius; a mask forces real clipping. */
-            -webkit-mask-image: -webkit-radial-gradient(circle, #fff 100%, #000 100%);
-            mask-image: radial-gradient(circle, #fff 100%, #000 100%);
-        }
-
-        .sp-h, .sp-v, .sp-wrap { background: var(--tint); }
-
-        .sp-h .fx::before, .sp-h .fx::after,
-        .sp-v .fx::before, .sp-v .fx::after {
-            content: '';
-            position: absolute;
-            background: var(--pc);
-        }
-        .sp-h .fx::before {
-            left: 3px; top: 50%;
-            width: calc(var(--cell) * 0.13); height: calc(var(--cell) * 0.2);
-            transform: translateY(-50%);
-            clip-path: polygon(100% 0, 100% 100%, 0 50%);
-        }
-        .sp-h .fx::after {
-            right: 3px; top: 50%;
-            width: calc(var(--cell) * 0.13); height: calc(var(--cell) * 0.2);
-            transform: translateY(-50%);
-            clip-path: polygon(0 0, 0 100%, 100% 50%);
-        }
-        .sp-v .fx::before {
-            top: 3px; left: 50%;
-            height: calc(var(--cell) * 0.13); width: calc(var(--cell) * 0.2);
-            transform: translateX(-50%);
-            clip-path: polygon(0 100%, 100% 100%, 50% 0);
-        }
-        .sp-v .fx::after {
-            bottom: 3px; left: 50%;
-            height: calc(var(--cell) * 0.13); width: calc(var(--cell) * 0.2);
-            transform: translateX(-50%);
-            clip-path: polygon(0 0, 100% 0, 50% 100%);
-        }
-
-        .sp-wrap .fx::before {
-            content: '';
-            position: absolute;
-            inset: 4px;
-            border: 2.5px solid var(--pc);
-            border-radius: 50%;
-            opacity: 0.55;
-            animation: wrapPulse 1.8s ease-in-out infinite;
-        }
-        .sp-wrap .fx::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background:
-                radial-gradient(circle at 13% 13%, var(--pc) 0 2.4px, transparent 2.5px),
-                radial-gradient(circle at 87% 13%, var(--pc) 0 2.4px, transparent 2.5px),
-                radial-gradient(circle at 13% 87%, var(--pc) 0 2.4px, transparent 2.5px),
-                radial-gradient(circle at 87% 87%, var(--pc) 0 2.4px, transparent 2.5px);
-        }
-
-        .sp-bomb .fx::before {
-            content: '';
-            position: absolute;
-            /* Exactly the tile's own size, never transformed - only the
-               gradient's start angle animates (via the registered custom
-               property below), so there is nothing here for the earlier
-               transform-clipping bug to ever affect again. */
-            inset: 0;
-            background: conic-gradient(from var(--spin-angle), var(--c1), var(--c2), var(--c3), var(--c4), var(--c5), var(--c6), var(--c7), var(--c1));
-            animation: spinAngle 7s linear infinite;
-        }
-        .sp-bomb .material-symbols-outlined { color: var(--ink); }
-
-        /* ---------- Feedback ---------- */
-        .pop { animation: popOut 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
-        .shake { animation: screenShake 0.3s cubic-bezier(.36,.07,.19,.97) both; }
-        .wiggle { animation: wiggleTile 0.3s cubic-bezier(.36,.07,.19,.97) both; }
-        .land { animation: landSquash 0.22s ease-out; }
-        .piece-inner.hint { animation: hintWiggle 1.1s ease-in-out; }
-
-        .tap-particle { border: 1.5px solid var(--ink); }
-
-        .particle {
-            position: absolute;
-            border: 2px solid var(--ink);
-            pointer-events: none;
-            z-index: 20;
-            animation: particle-burst 0.5s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
-        }
-
-        .shockwave {
-            position: absolute;
-            width: 40px; height: 40px;
-            border: 4px solid var(--paper);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            pointer-events: none;
-            z-index: 30;
-            animation: shockwaveExpand 0.5s ease-out forwards;
-        }
-
-        .combo-banner {
-            position: absolute;
-            top: 42%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(0.4);
-            opacity: 0;
-            font-size: 1.5rem;
-            font-weight: 900;
-            text-align: center;
-            color: var(--paper);
-            text-shadow: 4px 4px 0 var(--ink);
-            pointer-events: none;
-            z-index: 60;
-            white-space: nowrap;
-        }
-        .combo-banner.show { animation: comboPop 0.8s cubic-bezier(0.2, 0.8, 0.3, 1) forwards; }
-
-        .floating-text {
-            position: absolute;
-            color: var(--paper);
-            font-weight: 900;
-            font-size: 1.5rem;
-            text-shadow: 3px 3px 0 var(--ink);
-            pointer-events: none;
-            z-index: 40;
-            animation: float-up 1s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
-        }
-
-        .flash {
-            position: absolute; inset: 0;
-            background: var(--paper); z-index: 100; pointer-events: none;
-            border-radius: var(--radius-md);
-            animation: flash-fade 0.2s ease-out forwards;
-        }
-
-        .confetti {
-            position: fixed;
-            width: 14px; height: 14px;
-            border: 2px solid var(--ink);
-            z-index: 150;
-            pointer-events: none;
-            animation: confetti-fall 3s linear forwards;
-        }
-
-        @keyframes popOut {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.4) rotate(15deg); }
-            100% { transform: scale(0) rotate(-15deg); }
-        }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-        @keyframes spinAngle { from { --spin-angle: 0deg; } to { --spin-angle: 360deg; } }
-        @keyframes wrapPulse {
-            0%, 100% { transform: scale(1); opacity: 0.5; }
-            50% { transform: scale(1.09); opacity: 0.85; }
-        }
-        @keyframes wiggleTile {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-15%); }
-            75% { transform: translateX(15%); }
-        }
-        @keyframes landSquash {
-            0% { transform: scaleY(0.8) scaleX(1.08); }
-            60% { transform: scaleY(1.06) scaleX(0.96); }
-            100% { transform: scaleY(1) scaleX(1); }
-        }
-        @keyframes hintWiggle {
-            0%, 100% { transform: translateX(0); box-shadow: 0px 4px 0px var(--ink); }
-            15% { transform: translateX(-9%); box-shadow: 0px 4px 0px var(--ink), 0 0 14px 4px rgba(255,255,255,0.65); }
-            30% { transform: translateX(7%); }
-            45% { transform: translateX(-5%); box-shadow: 0px 4px 0px var(--ink), 0 0 14px 4px rgba(255,255,255,0.65); }
-            60% { transform: translateX(3%); }
-            75% { transform: translateX(0); box-shadow: 0px 4px 0px var(--ink); }
-        }
-        @keyframes screenShake {
-            0%, 100% { transform: translate3d(0, 0, 0); }
-            20%, 60% { transform: translate3d(-5px, 3px, 0); }
-            40%, 80% { transform: translate3d(5px, -3px, 0); }
-        }
-        @keyframes particle-burst {
-            0% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
-            100% { transform: translate(var(--tx), var(--ty)) scale(0) rotate(180deg); opacity: 1; }
-        }
-        @keyframes shockwaveExpand {
-            0% { transform: translate(-50%, -50%) scale(0.2); opacity: 1; }
-            100% { transform: translate(-50%, -50%) scale(5); opacity: 0; }
-        }
-        @keyframes comboPop {
-            0% { transform: translate(-50%, -50%) scale(0.3) rotate(-4deg); opacity: 0; }
-            30% { transform: translate(-50%, -50%) scale(1.25) rotate(2deg); opacity: 1; }
-            50% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
-            80% { opacity: 1; }
-            100% { transform: translate(-50%, -60%) scale(1.05) rotate(0deg); opacity: 0; }
-        }
-        @keyframes float-up {
-            0% { transform: translate(-50%, -50%) scale(0.5) rotate(-5deg); opacity: 0; }
-            20% { transform: translate(-50%, -100%) scale(1.2) rotate(5deg); opacity: 1; }
-            100% { transform: translate(-50%, -300%) scale(1) rotate(0deg); opacity: 0; }
-        }
-        @keyframes flash-fade { 0% { opacity: 1; } 100% { opacity: 0; } }
-        @keyframes pulse-meter { 0% { filter: brightness(1); } 100% { filter: brightness(1.25); } }
-        @keyframes sparkFloat {
-            0% { transform: translate(-50%, -50%) scale(0.4); opacity: 0; }
-            25% { opacity: 1; }
-            100% { transform: translate(calc(-50% + var(--mx)), calc(-50% + var(--my))) scale(0); opacity: 0; }
-        }
-        @keyframes rushSweep {
-            0% { background-position: -110% 0; opacity: 1; }
-            100% { background-position: 130% 0; opacity: 0; }
-        }
-        @keyframes glowPulse {
-            0%, 100% { transform: scale(0.8); }
-            50% { transform: scale(1.3); }
-        }
-        @keyframes bumpVal { 0% { transform: scale(1); } 40% { transform: scale(1.3); } 100% { transform: scale(1); } }
-        @keyframes confetti-fall {
-            0% { transform: translateY(-10vh) rotate(0deg); }
-            100% { transform: translateY(110vh) rotate(720deg); }
-        }
-        @keyframes starPop {
-            0% { transform: scale(0) rotate(-30deg); opacity: 0; }
-            60% { transform: scale(1.3) rotate(8deg); opacity: 1; }
-            100% { transform: scale(1) rotate(0deg); opacity: 1; }
-        }
-
-        /* ---------- Power-ups ---------- */
-        /* Sits in its own bar at the very bottom of the app - the safe-area
-           inset becomes this bar's padding instead of dead unstyled space
-           below the board, so the bottom of the screen is still part of the
-           game rather than a gap the canvas stops short of. */
-        .bottom-bar {
-            flex: 0 0 auto;
-            width: 100%;
-            padding: 8px 10px max(env(safe-area-inset-bottom), 10px);
-            display: flex;
-            justify-content: center;
-        }
-
-        .powerup-tray {
-            display: flex;
-            gap: 8px;
-            justify-content: center;
-            min-height: 40px;
-        }
-
-        .pu-btn {
-            position: relative;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--paper);
-            border: var(--border-thick) solid var(--ink);
-            border-radius: var(--radius-sm);
-            box-shadow: var(--shadow-small);
-            cursor: pointer;
-            transition: transform 0.1s ease, box-shadow 0.1s ease, background-color 0.15s ease;
-        }
-        .pu-btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
-        .pu-btn .material-symbols-outlined { font-size: 1.15rem; color: var(--ink); font-variation-settings: 'FILL' 1, 'wght' 600; }
-        .pu-btn.empty { opacity: 0.32; pointer-events: none; }
-        .pu-btn.armed { background: var(--gold-300); animation: armedPulse 0.9s ease-in-out infinite; }
-        /* Premium (coin-bought) tray slots keep the same gold family as
-           their shop cards, so the tray itself signals which power-ups are
-           the "better" bought tier at a glance. */
-        .pu-btn.premium { background: linear-gradient(155deg, var(--gold-100), var(--gold-300)); border-color: var(--gold-900); }
-        .pu-btn.premium .material-symbols-outlined { color: var(--gold-900); }
-        .pu-btn.premium .pu-count { background: var(--gold-900); }
-
-        .pu-count {
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            min-width: 19px;
-            height: 19px;
-            padding: 0 3px;
-            background: var(--coral-500);
-            color: #fff;
-            font-size: 0.75rem;
-            font-weight: 900;
-            border-radius: 999px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 2px solid var(--ink);
-        }
-
-        .reward-row {
-            display: flex;
-            gap: 12px;
-        }
-        .reward-card {
-            width: 128px;
-            padding: 18px 10px 14px;
-            background: var(--paper-2);
-            border: var(--border-thick) solid var(--ink);
-            border-radius: var(--radius-md);
-            box-shadow: var(--shadow-small);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            transition: transform 0.1s ease, box-shadow 0.1s ease;
-        }
-        .reward-card:active { transform: translate(3px, 3px); box-shadow: 0px 0px 0 var(--ink); }
-        .reward-card .material-symbols-outlined { font-size: 2rem; color: var(--ocean-700); font-variation-settings: 'FILL' 1, 'wght' 600; }
-        .reward-card .rc-name { font-weight: 900; font-size: 0.95rem; }
-        .reward-card .rc-desc { font-size: 0.75rem; color: var(--navy-500); text-align: center; line-height: 1.3; font-weight: 600; }
-
-        /* Premium (coin-bought) cards get their own gold treatment so they
-           never look like just another copy of the free power-ups. */
-        .reward-card.premium {
-            background: linear-gradient(155deg, var(--gold-100), var(--gold-300));
-            border-color: var(--gold-900);
-        }
-        .reward-card.premium .material-symbols-outlined { color: var(--gold-900); }
-        .reward-card.premium .rc-cost {
-            display: flex;
-            align-items: center;
-            gap: 3px;
-            font-weight: 900;
-            font-size: 0.8rem;
-            color: var(--gold-900);
-            background: rgba(255, 255, 255, 0.55);
-            padding: 2px 8px;
-            border-radius: 999px;
-        }
-        .reward-card.premium .rc-cost .material-symbols-outlined { font-size: 0.8rem; color: var(--gold-900); }
-        .reward-card.premium.unaffordable { opacity: 0.55; cursor: not-allowed; }
-
-        .shop-balance {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            padding: 4px 14px;
-            background: var(--gold-100);
-            border: var(--border-thick) solid var(--ink);
-            border-radius: 999px;
-            font-weight: 900;
-            font-size: 1rem;
-        }
-        .shop-balance .material-symbols-outlined { color: var(--gold-700); font-variation-settings: 'FILL' 1, 'wght' 600; }
-
-        @keyframes armedPulse {
-            0%, 100% { box-shadow: var(--shadow-small); }
-            50% { box-shadow: var(--shadow-small), 0 0 12px 3px rgba(224, 183, 74, 0.8); }
-        }
-
-        .confetti-lottie {
-            position: fixed;
-            inset: 0;
-            z-index: 250;
-            pointer-events: none;
-        }
-        .confetti-lottie svg { width: 100%; height: 100%; }
-
-        /* ---------- Overlay ---------- */
-        .overlay {
-            position: absolute; inset: 0;
-            background: rgba(10, 18, 24, 0.72);
-            backdrop-filter: blur(6px);
-            -webkit-backdrop-filter: blur(6px);
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.25s;
-        }
-        .overlay.active { opacity: 1; pointer-events: auto; }
-
-        .overlay-card {
-            background: var(--paper);
-            border: var(--border-thick) solid var(--ink);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-hard);
-            padding: 32px 30px;
-            max-width: min(90vw, 360px);
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 14px;
-            transform: scale(0.85);
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        .overlay.active .overlay-card { transform: scale(1); }
-
-        .overlay h2 {
-            font-size: 2.4rem;
-            font-weight: 900;
-            /* Sits on the light overlay-card, not the dark page background -
-               needs dark text, not the light/cream used elsewhere. It used
-               to get away with light text because a stroke outlined every
-               letter; once that stroke was removed the text itself was the
-               same colour as the card behind it (i.e. invisible), leaving
-               only fragments of the drop-shadow peeking out. */
-            color: var(--ink);
-            text-shadow: 2px 2px 0 rgba(41, 52, 62, 0.18);
-            transform: rotate(-2deg);
-        }
-
-        .overlay p {
-            font-size: 1.05rem;
-            font-weight: 700;
-            color: var(--navy-700);
-            line-height: 1.35;
-        }
-
-        .stars-row {
-            display: flex;
-            gap: 8px;
-            height: 2.3rem;
-        }
-        .stars-row .star {
-            font-size: 2.3rem;
-            color: var(--paper-2);
-            font-variation-settings: 'FILL' 1, 'wght' 600;
-        }
-        .stars-row .star.filled {
-            color: var(--gold-500);
-            text-shadow: 2px 2px 0 var(--ink);
-            animation: starPop 0.5s both;
-        }
-        .stars-row .star.filled:nth-child(2) { animation-delay: 0.1s; }
-        .stars-row .star.filled:nth-child(3) { animation-delay: 0.2s; }
-
-        .overlay button {
-            margin-top: 4px;
-            padding: 13px 38px;
-            font-size: 1.25rem;
-            font-weight: 900;
-            letter-spacing: 0.5px;
-            border: var(--border-thick) solid var(--ink);
-            border-radius: var(--radius-md);
-            background: var(--accent);
-            color: var(--ink);
-            cursor: pointer;
-            box-shadow: var(--shadow-hard);
-            transition: transform 0.1s, box-shadow 0.1s, background-color 1.6s ease;
-        }
-        .overlay button:active {
-            transform: translate(4px, 4px);
-            box-shadow: 1px 1px 0 var(--ink);
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Mellow Match</title>
+
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Mellow Match">
+<meta name="theme-color" content="#F5F2EB">
+<meta name="format-detection" content="telephone=no">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24..48,100..700,0..1,-50..200" />
+
+<style>
+@property --spin-angle {
+    syntax: '<angle>';
+    inherits: false;
+    initial-value: 0deg;
+}
+
+:root{
+  --bg:#F5F2EB;
+  --ink:#20201F;
+  --muted:#8B8B86;
+
+  --color-yellow-orange-light:#FFDFAB;
+  --color-yellow-orange-base:#FFC567;
+  --color-yellow-orange-dark:#C57A00;
+
+  --color-pink-light:#FDB5CD;
+  --color-pink-base:#FB7DA8;
+  --color-pink-dark:#C90649;
+
+  --color-red-orange-light:#FEA499;
+  --color-red-orange-base:#FD5A46;
+  --color-red-orange-dark:#B01502;
+
+  --color-purple-light:#9F76D2;
+  --color-purple-base:#552C87;
+  --color-purple-dark:#30194D;
+
+  --color-green-light:#3BFFB3;
+  --color-green-base:#00995E;
+  --color-green-dark:#00663F;
+
+  --color-blue-light:#63C5FB;
+  --color-blue-base:#058CD7;
+  --color-blue-dark:#034D76;
+
+  --color-true-yellow-light:#FAD970;
+  --color-true-yellow-base:#EAB308;
+  --color-true-yellow-dark:#816204;
+
+  --color-teal-light:#4FF0E1;
+  --color-teal-base:#0D9488;
+  --color-teal-dark:#085E56;
+
+  --color-indigo-light:#6484DD;
+  --color-indigo-base:#1E3A8A;
+  --color-indigo-dark:#122354;
+
+  --color-pure-red-light:#EC8888;
+  --color-pure-red-base:#DC2626;
+  --color-pure-red-dark:#7A1414;
+
+  --neutral-0:#FFFFFF;
+  --neutral-50:#F7F5F0;
+  --neutral-100:#EEEAE2;
+  --neutral-700:#343238;
+  --neutral-800:#26242A;
+  --neutral-900:#17161A;
+
+  --accent: var(--color-blue-light);
+
+  --board-pad:12px;
+  --gap:7px;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  overflow:hidden;
+  user-select:none;
+  -webkit-user-select:none;
+  -webkit-tap-highlight-color:transparent;
+  overscroll-behavior:none;
+  background: var(--neutral-50);
+  color:var(--ink);
+  font-family:Inter,system-ui,sans-serif;
+  position:fixed;
+  inset:0;
+  width:100%;
+}
+.bg-wash{
+  position:fixed;
+  inset:0;
+  z-index:0;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at 50% -5%,rgba(255,255,255,.95),transparent 40%),
+    rgba(255,255,255,0);
+  transition:background-color .8s ease;
+}
+
+button,input{font:inherit}
+button{touch-action:manipulation}
+
+.material-symbols-outlined{
+  font-family:'Material Symbols Outlined';
+  font-variation-settings:'FILL' 1,'wght' 600,'GRAD' 0,'opsz' 48;
+  font-weight:normal;
+  font-style:normal;
+  line-height:1;
+  letter-spacing:normal;
+  text-transform:none;
+  white-space:nowrap;
+  word-wrap:normal;
+  direction:ltr;
+  -webkit-font-feature-settings:'liga';
+  -webkit-font-smoothing:antialiased;
+  display:inline-block;
+}
+
+.app{
+  position:relative;
+  z-index:1;
+  width:min(100%,480px);
+  height:100%;
+  margin:auto;
+  display:flex;
+  flex-direction:column;
+  padding:calc(14px + env(safe-area-inset-top)) 16px calc(10px + env(safe-area-inset-bottom));
+}
+
+.topbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+}
+.brand{
+  font:800 13px/1.15 Manrope,sans-serif;
+  letter-spacing:.02em;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+.brand b{
+  display:block;
+  font-size:19px;
+  letter-spacing:-.03em;
+  color:var(--ink);
+  text-transform:none;
+  margin-top:1px;
+}
+.stats{display:flex;gap:7px}
+.pill{
+  min-width:68px;
+  height:40px;
+  display:grid;
+  place-items:center;
+  align-content:center;
+  border-radius:14px;
+  background:rgba(255,255,255,.84);
+  border:1px solid rgba(0,0,0,.05);
+  box-shadow:0 8px 20px rgba(0,0,0,.05);
+  backdrop-filter:blur(12px);
+}
+.pill b{font-size:13.5px;line-height:1}
+.pill span{
+  margin-top:3px;
+  font-size:8.5px;
+  color:var(--muted);
+  text-transform:uppercase;
+  letter-spacing:.08em;
+}
+.pill.bump{animation:bumpVal .3s ease}
+
+.subbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  margin-top:8px;
+}
+.coin-chip{
+  display:flex;
+  align-items:center;
+  gap:5px;
+  height:34px;
+  padding:0 12px;
+  border-radius:999px;
+  background:linear-gradient(155deg,var(--color-true-yellow-light),var(--color-yellow-orange-light));
+  border:1px solid rgba(0,0,0,.06);
+  box-shadow:0 6px 16px rgba(0,0,0,.06);
+}
+.coin-chip .material-symbols-outlined{font-size:1rem;color:var(--color-yellow-orange-dark);font-variation-settings:'FILL' 1,'wght' 600}
+.coin-chip span:last-child{font-weight:800;font-size:.85rem;color:var(--neutral-900)}
+.coin-chip.bump{animation:bumpVal .3s ease}
+
+.icon-actions{display:flex;gap:8px}
+.icon-btn{
+  width:36px;
+  height:36px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border:1px solid rgba(0,0,0,.06);
+  border-radius:13px;
+  background:rgba(255,255,255,.88);
+  box-shadow:0 6px 16px rgba(0,0,0,.05);
+  color:var(--ink);
+  cursor:pointer;
+}
+.icon-btn:active{transform:scale(.94)}
+.icon-btn .material-symbols-outlined{font-size:1.05rem;font-variation-settings:'FILL' 1,'wght' 600}
+
+.stage{
+  min-height:0;
+  flex:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding-top:32px;
+}
+
+.shell{
+  position:relative;
+  contain:layout style;
+  overflow:visible;
+  filter:drop-shadow(0 20px 36px rgba(43,38,28,.12));
+}
+
+.board{
+  position:absolute;
+  inset:0;
+  overflow:hidden;
+  border-radius:24px;
+  background:var(--neutral-100);
+  border:4px solid var(--neutral-800);
+  box-shadow:
+    0 7px 0 var(--neutral-800),
+    0 20px 40px rgba(38,35,29,.14);
+}
+.grid{
+  position:absolute;
+  inset:var(--board-pad);
+  touch-action:none;
+  contain:layout style;
+  overflow:visible;
+}
+
+.tile{
+  position:absolute;
+  left:0;
+  top:0;
+  border:0;
+  padding:0;
+  margin:0;
+  background:transparent;
+  cursor:pointer;
+  transform-origin:center;
+  will-change:transform,opacity;
+  backface-visibility:hidden;
+  -webkit-backface-visibility:hidden;
+  contain:layout style;
+  overflow:visible;
+}
+.tile-shadow{
+  position:absolute;
+  inset:0;
+  border-radius:24%;
+  background:var(--neutral-800);
+  transform:translate3d(0,4px,0);
+  pointer-events:none;
+  z-index:0;
+}
+.gem{
+  position:absolute;
+  inset:0;
+  display:grid;
+  place-items:center;
+  border-radius:24%;
+  overflow:hidden;
+  background:var(--tile-bg,var(--neutral-50));
+  border:3px solid var(--neutral-800);
+  transform:translateZ(0);
+  will-change:transform,opacity;
+  z-index:1;
+}
+
+.tile-icon{
+  width:58%;
+  height:58%;
+  display:block;
+  overflow:visible;
+  pointer-events:none;
+  position:relative;
+  z-index:2;
+}
+.tile-icon use{
+  fill:var(--tile-shape);
+  stroke:var(--neutral-800);
+  stroke-width:4;
+  stroke-linejoin:round;
+  stroke-linecap:round;
+  vector-effect:non-scaling-stroke;
+}
+
+.type-1{ --tile-bg:var(--color-yellow-orange-base); --tile-shape:var(--color-yellow-orange-light); }
+.type-2{ --tile-bg:var(--color-pink-base); --tile-shape:var(--color-pink-light); }
+.type-3{ --tile-bg:var(--color-blue-base); --tile-shape:var(--color-blue-light); }
+.type-4{ --tile-bg:var(--color-teal-base); --tile-shape:var(--color-teal-light); }
+.type-5{ --tile-bg:var(--color-purple-base); --tile-shape:var(--color-purple-light); }
+.type-6{ --tile-bg:var(--color-red-orange-base); --tile-shape:var(--color-red-orange-light); }
+
+.tile.special-bomb .gem{
+  background:conic-gradient(from var(--spin-angle),
+    var(--color-yellow-orange-base), var(--color-pink-base), var(--color-red-orange-base),
+    var(--color-purple-base), var(--color-blue-base), var(--color-teal-base), var(--color-yellow-orange-base));
+  animation:spinAngle 6s linear infinite;
+}
+.tile.special-bomb .tile-icon use{ fill:var(--neutral-0); stroke:var(--neutral-800); }
+
+.tile.selected .gem{
+  animation:selectedPulse .58s ease-in-out infinite alternate;
+}
+@keyframes selectedPulse{
+  from{transform:scale(.93)}
+  to{transform:scale(1.035)}
+}
+@keyframes spinAngle{ from{ --spin-angle:0deg; } to{ --spin-angle:360deg; } }
+
+.tile.hint .gem{ animation:hintPulse 1.1s ease-in-out; }
+@keyframes hintPulse{
+  0%,100%{ box-shadow:none; }
+  15%,45%{ box-shadow:0 0 0 6px rgba(255,255,255,.55); }
+  30%,60%{ box-shadow:none; }
+}
+
+.level-progress{
+  position:absolute;
+  left:6px;
+  right:6px;
+  top:-32px;
+  height:24px;
+  z-index:30;
+}
+.progress-track{
+  position:absolute;
+  inset:5px 0 3px;
+  height:16px;
+  border-radius:999px;
+  background:var(--neutral-0);
+  border:3px solid var(--neutral-800);
+  box-shadow:0 4px 0 var(--neutral-800);
+  overflow:visible;
+}
+.progress-fill{
+  position:absolute;
+  left:0;
+  top:0;
+  bottom:0;
+  width:0%;
+  border-radius:999px;
+  background:var(--color-true-yellow-base);
+  will-change:width;
+  overflow:hidden;
+  transition:width .48s cubic-bezier(.16,.84,.24,1), background .28s ease;
+}
+.progress-track.full .progress-fill{ animation:pulseMeter .6s ease-in-out infinite alternate; }
+@keyframes pulseMeter{ 0%{filter:brightness(1)} 100%{filter:brightness(1.22)} }
+
+.progress-head{
+  position:absolute;
+  left:0;
+  top:50%;
+  width:36px;
+  height:36px;
+  transform:translate(-50%,-50%) translateZ(0);
+  pointer-events:none;
+  z-index:8;
+  transition:left .48s cubic-bezier(.16,.84,.24,1);
+}
+.progress-head-icon{
+  width:100%;
+  height:100%;
+  display:block;
+  overflow:visible;
+  animation:starSpin 3.2s linear infinite;
+}
+.progress-head-icon use{
+  fill:var(--color-true-yellow-light);
+  stroke:var(--neutral-800);
+  stroke-width:4;
+  stroke-linejoin:round;
+  stroke-linecap:round;
+  vector-effect:non-scaling-stroke;
+}
+@keyframes starSpin{ from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+
+.progress-track.tier-2 .progress-fill{ background:var(--color-yellow-orange-base); }
+.progress-track.tier-2 .progress-head-icon use{ fill:var(--color-yellow-orange-light); }
+.progress-track.tier-3 .progress-fill{ background:var(--color-red-orange-base); }
+.progress-track.tier-3 .progress-head-icon use{ fill:var(--color-red-orange-light); }
+
+.milestone-dot{
+  position:absolute;
+  top:50%;
+  width:8px;
+  height:8px;
+  transform:translate(-50%,-50%) translateZ(0);
+  border-radius:50%;
+  background:rgba(0,0,0,.16);
+  z-index:6;
+  opacity:1;
+  transition:transform .22s ease,background .22s ease,opacity .22s ease;
+}
+.milestone-dot.passed{ opacity:0; transform:translate(-50%,-50%) scale(.45); }
+.progress-percent{
+  position:absolute;
+  right:2px;
+  top:-9px;
+  color:var(--muted);
+  font-size:9px;
+  font-weight:800;
+}
+
+.fx-canvas{
+  position:absolute;
+  inset:-52px -24px -24px;
+  width:calc(100% + 48px);
+  height:calc(100% + 76px);
+  pointer-events:none;
+  z-index:50;
+}
+.text-layer{
+  position:absolute;
+  inset:-52px -24px -24px;
+  pointer-events:none;
+  z-index:55;
+  overflow:visible;
+}
+.combo-text{
+  position:absolute;
+  left:50%;
+  top:15%;
+  transform:translate(-50%,0);
+  font:800 clamp(22px,7.5vw,36px)/1 Manrope,sans-serif;
+  letter-spacing:-.04em;
+  white-space:nowrap;
+  text-shadow:0 4px 14px rgba(0,0,0,.14);
+  color:var(--ink);
+}
+.score-pop{
+  position:absolute;
+  transform:translate(-50%,-50%);
+  font-size:13px;
+  font-weight:800;
+  color:var(--ink);
+  text-shadow:0 2px 9px rgba(255,255,255,.8);
+}
+
+.screen-flash{
+  position:fixed;
+  inset:0;
+  z-index:80;
+  pointer-events:none;
+  opacity:0;
+  background:radial-gradient(circle at 50% 50%,rgba(255,255,255,.5),transparent 55%);
+  mix-blend-mode:screen;
+}
+
+.bottom-bar{
+  flex:0 0 auto;
+  padding-top:14px;
+  display:flex;
+  justify-content:center;
+}
+.powerup-tray{
+  display:flex;
+  gap:8px;
+  justify-content:center;
+  flex-wrap:wrap;
+  min-height:44px;
+}
+.pu-btn{
+  position:relative;
+  width:42px;
+  height:42px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:14px;
+  background:rgba(255,255,255,.88);
+  border:1px solid rgba(0,0,0,.06);
+  box-shadow:0 6px 16px rgba(0,0,0,.05);
+  cursor:pointer;
+}
+.pu-btn:active{ transform:scale(.94); }
+.pu-btn .material-symbols-outlined{ font-size:1.15rem; color:var(--ink); font-variation-settings:'FILL' 1,'wght' 600; }
+.pu-btn.empty{ opacity:.32; pointer-events:none; }
+.pu-btn.armed{ background:var(--color-true-yellow-light); animation:armedPulse .9s ease-in-out infinite; }
+.pu-btn.premium{ background:linear-gradient(155deg,var(--color-true-yellow-light),var(--color-yellow-orange-light)); border-color:var(--color-yellow-orange-dark); }
+.pu-btn.premium .material-symbols-outlined{ color:var(--color-yellow-orange-dark); }
+.pu-btn.premium .pu-count{ background:var(--color-yellow-orange-dark); }
+@keyframes armedPulse{
+  0%,100%{ box-shadow:0 6px 16px rgba(0,0,0,.05); }
+  50%{ box-shadow:0 6px 16px rgba(0,0,0,.05), 0 0 12px 3px rgba(234,179,8,.75); }
+}
+
+.pu-count{
+  position:absolute;
+  top:-7px;
+  right:-7px;
+  min-width:18px;
+  height:18px;
+  padding:0 3px;
+  background:var(--color-red-orange-base);
+  color:#fff;
+  font-size:.7rem;
+  font-weight:800;
+  border-radius:999px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border:2px solid var(--neutral-0);
+}
+
+.overlay{
+  position:absolute; inset:0;
+  background:rgba(23,22,26,.55);
+  backdrop-filter:blur(6px);
+  -webkit-backdrop-filter:blur(6px);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  z-index:200; opacity:0; pointer-events:none; transition:opacity .25s;
+}
+.overlay.active{ opacity:1; pointer-events:auto; }
+
+.overlay-card{
+  background:var(--neutral-0);
+  border-radius:26px;
+  box-shadow:0 30px 60px rgba(20,18,14,.28);
+  padding:30px 26px;
+  max-width:min(90vw,360px);
+  text-align:center;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:12px;
+  transform:scale(.85);
+  transition:transform .3s cubic-bezier(.175,.885,.32,1.275);
+}
+.overlay.active .overlay-card{ transform:scale(1); }
+
+.overlay h2{
+  font:800 2rem/1.05 Manrope,sans-serif;
+  letter-spacing:-.03em;
+  color:var(--ink);
+}
+.overlay p{
+  font-size:.98rem;
+  font-weight:600;
+  color:var(--muted);
+  line-height:1.4;
+}
+
+.stars-row{ display:flex; gap:8px; height:2.2rem; }
+.stars-row .star{
+  font-size:2.2rem;
+  color:var(--neutral-100);
+  font-variation-settings:'FILL' 1,'wght' 600;
+}
+.stars-row .star.filled{
+  color:var(--color-true-yellow-base);
+  animation:starPop .5s both;
+}
+.stars-row .star.filled:nth-child(2){ animation-delay:.1s; }
+.stars-row .star.filled:nth-child(3){ animation-delay:.2s; }
+@keyframes starPop{
+  0%{ transform:scale(0) rotate(-30deg); opacity:0; }
+  60%{ transform:scale(1.3) rotate(8deg); opacity:1; }
+  100%{ transform:scale(1) rotate(0); opacity:1; }
+}
+
+.overlay button.primary{
+  margin-top:4px;
+  padding:14px 40px;
+  font:800 1.05rem Manrope,sans-serif;
+  letter-spacing:.01em;
+  border:0;
+  border-radius:16px;
+  background:var(--accent);
+  color:var(--neutral-900);
+  cursor:pointer;
+  box-shadow:0 12px 26px rgba(0,0,0,.16);
+}
+.overlay button.primary:active{ transform:scale(.96); }
+
+.reward-row{ display:flex; gap:10px; }
+.reward-card{
+  width:126px;
+  padding:18px 10px 14px;
+  background:var(--neutral-50);
+  border:1px solid rgba(0,0,0,.06);
+  border-radius:20px;
+  box-shadow:0 8px 20px rgba(0,0,0,.06);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:8px;
+  cursor:pointer;
+}
+.reward-card:active{ transform:scale(.96); }
+.reward-card .material-symbols-outlined{ font-size:1.9rem; color:var(--color-blue-dark); font-variation-settings:'FILL' 1,'wght' 600; }
+.reward-card .rc-name{ font-weight:800; font-size:.92rem; font-family:Manrope,sans-serif; }
+.reward-card .rc-desc{ font-size:.72rem; color:var(--muted); text-align:center; line-height:1.3; font-weight:600; }
+
+.reward-card.premium{
+  background:linear-gradient(155deg,var(--color-true-yellow-light),var(--color-yellow-orange-light));
+  border-color:var(--color-yellow-orange-dark);
+}
+.reward-card.premium .material-symbols-outlined{ color:var(--color-yellow-orange-dark); }
+.reward-card.premium .rc-cost{
+  display:flex;
+  align-items:center;
+  gap:3px;
+  font-weight:800;
+  font-size:.76rem;
+  color:var(--color-yellow-orange-dark);
+  background:rgba(255,255,255,.6);
+  padding:2px 8px;
+  border-radius:999px;
+}
+.reward-card.premium .rc-cost .material-symbols-outlined{ font-size:.76rem; color:var(--color-yellow-orange-dark); }
+.reward-card.premium.unaffordable{ opacity:.5; cursor:not-allowed; }
+
+.shop-balance{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  padding:5px 16px;
+  background:linear-gradient(155deg,var(--color-true-yellow-light),var(--color-yellow-orange-light));
+  border-radius:999px;
+  font-weight:800;
+  font-size:1rem;
+}
+.shop-balance .material-symbols-outlined{ color:var(--color-yellow-orange-dark); font-variation-settings:'FILL' 1,'wght' 600; }
+
+.confetti-lottie{ position:fixed; inset:0; z-index:250; pointer-events:none; }
+.confetti-lottie svg{ width:100%; height:100%; }
+
+@keyframes bumpVal{ 0%{transform:scale(1)} 40%{transform:scale(1.16)} 100%{transform:scale(1)} }
+
+@media(max-height:720px){
+  .app{ padding-top:10px; }
+  .stage{ padding-top:28px; }
+  .pill{ height:37px; }
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.01ms!important;
+    animation-iteration-count:1!important;
+    transition-duration:.01ms!important;
+  }
+}
+</style>
 </head>
+
 <body>
+<div class="bg-wash" id="bgWash"></div>
 
-    <div id="bg"></div>
+<svg width="0" height="0" style="position:absolute;visibility:hidden" aria-hidden="true">
+  <defs>
+    <symbol id="piece-burst" viewBox="0 0 100 100">
+      <path d="M50 12 C56 12 59 20 63 23 C68 21 76 17 80 22 C84 26 80 34 81 39 C86 42 93 45 93 51 C93 57 86 60 81 63 C81 69 84 76 80 80 C76 84 68 80 63 78 C59 82 56 90 50 90 C44 90 41 82 37 78 C32 80 24 84 20 80 C16 76 19 69 19 63 C14 60 7 57 7 51 C7 45 14 42 19 39 C18 34 16 26 20 22 C24 17 32 21 37 23 C41 20 44 12 50 12Z"/>
+    </symbol>
+    <symbol id="piece-circle" viewBox="0 0 100 100">
+      <circle cx="50" cy="50" r="28"/>
+    </symbol>
+    <symbol id="piece-diamond" viewBox="0 0 100 100">
+      <path d="M50 17 L83 50 L50 83 L17 50 Z"/>
+    </symbol>
+    <symbol id="piece-x" viewBox="0 0 100 100">
+      <path d="M31 18 C27 18 24 20 21 23 C18 27 18 31 21 35 L36 50 L21 65 C18 69 18 73 21 77 C24 80 27 82 31 82 C35 82 38 80 41 77 L50 68 L59 77 C62 80 65 82 69 82 C73 82 76 80 79 77 C82 73 82 69 79 65 L64 50 L79 35 C82 31 82 27 79 23 C76 20 73 18 69 18 C65 18 62 20 59 23 L50 32 L41 23 C38 20 35 18 31 18Z"/>
+    </symbol>
+    <symbol id="piece-heart" viewBox="0 0 100 100">
+      <path d="M50 82 C22 60 8 42 8 25 C8 11 19 3 31 3 C41 3 47 9 50 16 C53 9 59 3 69 3 C81 3 92 11 92 25 C92 42 78 60 50 82Z"/>
+    </symbol>
+    <symbol id="piece-star" viewBox="0 0 100 100">
+      <path d="M50 6 L61 38 L95 38 L67 59 L78 92 L50 71 L22 92 L33 59 L5 38 L39 38Z"/>
+    </symbol>
 
-    <div id="app">
-        <div class="topbar">
-            <div class="coin-chip" id="coin-chip">
-                <span class="material-symbols-outlined">paid</span>
-                <span id="coin-txt">0</span>
-            </div>
-            <div class="topbar-right">
-                <button class="icon-btn" id="shop-btn" aria-label="Shop">
-                    <span class="material-symbols-outlined">storefront</span>
-                </button>
-                <button class="icon-btn" id="mute-btn" aria-label="Toggle Sound">
-                    <span class="material-symbols-outlined" id="mute-icon">volume_up</span>
-                </button>
-            </div>
-        </div>
+    <symbol id="piece-horiz-row" viewBox="0 0 480 480">
+      <path stroke-width="19.2" d="m320 400l-80-160 80-160c42.43 0 83.13 16.86 113.14 46.86 30 30.01 46.86 70.71 46.86 113.14 0 42.43-16.86 83.13-46.86 113.14-30.01 30-70.71 46.86-113.14 46.86zm-160-320l80 160-80 160c-42.43 0-83.13-16.86-113.14-46.86-30-30.01-46.86-70.71-46.86-113.14 0-42.43 16.86-83.13 46.86-113.14 30.01-30 70.71-46.86 113.14-46.86z"/>
+    </symbol>
+    <symbol id="piece-vert-row" viewBox="0 0 480 480">
+      <path stroke-width="19.2" d="m400 160-160 80-160-80a160 160 0 1 1 320 0ZM80 320l160-80 160 80a160 160 0 1 1-320 0Z"/>
+    </symbol>
+    <symbol id="piece-wrap" viewBox="0 0 100 100">
+      <path fill-rule="evenodd" d="M50 14a36 36 0 100 72 36 36 0 000-72zm0 14a22 22 0 110 44 22 22 0 010-44z"/>
+      <circle cx="16" cy="16" r="7"/>
+      <circle cx="84" cy="16" r="7"/>
+      <circle cx="16" cy="84" r="7"/>
+      <circle cx="84" cy="84" r="7"/>
+    </symbol>
+    <symbol id="piece-bomb" viewBox="0 0 480 480">
+      <path stroke-width="19.2" d="M400 480H80a160 160 0 1 1 320 0ZM80 0h320A160 160 0 1 1 80 0ZM0 400V80a160 160 0 1 1 0 320ZM480 80v320a160 160 0 1 1 0-320Z"/>
+      <circle stroke-width="19.2" cx="240" cy="240" r="80"/>
+    </symbol>
 
-        <div class="hud">
-            <div class="hud-top">
-                <div class="hud-box">
-                    <div class="hud-label">MOVES</div>
-                    <div class="hud-val" id="moves-txt">0</div>
-                </div>
-                <div class="level-title" id="level-txt">LVL 1</div>
-                <div class="hud-box">
-                    <div class="hud-label">SCORE</div>
-                    <div class="hud-val" id="score-txt">0</div>
-                </div>
-            </div>
-            <div class="meter-wrap">
-                <div class="meter-container" id="meter-container">
-                    <div class="meter-fill" id="goal-meter"></div>
-                    <span class="meter-tick" style="left:74.074%"></span>
-                    <span class="meter-tick" style="left:85.185%"></span>
-                </div>
-                <div class="meter-fx" id="meter-fx"></div>
-                <div class="meter-stars">
-                    <span class="material-symbols-outlined mstar" id="mstar-1" style="left:74.074%">star</span>
-                    <span class="material-symbols-outlined mstar" id="mstar-2" style="left:85.185%">star</span>
-                    <span class="material-symbols-outlined mstar" id="mstar-3" style="left:auto; right:1px; margin-left:0;">star</span>
-                </div>
-                <div class="meter-glow" id="meter-glow"></div>
-            </div>
-        </div>
+    <symbol id="progress-star" viewBox="0 0 100 100">
+      <path d="M50 6 L58 34 L79 21 L66 41 L94 50 L66 59 L79 79 L58 66 L50 94 L42 66 L21 79 L34 59 L6 50 L34 41 L21 21 L42 34Z"/>
+    </symbol>
+  </defs>
+</svg>
 
-        <div id="board-wrap">
-            <div id="board-container">
-                <div id="pieces-layer">
-                    <div class="combo-banner" id="combo-banner"></div>
-                </div>
-            </div>
-        </div>
-
-        <div class="bottom-bar">
-            <div class="powerup-tray" id="powerup-tray"></div>
-        </div>
-
-        <div class="overlay" id="screen-overlay">
-            <div class="overlay-card">
-                <h2 id="screen-title">LEVEL 1</h2>
-                <p id="screen-desc">SCORE POINTS TO FILL THE METER!</p>
-                <div class="stars-row" id="screen-stars"></div>
-                <button id="screen-btn" onclick="game.onScreenButton()">PLAY</button>
-            </div>
-        </div>
-
-        <div class="overlay" id="reward-overlay">
-            <div class="overlay-card">
-                <h2>PICK A REWARD</h2>
-                <p>Keep one power-up for later - use it whenever you like.</p>
-                <div class="reward-row" id="reward-row"></div>
-            </div>
-        </div>
-
-        <div class="overlay" id="shop-overlay">
-            <div class="overlay-card">
-                <h2>SHOP</h2>
-                <div class="shop-balance">
-                    <span class="material-symbols-outlined">paid</span>
-                    <span id="shop-coin-txt">0</span>
-                </div>
-                <div class="reward-row" id="shop-row"></div>
-                <button id="shop-close-btn">CLOSE</button>
-            </div>
-        </div>
-
-        <div class="confetti-lottie" id="confetti-lottie"></div>
+<div class="app">
+  <header class="topbar">
+    <div class="brand">LEVEL<b id="level-txt">1</b></div>
+    <div class="stats">
+      <div class="pill"><b id="score-txt">0</b><span>score</span></div>
+      <div class="pill"><b id="moves-txt">0</b><span>moves</span></div>
     </div>
+  </header>
+
+  <div class="subbar">
+    <div class="coin-chip" id="coin-chip">
+      <span class="material-symbols-outlined">paid</span>
+      <span id="coin-txt">0</span>
+    </div>
+    <div class="icon-actions">
+      <button class="icon-btn" id="shop-btn" aria-label="Shop">
+        <span class="material-symbols-outlined">storefront</span>
+      </button>
+      <button class="icon-btn" id="mute-btn" aria-label="Toggle Sound">
+        <span class="material-symbols-outlined" id="mute-icon">volume_up</span>
+      </button>
+    </div>
+  </div>
+
+  <main class="stage">
+    <div class="shell" id="shell">
+      <div class="level-progress">
+        <div class="progress-track" id="progressTrack">
+          <div class="progress-fill" id="progressFill"></div>
+          <i class="milestone-dot" id="mile1"></i>
+          <i class="milestone-dot" id="mile2"></i>
+          <i class="milestone-dot" id="mile3"></i>
+          <span class="progress-percent" id="progressPercent">0%</span>
+        </div>
+        <span class="progress-head" id="progressHead">
+          <svg class="progress-head-icon" viewBox="0 0 100 100" aria-hidden="true">
+            <use href="#progress-star"></use>
+          </svg>
+        </span>
+      </div>
+
+      <div class="board" id="board">
+        <div class="grid" id="grid"></div>
+      </div>
+
+      <canvas class="fx-canvas" id="fxCanvas"></canvas>
+      <div class="text-layer" id="textLayer"></div>
+    </div>
+  </main>
+
+  <footer class="bottom-bar">
+    <div class="powerup-tray" id="powerup-tray"></div>
+  </footer>
+</div>
+
+<div class="screen-flash" id="screenFlash"></div>
+
+<div class="overlay" id="screen-overlay">
+  <div class="overlay-card">
+    <h2 id="screen-title">LEVEL 1</h2>
+    <p id="screen-desc">SCORE POINTS TO FILL THE METER!</p>
+    <div class="stars-row" id="screen-stars"></div>
+    <button class="primary" id="screen-btn">PLAY</button>
+  </div>
+</div>
+
+<div class="overlay" id="reward-overlay">
+  <div class="overlay-card">
+    <h2>Pick a Reward</h2>
+    <p>Keep one power-up for later — use it whenever you like.</p>
+    <div class="reward-row" id="reward-row"></div>
+  </div>
+</div>
+
+<div class="overlay" id="shop-overlay">
+  <div class="overlay-card">
+    <h2>Shop</h2>
+    <div class="shop-balance">
+      <span class="material-symbols-outlined">paid</span>
+      <span id="shop-coin-txt">0</span>
+    </div>
+    <div class="reward-row" id="shop-row"></div>
+    <button class="primary" id="shop-close-btn">CLOSE</button>
+  </div>
+</div>
+
+<div class="confetti-lottie" id="confetti-lottie"></div>
 
 <script src="lib/lottie-light.min.js"></script>
 <script>
+'use strict';
+
 /* Targets are tuned against a bot playing random valid moves on this 6x8 board:
    that baseline is roughly 1.4k / 2.2k / 1.8k / 2.1k per level, so a target of
-   ~0.8x baseline reads as a warm-up and ~1.4x demands deliberate play.
-   Six colours is the ceiling here - seven leaves only ~7 tiles per colour on 48
-   squares, which starves the board of matches. */
+   ~0.8x baseline reads as a warm-up and ~1.4x demands deliberate play. */
 const LEVELS = [
     { id: 1, moves: 18, target: 1200, colors: 5, desc: "MATCH 3 OR MORE TO FILL THE METER!" },
     { id: 2, moves: 22, target: 2000, colors: 5, desc: "BIGGER TARGET. KEEP THE CASCADES GOING!" },
-    { id: 3, moves: 26, target: 2400, colors: 6, desc: "MORE COLOURS. BUILD SPECIAL TILES!" },
+    { id: 3, moves: 26, target: 2400, colors: 6, desc: "MORE COLORS. BUILD SPECIAL TILES!" },
     { id: 4, moves: 30, target: 3000, colors: 6, desc: "EXPERT MODE. COMBINE THE SPECIALS!" }
-];
-
-/* Each level dresses the background in a new colour story. */
-/* Light/dark shade pair per candy colour - what the background gradient
-   retints to whenever a match of that colour resolves. */
-const COLOR_FAMILIES = {
-    1: { light: '#A8DDD7', dark: '#246C67' }, // aqua
-    2: { light: '#AAC2F7', dark: '#344B86' }, // blue
-    3: { light: '#C6B1F4', dark: '#513A81' }, // violet
-    4: { light: '#F0A2C5', dark: '#7E3052' }, // berry
-    5: { light: '#F8AAA0', dark: '#873731' }, // coral
-    6: { light: '#F8BC7D', dark: '#80461E' }, // orange
-    7: { light: '#F3D47A', dark: '#755C20' }  // gold
-};
-
-/* Each level opens on a different colour's mood; matches then retint the
-   background live from whatever was just cleared. */
-const THEMES = [
-    { colorId: 1, accent: '#55B7CB' },
-    { colorId: 3, accent: '#9B7BE0' },
-    { colorId: 4, accent: '#DE6399' },
-    { colorId: 6, accent: '#EA8D3F' }
 ];
 
 const SPECIALS = { NONE: 0, H_STRIPE: 1, V_STRIPE: 2, WRAP: 3, BOMB: 4 };
 
-/* Power-ups: earned by picking one on the level-clear reward screen, used
-   whenever the player likes (they don't cost a move). */
 const POWER_UPS = {
     hammer: { icon: 'construction', name: 'Hammer', desc: 'Tap any tile to smash it instantly.' },
     shuffle: { icon: 'shuffle', name: 'Shuffle', desc: 'Reshuffle the whole board.' },
@@ -1037,55 +836,56 @@ const POWER_UPS = {
     colorBomb: { icon: 'auto_awesome', name: 'Color Bomb', desc: 'Drops a color bomb onto the board.' }
 };
 
-/* Coin-only power-ups: stronger versions of the free ones, bought from the
-   shop rather than earned. Kept in a separate object (and given their own
-   gold styling everywhere they render) so they always read as a distinct,
-   premium tier rather than just "more of the same". */
 const PREMIUM_POWER_UPS = {
     megaHammer: { icon: 'bolt', name: 'Mega Hammer', desc: 'Tap a tile to smash its whole row.', cost: 40 },
     doubleBomb: { icon: 'stars', name: 'Double Bomb', desc: 'Drops two color bombs at once.', cost: 60 }
 };
+
 const ACTION_WORDS = ["BAM!", "RAD!", "BOOM!", "SICK!", "WILD!", "POP!", "SWEET!", "TASTY!"];
-const ICONS = {
-    1: 'star',
-    2: 'favorite',
-    3: 'diamond',
-    4: 'spa',
-    5: 'cloud',
-    6: 'sunny',
-    7: 'bolt'
-};
+
+const SHAPES = { 1: 'piece-burst', 2: 'piece-heart', 3: 'piece-circle', 4: 'piece-diamond', 5: 'piece-x', 6: 'piece-star' };
+const SPECIAL_SHAPES = { [SPECIALS.H_STRIPE]: 'piece-vert-row', [SPECIALS.V_STRIPE]: 'piece-horiz-row', [SPECIALS.WRAP]: 'piece-wrap', [SPECIALS.BOMB]: 'piece-bomb' };
+
 const COLORS = {
-    1: '#429C94', 2: '#7197E8', 3: '#9B7BE0', 4: '#DE6399',
-    5: '#EC7165', 6: '#EA8D3F', 7: '#E0B74A'
+    1: '#FFC567', 2: '#FB7DA8', 3: '#058CD7', 4: '#0D9488', 5: '#552C87', 6: '#FD5A46'
 };
-/* -100 shades of the same families, used to tint special tiles */
-const TINTS = {
-    1: '#E2F6F3', 2: '#E3ECFF', 3: '#EEE7FF', 4: '#FBE3EE',
-    5: '#FFE5E1', 6: '#FFEBD8', 7: '#FFF3CF'
+const COLORS_LIGHT = {
+    1: '#FFDFAB', 2: '#FDB5CD', 3: '#63C5FB', 4: '#4FF0E1', 5: '#9F76D2', 6: '#FEA499'
 };
+const BG_TINTS = {
+    1: 'rgba(255,197,103,.22)', 2: 'rgba(251,125,168,.20)', 3: 'rgba(5,140,215,.18)',
+    4: 'rgba(13,148,136,.18)', 5: 'rgba(85,44,135,.16)', 6: 'rgba(253,90,70,.18)'
+};
+
+const THEMES = [
+    { colorId: 3, accent: 'var(--color-blue-light)' },
+    { colorId: 5, accent: 'var(--color-purple-light)' },
+    { colorId: 2, accent: 'var(--color-pink-light)' },
+    { colorId: 6, accent: 'var(--color-red-orange-light)' }
+];
+
+const TIER_COLORS = ['var(--color-true-yellow-base)', 'var(--color-yellow-orange-base)', 'var(--color-red-orange-base)'];
+/* target/starMax is always 1/1.35 regardless of level, since starMax = target*1.35 */
+const MILESTONE_PCTS = [100 / 1.35, 115 / 1.35, 100];
 
 const COLS = 6;
 const ROWS = 8;
+const GAP = 7;
 const MAX_CELL = 88;
-const ANIM_DUR = 250;
-const wait = (ms) => new Promise(res => setTimeout(res, ms));
+const wait = ms => new Promise(res => setTimeout(res, ms));
 
 /* ---------- Lottie confetti ---------- */
 
-const CONFETTI_PALETTE = ['#429C94', '#7197E8', '#9B7BE0', '#DE6399', '#EC7165', '#EA8D3F', '#E0B74A', '#68B77B', '#55B7CB'];
+const CONFETTI_PALETTE = ['#FFC567', '#FB7DA8', '#058CD7', '#0D9488', '#552C87', '#FD5A46', '#EAB308', '#63C5FB'];
 
 function hexToLottieColor(hex) {
     const n = parseInt(hex.replace('#', ''), 16);
     return [((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255, 1];
 }
 
-/* Builds a Lottie animated-property keyframe array from plain {t, v} points.
-   Every keyframe but the last needs both its start ("s") AND end ("e") value
-   plus bezier ease handles ("i"/"o") - without them lottie-web's SVG
-   renderer computes nothing for that property and silently drops the whole
-   layer (display:none, empty <path>), with no console warning at all. This
-   cost real time to track down via a minimal repro, so it's spelled out. */
+/* Every keyframe but the last needs both its start ("s") AND end ("e") value
+   plus bezier ease handles ("i"/"o") - without them lottie-web's SVG renderer
+   computes nothing for that property and silently drops the whole layer. */
 function lottieKeyframes(points) {
     const EASE = { i: { x: [0.42], y: [1] }, o: { x: [0.58], y: [0] } };
     return points.map((p, i) => i === points.length - 1
@@ -1093,9 +893,6 @@ function lottieKeyframes(points) {
         : { t: p.t, s: p.v, e: points[i + 1].v, ...EASE });
 }
 
-/* Generates a self-contained Lottie composition (no external .json asset) so
-   the confetti is drawn straight from this app's own palette every time,
-   sized to whatever viewport is actually playing. */
 function buildConfettiLottieData(w, h) {
     const fr = 30, op = 80, count = 70;
     const layers = [];
@@ -1121,36 +918,22 @@ function buildConfettiLottieData(w, h) {
             ddd: 0, ind: i + 1, ty: 4, nm: `c${i}`, sr: 1, ao: 0, ip: 0, op, st: 0,
             ks: {
                 o: { a: 1, k: lottieKeyframes([
-                    { t: startFrame, v: [0] },
-                    { t: fadeInEnd, v: [100] },
-                    { t: fadeOutStart, v: [100] },
-                    { t: op, v: [0] }
+                    { t: startFrame, v: [0] }, { t: fadeInEnd, v: [100] },
+                    { t: fadeOutStart, v: [100] }, { t: op, v: [0] }
                 ]) },
-                r: { a: 1, k: lottieKeyframes([
-                    { t: startFrame, v: [rotStart] },
-                    { t: op, v: [rotEnd] }
-                ]) },
-                p: { a: 1, k: lottieKeyframes([
-                    { t: startFrame, v: [startX, startY, 0] },
-                    { t: op, v: [endX, endY, 0] }
-                ]) },
+                r: { a: 1, k: lottieKeyframes([{ t: startFrame, v: [rotStart] }, { t: op, v: [rotEnd] }]) },
+                p: { a: 1, k: lottieKeyframes([{ t: startFrame, v: [startX, startY, 0] }, { t: op, v: [endX, endY, 0] }]) },
                 a: { a: 0, k: [0, 0, 0] },
                 s: { a: 0, k: [100, 100, 100] }
             },
-            // Lottie's SVG renderer expects the drawable + its style + its own
-            // transform bundled inside a "gr" (group) item - shapes listed
-            // flat under the layer (no group wrapper) silently render nothing.
-            shapes: [
-                {
-                    ty: 'gr',
-                    nm: 'piece',
-                    it: [
-                        shape,
-                        { ty: 'fl', nm: 'fill', c: { a: 0, k: color }, o: { a: 0, k: 100 } },
-                        { ty: 'tr', p: { a: 0, k: [0, 0] }, a: { a: 0, k: [0, 0] }, s: { a: 0, k: [100, 100] }, r: { a: 0, k: 0 }, o: { a: 0, k: 100 } }
-                    ]
-                }
-            ]
+            shapes: [{
+                ty: 'gr', nm: 'piece',
+                it: [
+                    shape,
+                    { ty: 'fl', nm: 'fill', c: { a: 0, k: color }, o: { a: 0, k: 100 } },
+                    { ty: 'tr', p: { a: 0, k: [0, 0] }, a: { a: 0, k: [0, 0] }, s: { a: 0, k: [100, 100] }, r: { a: 0, k: 0 }, o: { a: 0, k: 100 } }
+                ]
+            }]
         });
     }
     return { v: '5.9.6', fr, ip: 0, op, w, h, nm: 'confetti', ddd: 0, assets: [], layers };
@@ -1188,95 +971,151 @@ class SFX {
     lose() { [400, 340, 280].forEach((f, i) => this.tone(f, 0.3, 'sawtooth', 0.13, i * 0.15)); }
 }
 
-class Match3Game {
+class Game {
     constructor() {
-        this.board = Array(ROWS).fill().map(() => Array(COLS).fill(null));
-        this.layer = document.getElementById('pieces-layer');
-        this.boardEl = document.getElementById('board-container');
-        this.boardWrap = document.getElementById('board-wrap');
+        this.grid = document.getElementById('grid');
+        this.shell = document.getElementById('shell');
+        this.boardEl = document.getElementById('board');
+        this.stageEl = document.querySelector('.stage');
+        this.scoreEl = document.getElementById('score-txt');
+        this.movesEl = document.getElementById('moves-txt');
+        this.levelEl = document.getElementById('level-txt');
+        this.progressFill = document.getElementById('progressFill');
+        this.progressPercent = document.getElementById('progressPercent');
+        this.progressHead = document.getElementById('progressHead');
+        this.progressTrack = document.getElementById('progressTrack');
+        this.bgWash = document.getElementById('bgWash');
+        this.mileEls = [document.getElementById('mile1'), document.getElementById('mile2'), document.getElementById('mile3')];
+        this.textLayer = document.getElementById('textLayer');
+        this.flashEl = document.getElementById('screenFlash');
+        this.canvas = document.getElementById('fxCanvas');
+        this.ctx = this.canvas.getContext('2d', { alpha: true, desynchronized: true });
+
+        this.board = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
         this.score = 0;
         this.moves = 0;
         this.currentLevelIdx = 0;
-        this.isProcessing = false;
-        this.lastProgress = 0;
-        this.lastBankedStars = 0;
-        this.sparkInterval = null;
-        this.hintActive = false;
+        this.isProcessing = true;
+        this.selected = null;
+        this.drag = null;
+        this.lastSwap = null;
         this.lastActionAt = Date.now();
-        this.sfx = new SFX();
-
-        this.dragStart = null;
-        this.selectedPiece = null;
-        this.activePointerId = null;
+        this.hintActive = false;
+        this.reachedMilestones = new Set();
+        this.lastProgress = 0;
 
         this.inventory = { hammer: 0, shuffle: 0, extraMoves: 0, colorBomb: 0, megaHammer: 0, doubleBomb: 0 };
         this.pendingPowerUp = null;
         this.coins = 0;
 
-        this.applyTheme(0);
-        this.layoutBoard();
-        requestAnimationFrame(() => this.layoutBoard());
+        this.geom = { cell: 0, step: 0 };
+        this.particles = [];
+        this.rings = [];
+        this.beams = [];
+        this.perf = { last: performance.now(), frame: 0 };
+        this.dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+
+        this.sfx = new SFX();
+
         this.bindEvents();
         this.startIdleWatcher();
         this.startWatchdog();
         this.updatePowerUpTray();
         this.updateCoinDisplay();
-        this.showScreen(`LEVEL ${LEVELS[0].id}`, LEVELS[0].desc, "PLAY");
+        this.applyTheme(0);
+
+        requestAnimationFrame(() => { this.refreshGeometry(); });
+        window.addEventListener('load', () => this.refreshGeometry());
+
+        this.showScreen(`LEVEL ${LEVELS[0].id}`, LEVELS[0].desc, 'PLAY', null, 'play');
+
+        requestAnimationFrame(now => this.fxLoop(now));
     }
 
-    /* ---------- Background ---------- */
+    /* ---------- Geometry & background ---------- */
+
+    refreshGeometry() {
+        const pad = 12;
+        const stageRect = this.stageEl.getBoundingClientRect();
+        const availW = stageRect.width - pad * 2;
+        const availH = stageRect.height - 40 - pad * 2;
+        const cellW = (availW - GAP * (COLS - 1)) / COLS;
+        const cellH = (availH - GAP * (ROWS - 1)) / ROWS;
+        const cell = Math.max(24, Math.min(MAX_CELL, Math.floor(Math.min(cellW, cellH))));
+        this.geom.cell = cell;
+        this.geom.step = cell + GAP;
+
+        const boardW = cell * COLS + GAP * (COLS - 1) + pad * 2;
+        const boardH = cell * ROWS + GAP * (ROWS - 1) + pad * 2;
+        this.shell.style.width = `${boardW}px`;
+        this.shell.style.height = `${boardH}px`;
+        this.boardEl.style.width = `${boardW}px`;
+        this.boardEl.style.height = `${boardH}px`;
+        document.documentElement.style.setProperty('--board-pad', `${pad}px`);
+
+        this.allTiles().forEach(t => {
+            t.el.style.width = `${cell}px`;
+            t.el.style.height = `${cell}px`;
+            t.el.style.transform = this.tileTransform(t.r, t.c);
+        });
+
+        this.resizeCanvas();
+    }
+
+    resizeCanvas() {
+        const rect = this.canvas.getBoundingClientRect();
+        this.dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+        this.canvas.width = Math.round(rect.width * this.dpr);
+        this.canvas.height = Math.round(rect.height * this.dpr);
+        this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+    }
+
+    pos(row, col) { return { x: col * this.geom.step, y: row * this.geom.step }; }
+
+    tileTransform(row, col, scaleX = 1, scaleY = 1) {
+        const p = this.pos(row, col);
+        return `translate3d(${p.x}px,${p.y}px,0) scale(${scaleX},${scaleY})`;
+    }
+
+    canvasOffset() {
+        const c = this.canvas.getBoundingClientRect();
+        const s = this.shell.getBoundingClientRect();
+        return { x: s.left - c.left, y: s.top - c.top };
+    }
+
+    shellPointForCell(row, col) {
+        return { x: 12 + col * this.geom.step + this.geom.cell / 2, y: 12 + row * this.geom.step + this.geom.cell / 2 };
+    }
+
+    allTiles() {
+        const out = [];
+        for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) if (this.board[r][c]) out.push(this.board[r][c]);
+        return out;
+    }
 
     applyTheme(levelIdx) {
         const t = THEMES[levelIdx % THEMES.length];
         this.theme = t;
-        this.applyMatchColor(t.colorId);
         document.documentElement.style.setProperty('--accent', t.accent);
-        // Set the transitioned properties directly so they animate reliably.
-        document.getElementById('goal-meter').style.backgroundColor = t.accent;
-        document.getElementById('screen-btn').style.backgroundColor = t.accent;
+        this.applyMatchColor(t.colorId);
     }
 
-    /* Retints the background gradient to a candy colour's own light/dark
-       shades - called once per level for its opening mood, then again after
-       every match so the background always reflects what was just cleared. */
     applyMatchColor(colorId) {
-        const fam = COLOR_FAMILIES[colorId];
-        if (!fam) return;
-        document.documentElement.style.setProperty('--bg-light', fam.light);
-        document.documentElement.style.setProperty('--bg-dark', fam.dark);
-        // The gradient runs light-at-top to dark-at-bottom, and the status
-        // bar sits at the very top - tint it to match what's actually behind
-        // it there, not the shade from the opposite end of the screen.
-        const meta = document.querySelector('meta[name="theme-color"]');
-        if (meta) meta.setAttribute('content', fam.light);
+        this.bgWash.style.backgroundColor = BG_TINTS[colorId] || 'rgba(255,255,255,0)';
     }
 
-    /* ---------- Layout ---------- */
-
-    layoutBoard() {
-        const rect = this.boardWrap.getBoundingClientRect();
-        const cs = getComputedStyle(this.boardWrap);
-        const availW = rect.width - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
-        const availH = rect.height - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
-        const cell = Math.max(24, Math.min(MAX_CELL, Math.floor(Math.min(availW / COLS, availH / ROWS))));
-
-        this.boardEl.style.width = `${cell * COLS}px`;
-        this.boardEl.style.height = `${cell * ROWS}px`;
-        document.documentElement.style.setProperty('--cell', `${cell}px`);
-        document.documentElement.style.setProperty('--board-w', `${cell * COLS}px`);
-    }
+    /* ---------- Setup ---------- */
 
     bindEvents() {
-        this.layer.addEventListener('pointerdown', (e) => this.handlePointerDown(e));
-        window.addEventListener('pointerup', (e) => this.handlePointerUp(e));
-        window.addEventListener('resize', () => this.layoutBoard());
-        window.addEventListener('orientationchange', () => setTimeout(() => this.layoutBoard(), 120));
+        window.addEventListener('resize', () => this.refreshGeometry());
+        window.addEventListener('orientationchange', () => setTimeout(() => this.refreshGeometry(), 120));
         document.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
         document.addEventListener('gesturestart', e => e.preventDefault());
         document.addEventListener('dblclick', e => e.preventDefault());
         document.getElementById('mute-btn').addEventListener('click', () => this.toggleMute());
         document.getElementById('shop-btn').addEventListener('click', () => this.openShop());
         document.getElementById('shop-close-btn').addEventListener('click', () => this.closeShop());
+        document.getElementById('screen-btn').addEventListener('click', () => this.onScreenButton());
     }
 
     toggleMute() {
@@ -1285,14 +1124,14 @@ class Match3Game {
         document.getElementById('mute-icon').innerText = this.sfx.muted ? 'volume_off' : 'volume_up';
     }
 
-    showScreen(title, desc, btnText, stars = null, action = 'play') {
+    showScreen(title, desc, btnText, stars, action) {
         document.getElementById('screen-title').innerText = title;
         document.getElementById('screen-desc').innerText = desc;
         document.getElementById('screen-btn').innerText = btnText;
         this.screenAction = action;
         const starsRow = document.getElementById('screen-stars');
         starsRow.innerHTML = '';
-        if (stars !== null) {
+        if (stars !== null && stars !== undefined) {
             for (let i = 0; i < 3; i++) {
                 const s = document.createElement('span');
                 s.className = 'material-symbols-outlined star' + (i < stars ? ' filled' : '');
@@ -1303,12 +1142,8 @@ class Match3Game {
         document.getElementById('screen-overlay').classList.add('active');
     }
 
-    hideScreen() {
-        document.getElementById('screen-overlay').classList.remove('active');
-    }
+    hideScreen() { document.getElementById('screen-overlay').classList.remove('active'); }
 
-    /* The overlay button either starts a level directly, or - after clearing
-       a level that has one to follow - opens the reward picker first. */
     onScreenButton() {
         if (this.screenAction === 'reward') {
             this.hideScreen();
@@ -1324,166 +1159,25 @@ class Match3Game {
         const config = LEVELS[this.currentLevelIdx] || LEVELS[LEVELS.length - 1];
         this.moves = config.moves;
         this.score = 0;
-        this.lastProgress = 0;
-        this.lastBankedStars = 0;
         this.targetScore = config.target;
-        // Bar maps 0 -> this max, so the 2-star/3-star thresholds are visible as
-        // real distance along the track instead of only existing after the win.
         this.starMax = config.target * 1.35;
         this.numColors = config.colors;
+        this.lastProgress = 0;
+        this.reachedMilestones.clear();
 
         this.applyTheme(this.currentLevelIdx);
-        this.currentFillColor = this.theme.accent;
-        document.getElementById('goal-meter').style.backgroundColor = this.currentFillColor;
-        document.getElementById('meter-container').classList.remove('full');
-        this.stopMeterSparks();
-        document.getElementById('meter-glow').classList.remove('on');
-        [1, 2, 3].forEach(i => document.getElementById(`mstar-${i}`).classList.remove('filled', 'pop'));
-        this.resetIdleTimer();
+        this.progressTrack.classList.remove('tier-2', 'tier-3', 'full');
         this.pendingPowerUp = null;
         this.updatePowerUpTray();
-        this.updateHUD();
-        this.layoutBoard();
-        this.layer.innerHTML = '<div class="combo-banner" id="combo-banner"></div>';
-        this.board = Array(ROWS).fill().map(() => Array(COLS).fill(null));
+        this.updateHUD(false);
 
+        this.grid.innerHTML = '';
+        this.board = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
+        this.refreshGeometry();
         this.fillBoardInitial();
+
         await this.ensureSolvable();
         this.isProcessing = false;
-    }
-
-    updateHUD() {
-        document.getElementById('moves-txt').innerText = this.moves;
-        document.getElementById('level-txt').innerText = `LVL ${this.currentLevelIdx + 1}`;
-        document.getElementById('score-txt').innerText = this.score;
-
-        const progress = Math.min(100, (this.score / this.starMax) * 100);
-        document.getElementById('goal-meter').style.width = `${progress}%`;
-        // "Full" here means the goal itself is reached (1 star), not the bar's
-        // physical end - the bar's end is the 3-star mark.
-        document.getElementById('meter-container').classList.toggle('full', this.score >= this.targetScore);
-
-        if (progress > this.lastProgress) this.emitMeterSparks(progress, 4);
-        this.lastProgress = progress;
-        this.manageMeterSparks(progress);
-
-        const banked = this.computeBankedStars();
-        if (banked !== this.lastBankedStars) {
-            if (banked > this.lastBankedStars) this.rushMeterColor(banked, progress);
-            this.updateMeterStars(banked);
-            this.lastBankedStars = banked;
-        }
-    }
-
-    computeBankedStars() {
-        const ratio = this.score / this.targetScore;
-        if (ratio >= 1.35) return 3;
-        if (ratio >= 1.15) return 2;
-        if (ratio >= 1) return 1;
-        return 0;
-    }
-
-    tierColorFor(banked) {
-        if (banked >= 3) return '#EC7165'; // coral - hottest
-        if (banked === 2) return '#EA8D3F'; // orange
-        if (banked === 1) return '#E0B74A'; // gold
-        return this.theme.accent;
-    }
-
-    /* The headline ask: crossing a star threshold floods the bar with a new
-       colour instead of just quietly ticking a number up. */
-    rushMeterColor(banked, progress) {
-        const color = this.tierColorFor(banked);
-        this.currentFillColor = color;
-        const fill = document.getElementById('goal-meter');
-        fill.style.backgroundColor = color;
-
-        const sweep = document.createElement('div');
-        sweep.className = 'meter-rush';
-        fill.appendChild(sweep);
-        setTimeout(() => sweep.remove(), 700);
-
-        this.emitMeterSparks(progress, 14);
-        this.sfx.special();
-    }
-
-    /* Mini stars on the track light up live, in sync with the real thresholds,
-       so "how does scoring work" is answered by just watching the bar. */
-    updateMeterStars(banked) {
-        for (let i = 1; i <= 3; i++) {
-            const el = document.getElementById(`mstar-${i}`);
-            if (i <= banked) {
-                el.classList.add('filled');
-                el.classList.remove('pop');
-                void el.offsetWidth;
-                el.classList.add('pop');
-            } else {
-                el.classList.remove('filled', 'pop');
-            }
-        }
-    }
-
-    /* Bright glowing sparks skip off the leading edge whenever the meter
-       advances - sized and lit to be unmistakable, not a subtle detail. */
-    emitMeterSparks(progress, count = 4) {
-        const fx = document.getElementById('meter-fx');
-        if (!fx) return;
-        const w = fx.clientWidth;
-        if (!w) return;
-        const x = Math.min(w, (progress / 100) * w);
-        const col = this.currentFillColor || '#55B7CB';
-        for (let i = 0; i < count; i++) {
-            const s = document.createElement('div');
-            s.className = 'spark';
-            const size = 6 + Math.random() * 7;
-            s.style.width = `${size}px`;
-            s.style.height = `${size}px`;
-            s.style.left = `${x}px`;
-            s.style.top = '50%';
-            s.style.background = '#ffffff';
-            s.style.boxShadow = `0 0 ${Math.round(size * 1.4)}px ${Math.round(size * 0.7)}px ${col}`;
-            s.style.setProperty('--mx', `${(Math.random() * 2 - 1) * 28}px`);
-            s.style.setProperty('--my', `${-18 - Math.random() * 30}px`);
-            s.style.animationDelay = `${Math.random() * 0.1}s`;
-            fx.appendChild(s);
-            setTimeout(() => s.remove(), 1050);
-        }
-    }
-
-    /* Constant sparks plus a pulsing glow orb once the bar passes its
-       halfway point, on top of the reactive bursts above - stops the
-       instant the bar empties or maxes out. */
-    manageMeterSparks(progress) {
-        const active = progress >= 51 && progress < 100;
-        const glow = document.getElementById('meter-glow');
-        glow.style.left = `${progress}%`;
-        const col = this.currentFillColor || '#55B7CB';
-        glow.style.background = `radial-gradient(circle, #ffffff 0%, ${col} 45%, rgba(255,255,255,0) 74%)`;
-        glow.classList.toggle('on', active);
-
-        if (active && !this.sparkInterval) {
-            this.sparkInterval = setInterval(() => this.emitMeterSparks(this.lastProgress, 2), 140);
-        } else if (!active) {
-            this.stopMeterSparks();
-        }
-    }
-
-    stopMeterSparks() {
-        if (this.sparkInterval) { clearInterval(this.sparkInterval); this.sparkInterval = null; }
-        const glow = document.getElementById('meter-glow');
-        if (glow) glow.classList.remove('on');
-    }
-
-    bumpHUD(el) {
-        el.classList.remove('bump');
-        void el.offsetWidth;
-        el.classList.add('bump');
-    }
-
-    addScore(pts) {
-        this.score += pts;
-        this.updateHUD();
-        this.bumpHUD(document.getElementById('score-txt'));
     }
 
     fillBoardInitial() {
@@ -1492,139 +1186,735 @@ class Match3Game {
                 let color;
                 do { color = Math.floor(Math.random() * this.numColors) + 1; }
                 while (
-                    (c >= 2 && this.board[r][c-1]?.color === color && this.board[r][c-2]?.color === color) ||
-                    (r >= 2 && this.board[r-1][c]?.color === color && this.board[r-2][c]?.color === color)
+                    (c >= 2 && this.board[r][c - 1]?.color === color && this.board[r][c - 2]?.color === color) ||
+                    (r >= 2 && this.board[r - 1][c]?.color === color && this.board[r - 2][c]?.color === color)
                 );
-                this.spawnPiece(r, c, color, SPECIALS.NONE);
+                this.createTile(r, c, color, SPECIALS.NONE);
             }
         }
     }
 
-    spawnPiece(r, c, color, special, dropFromOffset = 0) {
-        const el = document.createElement('div');
-        el.className = 'piece';
+    /* ---------- Tile DOM ---------- */
 
-        const inner = document.createElement('div');
-        inner.className = 'piece-inner';
-        if (special === SPECIALS.H_STRIPE) inner.classList.add('sp-h');
-        else if (special === SPECIALS.V_STRIPE) inner.classList.add('sp-v');
-        else if (special === SPECIALS.WRAP) inner.classList.add('sp-wrap');
-        else if (special === SPECIALS.BOMB) inner.classList.add('sp-bomb');
+    createTile(row, col, color, special, dropFromOffset = 0) {
+        const el = document.createElement('button');
+        el.type = 'button';
+        el.setAttribute('aria-label', 'game piece');
 
-        if (special !== SPECIALS.BOMB) {
-            inner.style.setProperty('--pc', COLORS[color]);
-            inner.style.setProperty('--tint', TINTS[color]);
+        const shadow = document.createElement('span');
+        shadow.className = 'tile-shadow';
+
+        const gem = document.createElement('span');
+        gem.className = 'gem';
+
+        const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        icon.classList.add('tile-icon');
+        icon.setAttribute('viewBox', '0 0 100 100');
+        icon.setAttribute('aria-hidden', 'true');
+        const iconUse = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+        icon.appendChild(iconUse);
+        gem.appendChild(icon);
+
+        el.appendChild(shadow);
+        el.appendChild(gem);
+
+        const tile = { id: `${Date.now()}_${Math.random().toString(36).slice(2)}`, r: row, c: col, color, special, el, gem, icon, iconUse };
+        this.board[row][col] = tile;
+
+        this.setTileVisual(tile);
+        el.style.width = `${this.geom.cell || 40}px`;
+        el.style.height = `${this.geom.cell || 40}px`;
+        const startRow = row - dropFromOffset;
+        el.style.transform = this.tileTransform(startRow, col);
+
+        el.addEventListener('pointerdown', e => this.onPointerDown(e, tile));
+        el.addEventListener('click', () => this.onTileClick(tile));
+
+        this.grid.appendChild(el);
+        return tile;
+    }
+
+    setTileVisual(tile) {
+        const cls = ['tile'];
+        if (tile.special === SPECIALS.BOMB) {
+            cls.push('special-bomb');
+        } else {
+            cls.push(`type-${tile.color}`);
+            if (tile.special !== SPECIALS.NONE) cls.push('has-special');
         }
+        if (this.selected === tile) cls.push('selected');
+        tile.el.className = cls.join(' ');
 
-        const fx = document.createElement('div');
-        fx.className = 'fx';
-        inner.appendChild(fx);
-
-        const icon = document.createElement('span');
-        icon.className = 'material-symbols-outlined';
-        icon.innerText = special === SPECIALS.BOMB ? 'auto_awesome' : ICONS[color];
-        if (special !== SPECIALS.BOMB) icon.style.color = COLORS[color];
-        inner.appendChild(icon);
-
-        el.appendChild(inner);
-        this.layer.appendChild(el);
-
-        const piece = { r, c, color, special, el, inner };
-        this.board[r][c] = piece;
-
-        el.style.transform = `translate(${c * 100}%, ${(r - dropFromOffset) * 100}%)`;
-        requestAnimationFrame(() => el.style.transform = `translate(${c * 100}%, ${r * 100}%)`);
-        return piece;
+        const symbolId = tile.special !== SPECIALS.NONE ? SPECIAL_SHAPES[tile.special] : SHAPES[tile.color];
+        tile.iconUse.setAttribute('href', `#${symbolId}`);
+        tile.iconUse.setAttributeNS('http://www.w3.org/1999/xlink', 'href', `#${symbolId}`);
     }
 
-    createParticles(piece) {
-        const cellW = this.boardEl.clientWidth / COLS;
-        const cellH = this.boardEl.clientHeight / ROWS;
-        const x = (piece.c * cellW) + (cellW / 2);
-        const y = (piece.r * cellH) + (cellH / 2);
+    /* ---------- HUD ---------- */
 
-        const big = piece.special !== SPECIALS.NONE;
-        const count = big ? 10 : 6;
+    bumpEl(el) { el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); }
 
-        for (let i = 0; i < count; i++) {
-            const p = document.createElement('div');
-            p.className = 'particle';
-            // Colour bombs scatter the whole rainbow; everything else its own colour.
-            p.style.background = piece.special === SPECIALS.BOMB
-                ? COLORS[Math.floor(Math.random() * 7) + 1]
-                : COLORS[piece.color];
-            p.style.borderRadius = Math.random() > 0.5 ? '50%' : '4px';
+    updateHUD(celebrate = true) {
+        this.movesEl.innerText = this.moves;
+        this.levelEl.innerText = this.currentLevelIdx + 1;
+        this.scoreEl.innerText = this.score;
 
-            const base = big ? 12 : 8;
-            p.style.width = `${Math.random() * base + base}px`;
-            p.style.height = p.style.width;
+        const progress = Math.max(0, Math.min(100, (this.score / this.starMax) * 100));
+        this.progressFill.style.width = `${progress}%`;
+        this.progressHead.style.left = `calc(3px + (100% - 6px) * ${progress / 100})`;
+        this.progressPercent.textContent = `${Math.round(progress)}%`;
+        this.progressTrack.classList.toggle('full', this.score >= this.starMax);
 
-            p.style.left = `${x}px`;
-            p.style.top = `${y}px`;
+        const banked = this.computeBankedStars();
+        this.progressTrack.classList.toggle('tier-2', banked >= 2);
+        this.progressTrack.classList.toggle('tier-3', banked >= 3);
 
-            const angle = Math.random() * Math.PI * 2;
-            const distance = Math.random() * (big ? 90 : 60) + 30;
-            p.style.setProperty('--tx', `${Math.cos(angle) * distance}px`);
-            p.style.setProperty('--ty', `${Math.sin(angle) * distance}px`);
+        MILESTONE_PCTS.forEach((pt, i) => {
+            const passed = progress >= pt - 0.01;
+            this.mileEls[i].style.left = `${Math.min(100, pt)}%`;
+            this.mileEls[i].classList.toggle('passed', passed);
+            if (passed && !this.reachedMilestones.has(i) && celebrate) {
+                this.reachedMilestones.add(i);
+                this.milestoneCelebrate(i, pt);
+            } else if (passed) {
+                this.reachedMilestones.add(i);
+            }
+        });
 
-            this.layer.appendChild(p);
-            setTimeout(() => p.remove(), 500);
+        if (progress > this.lastProgress && celebrate) {
+            const p = this.shellPointForCell(0, 0);
+            const headPct = progress / 100;
+            const trackRect = this.progressTrack.getBoundingClientRect();
+            const shellRect = this.shell.getBoundingClientRect();
+            const x = (trackRect.left - shellRect.left) + trackRect.width * headPct;
+            const y = (trackRect.top - shellRect.top) + trackRect.height / 2;
+            if (Math.random() > 0.55) this.particleBurst(x, y, banked + 3, 4);
         }
+        this.lastProgress = progress;
     }
 
-    spawnShockwave(r, c) {
-        const cellW = this.boardEl.clientWidth / COLS;
-        const cellH = this.boardEl.clientHeight / ROWS;
-        const el = document.createElement('div');
-        el.className = 'shockwave';
-        el.style.left = `${(c * cellW) + (cellW / 2)}px`;
-        el.style.top = `${(r * cellH) + (cellH / 2)}px`;
-        this.layer.appendChild(el);
-        setTimeout(() => el.remove(), 500);
+    computeBankedStars() {
+        if (!this.targetScore) return 0;
+        const ratio = this.score / this.targetScore;
+        if (ratio >= 1.35) return 3;
+        if (ratio >= 1.15) return 2;
+        if (ratio >= 1) return 1;
+        return 0;
     }
 
-    /* Plain CSS confetti - kept as a fallback for playLottieConfetti() below,
-       in case lib/lottie-light.min.js ever fails to load. */
-    createConfetti() {
-        const colors = Object.values(COLORS);
-        for (let i = 0; i < 50; i++) {
-            const conf = document.createElement('div');
-            conf.className = 'confetti';
-            conf.style.left = `${Math.random() * 100}vw`;
-            conf.style.background = colors[Math.floor(Math.random() * colors.length)];
-            conf.style.borderRadius = Math.random() > 0.5 ? '50%' : '3px';
-            conf.style.animationDuration = `${Math.random() * 2 + 2}s`;
-            conf.style.animationDelay = `${Math.random() * 0.5}s`;
-            document.body.appendChild(conf);
-            setTimeout(() => conf.remove(), 5000);
-        }
+    computeStars() {
+        const ratio = this.score / this.targetScore;
+        if (ratio >= 1.35) return 3;
+        if (ratio >= 1.15) return 2;
+        return 1;
     }
 
-    /* Builds a Lottie composition of confetti pieces on the fly, in our own
-       palette, sized to the current viewport - no external animation asset,
-       just the (self-hosted) Lottie renderer driving a generated scene. */
-    playLottieConfetti() {
-        const container = document.getElementById('confetti-lottie');
-        if (!container) return;
-        if (typeof lottie === 'undefined') { this.createConfetti(); return; }
+    milestoneCelebrate(index, pct) {
+        const el = this.mileEls[index];
+        el.animate(
+            [
+                { transform: 'translate(-50%,-50%) scale(1)' },
+                { transform: 'translate(-50%,-50%) scale(1.6)', offset: .45 },
+                { transform: 'translate(-50%,-50%) scale(1.1)' }
+            ],
+            { duration: 520, easing: 'cubic-bezier(.16,.84,.22,1)' }
+        );
+        const trackRect = this.progressTrack.getBoundingClientRect();
+        const shellRect = this.shell.getBoundingClientRect();
+        const x = (trackRect.left - shellRect.left) + trackRect.width * (pct / 100);
+        const y = (trackRect.top - shellRect.top) + trackRect.height / 2;
+        const color = TIER_COLORS[index] === 'var(--color-true-yellow-base)' ? '#EAB308' : (index === 1 ? '#FFC567' : '#FD5A46');
+        this.ringBurst(x, y, color, 40 + index * 8);
+        this.particleBurst(x, y, index + 1, 10 + index * 3);
+        this.progressToast(['1 STAR!', '2 STARS!', '3 STARS!'][index]);
+        this.sfx.special();
+        this.vibrate(14 + index * 5);
+    }
 
-        container.innerHTML = '';
-        const w = Math.max(1, window.innerWidth);
-        const h = Math.max(1, window.innerHeight);
-        const data = buildConfettiLottieData(w, h);
-        let anim;
-        try {
-            anim = lottie.loadAnimation({ container, renderer: 'svg', loop: false, autoplay: true, animationData: data });
-        } catch (e) {
-            this.createConfetti();
+    addScore(pts) {
+        this.score += pts;
+        this.updateHUD(true);
+        this.bumpEl(this.scoreEl.closest('.pill'));
+    }
+
+    /* ---------- Interaction ---------- */
+
+    onTileClick(tile) {
+        if (this.isProcessing || this.drag?.moved) return;
+        this.resetIdleTimer();
+
+        if (this.pendingPowerUp === 'hammer') { this.useHammer(tile); return; }
+        if (this.pendingPowerUp === 'megaHammer') { this.useMegaHammer(tile); return; }
+
+        if (!this.selected) {
+            this.selected = tile;
+            this.setTileVisual(tile);
+            this.microPulse(tile);
             return;
         }
-        const cleanup = () => { try { anim.destroy(); } catch (e) {} container.innerHTML = ''; };
-        anim.addEventListener('complete', cleanup);
-        setTimeout(cleanup, (data.op / data.fr) * 1000 + 500);
+        if (this.selected === tile) { this.clearSelection(); return; }
+
+        const dist = Math.abs(this.selected.r - tile.r) + Math.abs(this.selected.c - tile.c);
+        if (dist === 1) {
+            const a = this.selected;
+            this.clearSelection();
+            this.attemptSwap(a, tile);
+        } else {
+            this.clearSelection();
+            this.selected = tile;
+            this.setTileVisual(tile);
+            this.microPulse(tile);
+        }
     }
 
-    /* ---------- Coins ---------- */
+    onPointerDown(e, tile) {
+        if (this.isProcessing) return;
+        this.resetIdleTimer();
+        if (this.pendingPowerUp === 'hammer' || this.pendingPowerUp === 'megaHammer') return;
+
+        this.drag = { tile, startX: e.clientX, startY: e.clientY, moved: false };
+        tile.el.setPointerCapture?.(e.pointerId);
+        tile.el.addEventListener('pointermove', this._onPointerMove ||= ev => this.onPointerMove(ev));
+        tile.el.addEventListener('pointerup', ev => this.onPointerUp(ev), { once: true });
+        tile.el.addEventListener('pointercancel', () => this.onPointerCancel(), { once: true });
+
+        tile.gem.animate([{ transform: 'scale(1)' }, { transform: 'scale(.94)' }], { duration: 90, fill: 'forwards', easing: 'cubic-bezier(.2,.8,.2,1)' });
+    }
+
+    onPointerMove(e) {
+        if (!this.drag || this.isProcessing) return;
+        const dx = e.clientX - this.drag.startX;
+        const dy = e.clientY - this.drag.startY;
+        const dominantX = Math.abs(dx) >= Math.abs(dy);
+        const limit = this.geom.cell * .34;
+        const d = dominantX ? dx : dy;
+        const clamped = Math.max(-limit, Math.min(limit, d));
+        if (Math.abs(d) > 4) this.drag.moved = true;
+
+        const base = this.pos(this.drag.tile.r, this.drag.tile.c);
+        const tx = base.x + (dominantX ? clamped : 0);
+        const ty = base.y + (dominantX ? 0 : clamped);
+        this.drag.tile.el.style.transform = `translate3d(${tx}px,${ty}px,0) scale(1.02)`;
+    }
+
+    cleanupPointer(tile) {
+        tile.el.removeEventListener('pointermove', this._onPointerMove);
+        tile.gem.getAnimations().forEach(a => a.cancel());
+        tile.gem.style.transform = '';
+    }
+
+    onPointerCancel() {
+        if (!this.drag) return;
+        const tile = this.drag.tile;
+        tile.el.style.transform = this.tileTransform(tile.r, tile.c);
+        this.cleanupPointer(tile);
+        this.drag = null;
+    }
+
+    onPointerUp(e) {
+        if (!this.drag || this.isProcessing) return;
+        const state = this.drag;
+        const tile = state.tile;
+        this.cleanupPointer(tile);
+
+        const dx = e.clientX - state.startX;
+        const dy = e.clientY - state.startY;
+        const threshold = Math.max(16, this.geom.cell * 0.3);
+
+        if (Math.max(Math.abs(dx), Math.abs(dy)) < threshold) {
+            tile.el.style.transform = this.tileTransform(tile.r, tile.c);
+            this.drag = null;
+            return;
+        }
+
+        let nr = tile.r, nc = tile.c;
+        if (Math.abs(dx) > Math.abs(dy)) nc += dx > 0 ? 1 : -1; else nr += dy > 0 ? 1 : -1;
+
+        this.drag = null;
+        this.clearSelection();
+
+        if (nr >= 0 && nr < ROWS && nc >= 0 && nc < COLS && this.board[nr][nc]) {
+            if (this.pendingPowerUp === 'hammer') { this.useHammer(tile); return; }
+            if (this.pendingPowerUp === 'megaHammer') { this.useMegaHammer(tile); return; }
+            this.attemptSwap(tile, this.board[nr][nc]);
+        } else {
+            this.springBack(tile);
+        }
+    }
+
+    async springBack(tile) {
+        const p = this.pos(tile.r, tile.c);
+        const current = tile.el.style.transform;
+        const a = tile.el.animate(
+            [{ transform: current }, { transform: `translate3d(${p.x}px,${p.y}px,0) scale(.985)` }, { transform: this.tileTransform(tile.r, tile.c) }],
+            { duration: 180, easing: 'cubic-bezier(.18,.9,.2,1)' }
+        );
+        await this.safeFinished(a);
+        tile.el.style.transform = this.tileTransform(tile.r, tile.c);
+    }
+
+    microPulse(tile) {
+        tile.gem.animate(
+            [{ transform: 'scale(1)' }, { transform: 'scale(.93)' }, { transform: 'scale(1.03)' }, { transform: 'scale(1)' }],
+            { duration: 220, easing: 'cubic-bezier(.2,.8,.2,1)' }
+        );
+    }
+
+    clearSelection() {
+        if (this.selected) { const t = this.selected; this.selected = null; this.setTileVisual(t); }
+    }
+
+    resetIdleTimer() { this.lastActionAt = Date.now(); }
+
+    /* ---------- Swap & match resolution ---------- */
+
+    swapData(p1, p2) {
+        const ar = p1.r, ac = p1.c, br = p2.r, bc = p2.c;
+        this.board[ar][ac] = p2; this.board[br][bc] = p1;
+        p1.r = br; p1.c = bc; p2.r = ar; p2.c = ac;
+    }
+
+    updatePositions() {
+        for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) if (this.board[r][c]) this.board[r][c].el.style.transform = this.tileTransform(r, c);
+    }
+
+    async animateSwap(a, b, forward = true) {
+        const aStart = this.tileTransform(a.r, a.c);
+        const bStart = this.tileTransform(b.r, b.c);
+        const aEnd = this.tileTransform(b.r, b.c);
+        const bEnd = this.tileTransform(a.r, a.c);
+        const options = { duration: forward ? 155 : 170, easing: forward ? 'cubic-bezier(.22,.76,.22,1)' : 'cubic-bezier(.28,.75,.22,1)', fill: 'forwards' };
+
+        const aa = a.el.animate([{ transform: aStart, offset: 0 }, { transform: aEnd, offset: .72 }, { transform: aEnd, offset: 1 }], options);
+        const bb = b.el.animate([{ transform: bStart, offset: 0 }, { transform: bEnd, offset: .72 }, { transform: bEnd, offset: 1 }], options);
+        await Promise.all([this.safeFinished(aa), this.safeFinished(bb)]);
+        a.el.style.transform = aEnd; b.el.style.transform = bEnd;
+    }
+
+    async attemptSwap(p1, p2) {
+        if (!p1 || !p2 || this.isProcessing || this.moves <= 0) return;
+        this.isProcessing = true;
+        this.sfx.swap();
+
+        await this.animateSwap(p1, p2, true);
+        this.swapData(p1, p2);
+        p1.el.style.transform = this.tileTransform(p1.r, p1.c);
+        p2.el.style.transform = this.tileTransform(p2.r, p2.c);
+
+        const comboResult = this.checkSpecialCombo(p1, p2);
+        let matchGroups = comboResult.isCombo ? [] : this.findMatches();
+
+        if (!comboResult.isCombo && matchGroups.length === 0) {
+            this.sfx.invalid();
+            this.invalidFeedback(p1, p2);
+            await wait(260);
+            await this.animateSwap(p1, p2, false);
+            this.swapData(p1, p2);
+            p1.el.style.transform = this.tileTransform(p1.r, p1.c);
+            p2.el.style.transform = this.tileTransform(p2.r, p2.c);
+            this.isProcessing = false;
+            return;
+        }
+
+        this.moves--;
+        this.bumpEl(this.movesEl.closest('.pill'));
+        this.updateHUD();
+
+        this.lastSwap = { p1, p2 };
+        await this.resolveBoard(matchGroups, comboResult);
+    }
+
+    invalidFeedback(a, b) {
+        for (const tile of [a, b]) {
+            tile.gem.animate(
+                [{ transform: 'translateX(0)' }, { transform: 'translateX(-8%) rotate(-2deg)' }, { transform: 'translateX(8%) rotate(2deg)' }, { transform: 'translateX(0)' }],
+                { duration: 260, easing: 'ease-out' }
+            );
+        }
+        this.vibrate(12);
+    }
+
+    findMatches() {
+        let horiz = [], vert = [];
+        for (let r = 0; r < ROWS; r++) {
+            for (let c = 0; c < COLS - 2; c++) {
+                let col = this.board[r][c]?.color;
+                if (!col || this.board[r][c].special === SPECIALS.BOMB) continue;
+                let len = 1; while (c + len < COLS && this.board[r][c + len]?.color === col && this.board[r][c + len].special !== SPECIALS.BOMB) len++;
+                if (len >= 3) { let g = []; for (let i = 0; i < len; i++) g.push(this.board[r][c + i]); horiz.push(g); c += len - 1; }
+            }
+        }
+        for (let c = 0; c < COLS; c++) {
+            for (let r = 0; r < ROWS - 2; r++) {
+                let col = this.board[r][c]?.color;
+                if (!col || this.board[r][c].special === SPECIALS.BOMB) continue;
+                let len = 1; while (r + len < ROWS && this.board[r + len][c]?.color === col && this.board[r + len][c].special !== SPECIALS.BOMB) len++;
+                if (len >= 3) { let g = []; for (let i = 0; i < len; i++) g.push(this.board[r + i][c]); vert.push(g); r += len - 1; }
+            }
+        }
+        let all = [...horiz, ...vert], merged = [];
+        while (all.length > 0) {
+            let cur = new Set(all.shift()), found = true;
+            while (found) {
+                found = false;
+                for (let i = 0; i < all.length; i++) {
+                    if (all[i].some(p => cur.has(p))) { all[i].forEach(p => cur.add(p)); all.splice(i, 1); found = true; break; }
+                }
+            }
+            merged.push(Array.from(cur));
+        }
+        return merged;
+    }
+
+    simulateSwapHasMatch(r1, c1, r2, c2) {
+        const b = this.board;
+        const a = b[r1][c1], d = b[r2][c2];
+        b[r1][c1] = d; b[r2][c2] = a;
+        const hasMatch = this.findMatches().length > 0;
+        b[r1][c1] = a; b[r2][c2] = d;
+        return hasMatch;
+    }
+
+    hasPossibleMove() {
+        for (let r = 0; r < ROWS; r++) {
+            for (let c = 0; c < COLS; c++) {
+                const p = this.board[r][c];
+                if (!p) continue;
+                if (c < COLS - 1) {
+                    const q = this.board[r][c + 1];
+                    if (q && (this.checkSpecialCombo(p, q).isCombo || this.simulateSwapHasMatch(r, c, r, c + 1))) return true;
+                }
+                if (r < ROWS - 1) {
+                    const q = this.board[r + 1][c];
+                    if (q && (this.checkSpecialCombo(p, q).isCombo || this.simulateSwapHasMatch(r, c, r + 1, c))) return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    findHintMove() {
+        const moves = [];
+        for (let r = 0; r < ROWS; r++) {
+            for (let c = 0; c < COLS; c++) {
+                const p = this.board[r][c];
+                if (!p) continue;
+                if (c < COLS - 1) {
+                    const q = this.board[r][c + 1];
+                    if (q && (this.checkSpecialCombo(p, q).isCombo || this.simulateSwapHasMatch(r, c, r, c + 1))) moves.push([p, q]);
+                }
+                if (r < ROWS - 1) {
+                    const q = this.board[r + 1][c];
+                    if (q && (this.checkSpecialCombo(p, q).isCombo || this.simulateSwapHasMatch(r, c, r + 1, c))) moves.push([p, q]);
+                }
+            }
+        }
+        if (!moves.length) return null;
+        return moves[Math.floor(Math.random() * moves.length)];
+    }
+
+    showHint() {
+        const move = this.findHintMove();
+        if (!move) return;
+        this.hintActive = true;
+        const [p1, p2] = move;
+        p1.el.classList.add('hint'); p2.el.classList.add('hint');
+        setTimeout(() => {
+            p1.el.classList.remove('hint'); p2.el.classList.remove('hint');
+            this.hintActive = false;
+            this.resetIdleTimer();
+        }, 1100);
+    }
+
+    async ensureSolvable() { if (!this.hasPossibleMove()) await this.reshuffleBoard(); }
+
+    async reshuffleBoard() {
+        this.comboFeedback('SHUFFLING!');
+        this.sfx.shuffle();
+
+        this.allTiles().forEach(p => {
+            p.el.style.transition = 'transform .3s ease, opacity .3s ease';
+            p.el.style.opacity = '0';
+        });
+        await wait(320);
+
+        let attempts = 0;
+        do {
+            this.grid.innerHTML = '';
+            this.board = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
+            this.fillBoardInitial();
+            attempts++;
+        } while (!this.hasPossibleMove() && attempts < 20);
+
+        await wait(60);
+    }
+
+    checkSpecialCombo(p1, p2) {
+        const s1 = p1.special, s2 = p2.special;
+        if (s1 === SPECIALS.NONE && s2 === SPECIALS.NONE) return { isCombo: false };
+
+        if (s1 === SPECIALS.NONE || s2 === SPECIALS.NONE) {
+            const bomb = s1 === SPECIALS.BOMB ? p1 : (s2 === SPECIALS.BOMB ? p2 : null);
+            if (bomb) { const normal = bomb === p1 ? p2 : p1; return { isCombo: true, type: 'BOMB_COLOR', color: normal.color, origin: bomb }; }
+            return { isCombo: false };
+        }
+
+        if (s1 === SPECIALS.BOMB && s2 === SPECIALS.BOMB) return { isCombo: true, type: 'BOMB_BOMB' };
+        if (s1 === SPECIALS.BOMB || s2 === SPECIALS.BOMB) {
+            const bomb = s1 === SPECIALS.BOMB ? p1 : p2;
+            const other = bomb === p1 ? p2 : p1;
+            return { isCombo: true, type: 'BOMB_SPECIAL', origin: bomb, other };
+        }
+        const isStripe = s => s === SPECIALS.H_STRIPE || s === SPECIALS.V_STRIPE;
+        if (isStripe(s1) && isStripe(s2)) return { isCombo: true, type: 'STRIPE_STRIPE', origin: p2 };
+        if (s1 === SPECIALS.WRAP && s2 === SPECIALS.WRAP) return { isCombo: true, type: 'WRAP_WRAP', origin: p2 };
+
+        const wrapPiece = s1 === SPECIALS.WRAP ? p1 : p2;
+        return { isCombo: true, type: 'STRIPE_WRAP', origin: wrapPiece };
+    }
+
+    async resolveBoard(initialGroups, initialCombo) {
+        let groups = initialGroups, combo = initialCombo, comboCount = 0;
+
+        while (groups.length > 0 || combo?.isCombo) {
+            let toDestroy = new Set(), spawnQ = [];
+            let matchColor = null;
+            comboCount++;
+
+            if (combo?.isCombo) {
+                this.sfx.special();
+                if (combo.type === 'BOMB_BOMB') {
+                    this.allTiles().forEach(t => toDestroy.add(t));
+                    this.flashScreen(.5);
+                    this.ringBurst(...Object.values(this.shellPointForCell(ROWS / 2, COLS / 2)), '#FFC567', 120);
+                } else if (combo.type === 'BOMB_COLOR') {
+                    matchColor = combo.color;
+                    toDestroy.add(combo.origin);
+                    this.allTiles().forEach(t => { if (t.color === combo.color) toDestroy.add(t); });
+                    this.flashScreen(.4);
+                    const p = this.shellPointForCell(combo.origin.r, combo.origin.c);
+                    this.ringBurst(p.x, p.y, COLORS[combo.color], 100);
+                } else if (combo.type === 'BOMB_SPECIAL') {
+                    matchColor = combo.other.color;
+                    toDestroy.add(combo.origin); toDestroy.add(combo.other);
+                    this.allTiles().forEach(t => { if (t.color === combo.other.color) toDestroy.add(t); });
+                    this.flashScreen(.4);
+                    const p = this.shellPointForCell(combo.origin.r, combo.origin.c);
+                    this.ringBurst(p.x, p.y, COLORS[combo.other.color], 100);
+                } else if (combo.type === 'WRAP_WRAP') {
+                    matchColor = combo.origin.color;
+                    toDestroy.add(combo.origin);
+                    for (let r = Math.max(0, combo.origin.r - 2); r <= Math.min(ROWS - 1, combo.origin.r + 2); r++)
+                        for (let c = Math.max(0, combo.origin.c - 2); c <= Math.min(COLS - 1, combo.origin.c + 2); c++)
+                            if (this.board[r][c]) toDestroy.add(this.board[r][c]);
+                    this.flashScreen(.35);
+                    const p = this.shellPointForCell(combo.origin.r, combo.origin.c);
+                    this.ringBurst(p.x, p.y, COLORS[combo.origin.color], 90);
+                } else if (combo.type === 'STRIPE_WRAP') {
+                    matchColor = combo.origin.color;
+                    toDestroy.add(combo.origin);
+                    for (let dr = -1; dr <= 1; dr++) { const rr = combo.origin.r + dr; if (rr < 0 || rr >= ROWS) continue; for (let c = 0; c < COLS; c++) if (this.board[rr][c]) toDestroy.add(this.board[rr][c]); }
+                    for (let dc = -1; dc <= 1; dc++) { const cc = combo.origin.c + dc; if (cc < 0 || cc >= COLS) continue; for (let r = 0; r < ROWS; r++) if (this.board[r][cc]) toDestroy.add(this.board[r][cc]); }
+                    const p = this.shellPointForCell(combo.origin.r, combo.origin.c);
+                    this.ringBurst(p.x, p.y, COLORS[combo.origin.color], 70);
+                } else if (combo.type === 'STRIPE_STRIPE') {
+                    matchColor = combo.origin.color;
+                    toDestroy.add(combo.origin);
+                    for (let c = 0; c < COLS; c++) if (this.board[combo.origin.r][c]) toDestroy.add(this.board[combo.origin.r][c]);
+                    for (let r = 0; r < ROWS; r++) if (this.board[r][combo.origin.c]) toDestroy.add(this.board[r][combo.origin.c]);
+                    const p = this.shellPointForCell(combo.origin.r, combo.origin.c);
+                    this.beamCross(p.x, p.y, COLORS[combo.origin.color]);
+                }
+                combo = null;
+            }
+
+            groups.forEach(g => {
+                g.forEach(p => toDestroy.add(p));
+                const points = g.length * 10 * comboCount;
+                this.addScore(points);
+
+                const mid = Math.floor(g.length / 2);
+                const fp = this.shellPointForCell(g[mid].r, g[mid].c);
+                this.floatingScore(fp.x, fp.y, `+${points}`);
+
+                let xs = g.map(p => p.c), ys = g.map(p => p.r);
+                let w = Math.max(...xs) - Math.min(...xs) + 1, h = Math.max(...ys) - Math.min(...ys) + 1;
+
+                let sP = g[0];
+                if (this.lastSwap && (g.includes(this.lastSwap.p1) || g.includes(this.lastSwap.p2))) {
+                    sP = g.includes(this.lastSwap.p1) ? this.lastSwap.p1 : this.lastSwap.p2;
+                }
+
+                if (g.length >= 5 && (w >= 5 || h >= 5)) spawnQ.push({ r: sP.r, c: sP.c, col: 0, sp: SPECIALS.BOMB });
+                else if (w >= 3 && h >= 3) spawnQ.push({ r: sP.r, c: sP.c, col: sP.color, sp: SPECIALS.WRAP });
+                else if (w === 4) spawnQ.push({ r: sP.r, c: sP.c, col: sP.color, sp: SPECIALS.V_STRIPE });
+                else if (h === 4) spawnQ.push({ r: sP.r, c: sP.c, col: sP.color, sp: SPECIALS.H_STRIPE });
+            });
+
+            if (groups.length > 0) {
+                let primary = groups[0];
+                if (this.lastSwap) {
+                    const swapGroup = groups.find(g => g.includes(this.lastSwap.p1) || g.includes(this.lastSwap.p2));
+                    if (swapGroup) primary = swapGroup;
+                } else if (groups.length > 1) {
+                    primary = groups.reduce((a, b) => (b.length > a.length ? b : a), groups[0]);
+                }
+                if (primary[0]) matchColor = primary[0].color;
+            }
+            if (matchColor) this.applyMatchColor(matchColor);
+
+            let q = Array.from(toDestroy), done = new Set();
+            while (q.length > 0) {
+                let p = q.shift();
+                if (done.has(p)) continue;
+                done.add(p); toDestroy.add(p);
+
+                if (p.special === SPECIALS.H_STRIPE) { for (let c = 0; c < COLS; c++) if (this.board[p.r][c] && !done.has(this.board[p.r][c])) q.push(this.board[p.r][c]); }
+                else if (p.special === SPECIALS.V_STRIPE) { for (let r = 0; r < ROWS; r++) if (this.board[r][p.c] && !done.has(this.board[r][p.c])) q.push(this.board[r][p.c]); }
+                else if (p.special === SPECIALS.WRAP) {
+                    for (let r = Math.max(0, p.r - 1); r <= Math.min(ROWS - 1, p.r + 1); r++)
+                        for (let c = Math.max(0, p.c - 1); c <= Math.min(COLS - 1, p.c + 1); c++)
+                            if (this.board[r][c] && !done.has(this.board[r][c])) q.push(this.board[r][c]);
+                } else if (p.special === SPECIALS.BOMB) {
+                    let tc = Math.floor(Math.random() * this.numColors) + 1;
+                    for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) if (this.board[r][c]?.color === tc && !done.has(this.board[r][c])) q.push(this.board[r][c]);
+                }
+            }
+
+            if (toDestroy.size > 7) {
+                this.shell.animate(
+                    [{ transform: 'scale(1) rotate(0)' }, { transform: 'scale(1.014) rotate(-.25deg)' }, { transform: 'scale(.997) rotate(.18deg)' }, { transform: 'scale(1) rotate(0)' }],
+                    { duration: 250, easing: 'ease-out' }
+                );
+            }
+
+            if (toDestroy.size > 0) {
+                this.sfx.pop(comboCount);
+                if (comboCount > 1) {
+                    const word = ACTION_WORDS[Math.floor(Math.random() * ACTION_WORDS.length)];
+                    this.comboFeedback(`${word} x${comboCount}`);
+                }
+
+                const destroyList = Array.from(toDestroy);
+                const stagger = Math.min(18, 160 / Math.max(1, destroyList.length));
+                const pops = destroyList.map((p, i) => this.popTile(p, i * stagger));
+                await Promise.all(pops);
+                for (const p of destroyList) { this.board[p.r][p.c] = null; }
+            }
+
+            spawnQ.forEach(s => this.spawnSpecial(s.r, s.c, s.col, s.sp));
+            await this.applyGravity();
+            this.lastSwap = null;
+            groups = this.findMatches();
+        }
+
+        if (this.moves > 0 && this.score < this.starMax) await this.ensureSolvable();
+        this.checkWinLoss();
+    }
+
+    async popTile(tile, delay) {
+        const p = this.shellPointForCell(tile.r, tile.c);
+        const big = tile.special !== SPECIALS.NONE;
+        await wait(delay);
+        this.particleBurst(p.x, p.y, tile.special === SPECIALS.BOMB ? (Math.floor(Math.random() * 6) + 1) : tile.color, big ? 14 : 8);
+        const anim = tile.gem.animate(
+            [{ transform: 'scale(1)', opacity: 1, offset: 0 }, { transform: 'scale(1.18)', opacity: 1, offset: .38 }, { transform: 'scale(.18)', opacity: 0, offset: 1 }],
+            { duration: 190, easing: 'cubic-bezier(.3,.82,.35,1)', fill: 'forwards' }
+        );
+        await this.safeFinished(anim);
+        tile.el.remove();
+    }
+
+    spawnSpecial(r, c, color, special) {
+        const existing = this.board[r][c];
+        if (existing) existing.el.remove();
+        const tile = this.createTile(r, c, color, special);
+        tile.el.style.transform = this.tileTransform(r, c);
+        tile.gem.animate(
+            [{ transform: 'scale(.82) rotate(-6deg)' }, { transform: 'scale(1.18) rotate(5deg)' }, { transform: 'scale(.97) rotate(-2deg)' }, { transform: 'scale(1) rotate(0)' }],
+            { duration: 340, easing: 'cubic-bezier(.16,.84,.22,1)' }
+        );
+        const p = this.shellPointForCell(r, c);
+        this.ringBurst(p.x, p.y, special === SPECIALS.BOMB ? '#FFC567' : COLORS[color], 42);
+        this.particleBurst(p.x, p.y, color || 1, 12);
+        return tile;
+    }
+
+    async applyGravity() {
+        const animations = [];
+        for (let c = 0; c < COLS; c++) {
+            const survivors = [];
+            for (let r = ROWS - 1; r >= 0; r--) { const t = this.board[r][c]; if (t) survivors.push(t); }
+            const holes = ROWS - survivors.length;
+            const column = Array(ROWS).fill(null);
+
+            let write = ROWS - 1;
+            for (const tile of survivors) {
+                const oldRow = tile.r;
+                const newRow = write--;
+                column[newRow] = tile;
+                if (oldRow !== newRow) {
+                    const distance = newRow - oldRow;
+                    tile.r = newRow; tile.c = c;
+                    animations.push(this.animateFall(tile, oldRow, newRow, distance));
+                }
+            }
+
+            for (let r = holes - 1; r >= 0; r--) {
+                const color = Math.floor(Math.random() * this.numColors) + 1;
+                const startRow = -(holes - r) - 1;
+                const tile = this.createTile(r, c, color, SPECIALS.NONE, -(startRow - r));
+                column[r] = tile;
+                animations.push(this.animateSpawnFall(tile, startRow, r, holes - r));
+            }
+
+            for (let r = 0; r < ROWS; r++) this.board[r][c] = column[r];
+        }
+        await Promise.all(animations);
+    }
+
+    async animateFall(tile, oldRow, newRow, distance) {
+        const start = this.tileTransform(oldRow, tile.c);
+        const end = this.tileTransform(newRow, tile.c);
+        const p = this.pos(newRow, tile.c);
+        const duration = Math.min(340, 155 + distance * 34);
+        const anim = tile.el.animate(
+            [
+                { transform: start, offset: 0 },
+                { transform: `translate3d(${p.x}px,${p.y}px,0) scale(1.01,.985)`, offset: .82 },
+                { transform: `translate3d(${p.x}px,${p.y}px,0) scale(1.06,.92)`, offset: .91 },
+                { transform: `translate3d(${p.x}px,${p.y}px,0) scale(.98,1.035)`, offset: .97 },
+                { transform: end, offset: 1 }
+            ],
+            { duration, easing: 'cubic-bezier(.16,.72,.18,1)', fill: 'forwards' }
+        );
+        await this.safeFinished(anim);
+        tile.el.style.transform = end;
+    }
+
+    async animateSpawnFall(tile, startRow, newRow, distance) {
+        const start = this.tileTransform(startRow, tile.c, .86, .86);
+        const p = this.pos(newRow, tile.c);
+        const end = this.tileTransform(newRow, tile.c);
+        const duration = Math.min(390, 205 + distance * 36);
+        tile.el.style.transform = start;
+        tile.el.style.opacity = '.25';
+        const anim = tile.el.animate(
+            [
+                { transform: start, opacity: .25, offset: 0 },
+                { transform: `translate3d(${p.x}px,${p.y}px,0) scale(1.015,.985)`, opacity: 1, offset: .82 },
+                { transform: `translate3d(${p.x}px,${p.y}px,0) scale(1.07,.91)`, opacity: 1, offset: .91 },
+                { transform: `translate3d(${p.x}px,${p.y}px,0) scale(.98,1.04)`, opacity: 1, offset: .97 },
+                { transform: end, opacity: 1, offset: 1 }
+            ],
+            { duration, easing: 'cubic-bezier(.14,.72,.18,1)', fill: 'forwards' }
+        );
+        await this.safeFinished(anim);
+        tile.el.style.transform = end;
+        tile.el.style.opacity = '1';
+    }
+
+    /* ---------- Coins & Shop ---------- */
 
     updateCoinDisplay() {
         document.getElementById('coin-txt').innerText = this.coins;
@@ -1634,13 +1924,8 @@ class Match3Game {
     addCoins(n) {
         this.coins += n;
         this.updateCoinDisplay();
-        const chip = document.getElementById('coin-chip');
-        chip.classList.remove('bump');
-        void chip.offsetWidth;
-        chip.classList.add('bump');
+        this.bumpEl(document.getElementById('coin-chip'));
     }
-
-    /* ---------- Shop ---------- */
 
     openShop() {
         const row = document.getElementById('shop-row');
@@ -1658,9 +1943,7 @@ class Match3Game {
         document.getElementById('shop-overlay').classList.add('active');
     }
 
-    closeShop() {
-        document.getElementById('shop-overlay').classList.remove('active');
-    }
+    closeShop() { document.getElementById('shop-overlay').classList.remove('active'); }
 
     buyPremium(type) {
         const def = PREMIUM_POWER_UPS[type];
@@ -1670,7 +1953,7 @@ class Match3Game {
         this.sfx.special();
         this.updateCoinDisplay();
         this.updatePowerUpTray();
-        this.openShop(); // refresh affordability/prices in place
+        this.openShop();
     }
 
     /* ---------- Power-ups ---------- */
@@ -1699,9 +1982,6 @@ class Match3Game {
         if (this.isProcessing) return;
         if (!this.inventory[type]) return;
 
-        // Hammer and its premium row-clearing cousin both need a target
-        // tile, so tapping them just arms/disarms targeting mode; the
-        // actual use happens in handlePointerDown.
         if (type === 'hammer' || type === 'megaHammer') {
             this.pendingPowerUp = this.pendingPowerUp === type ? null : type;
             this.updatePowerUpTray();
@@ -1717,7 +1997,7 @@ class Match3Game {
             this.reshuffleBoard().then(() => { this.isProcessing = false; });
         } else if (type === 'extraMoves') {
             this.moves += 5;
-            this.bumpHUD(document.getElementById('moves-txt'));
+            this.bumpEl(this.movesEl.closest('.pill'));
             this.updateHUD();
             this.updatePowerUpTray();
         } else if (type === 'colorBomb') {
@@ -1729,46 +2009,34 @@ class Match3Game {
         }
     }
 
-    /* Smashes one tile directly - no move spent, and deliberately does not
-       chain into a full cascade check the way a real match would; it's a
-       simple, predictable utility rather than another match trigger. */
-    async useHammer(piece) {
+    async useHammer(tile) {
         this.pendingPowerUp = null;
         this.inventory.hammer--;
         this.updatePowerUpTray();
         this.isProcessing = true;
         this.sfx.pop(1);
-        this.createParticles(piece);
-        piece.el.classList.add('pop');
-        this.board[piece.r][piece.c] = null;
+        await this.popTile(tile, 0);
+        this.board[tile.r][tile.c] = null;
         this.addScore(20);
-        setTimeout(() => piece.el.remove(), 260);
-        await wait(260);
         await this.applyGravity();
         if (this.moves > 0 && this.score < this.starMax) await this.ensureSolvable();
         this.checkWinLoss();
     }
 
-    /* Premium version of the hammer: smashes the whole row the tapped tile
-       is in, same no-move / no-cascade rules as the regular hammer. */
-    async useMegaHammer(piece) {
+    async useMegaHammer(tile) {
         this.pendingPowerUp = null;
         this.inventory.megaHammer--;
         this.updatePowerUpTray();
         this.isProcessing = true;
         this.sfx.special();
-        this.screenFlash();
-        const row = piece.r;
+        this.flashScreen(.35);
+        const row = tile.r;
         const victims = [];
         for (let c = 0; c < COLS; c++) if (this.board[row][c]) victims.push(this.board[row][c]);
-        victims.forEach(p => {
-            this.createParticles(p);
-            p.el.classList.add('pop');
-            this.board[p.r][p.c] = null;
-            this.addScore(15);
-            setTimeout(() => p.el.remove(), 260);
-        });
-        await wait(300);
+        const pops = victims.map((p, i) => this.popTile(p, i * 20));
+        victims.forEach(p => this.addScore(15));
+        await Promise.all(pops);
+        victims.forEach(p => { this.board[p.r][p.c] = null; });
         await this.applyGravity();
         if (this.moves > 0 && this.score < this.starMax) await this.ensureSolvable();
         this.checkWinLoss();
@@ -1777,16 +2045,10 @@ class Match3Game {
     dropColorBombs(count) {
         for (let i = 0; i < count; i++) {
             const candidates = [];
-            for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
-                if (this.board[r][c] && this.board[r][c].special === SPECIALS.NONE) candidates.push([r, c]);
-            }
+            for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) if (this.board[r][c] && this.board[r][c].special === SPECIALS.NONE) candidates.push([r, c]);
             if (!candidates.length) return;
             const [r, c] = candidates[Math.floor(Math.random() * candidates.length)];
-            const old = this.board[r][c];
-            old.el.remove();
-            this.board[r][c] = null;
-            this.spawnShockwave(r, c);
-            this.spawnPiece(r, c, 0, SPECIALS.BOMB);
+            this.spawnSpecial(r, c, 0, SPECIALS.BOMB);
         }
     }
 
@@ -1812,38 +2074,54 @@ class Match3Game {
         this.startLevel();
     }
 
-    showFloatingText(r, c, text, scale = 1) {
-        const el = document.createElement('div');
-        el.className = 'floating-text';
-        el.innerText = text;
-        el.style.left = `${c * (100 / COLS) + (100 / COLS) / 2}%`;
-        el.style.top = `${r * (100 / ROWS) + (100 / ROWS) / 2}%`;
-        if (scale !== 1) el.style.transform = `translate(-50%, -50%) scale(${scale})`;
-        this.layer.appendChild(el);
-        setTimeout(() => el.remove(), 1000);
+    /* ---------- Win / loss ---------- */
+
+    checkWinLoss() {
+        const done = this.moves <= 0 || this.score >= this.starMax;
+        if (!done) { this.isProcessing = false; return; }
+
+        if (this.score >= this.targetScore) {
+            this.sfx.win();
+            this.playLottieConfetti();
+            const stars = this.computeStars();
+            const coinsEarned = stars * 15;
+            this.addCoins(coinsEarned);
+            this.currentLevelIdx++;
+            if (this.currentLevelIdx >= LEVELS.length) {
+                this.showScreen('You Win!', `FINAL SCORE: ${this.score} · +${coinsEarned} COINS`, 'PLAY AGAIN', stars, 'play');
+                this.currentLevelIdx = 0;
+                this.inventory = { hammer: 0, shuffle: 0, extraMoves: 0, colorBomb: 0, megaHammer: 0, doubleBomb: 0 };
+                this.coins = 0;
+                this.updatePowerUpTray();
+                this.updateCoinDisplay();
+            } else {
+                this.showScreen('Level Clear!', `SCORE: ${this.score} / ${this.targetScore} · +${coinsEarned} COINS`, 'CONTINUE', stars, 'reward');
+            }
+        } else {
+            this.sfx.lose();
+            this.showScreen('Out of Moves', `SCORE: ${this.score} / ${this.targetScore}`, 'TRY AGAIN', null, 'play');
+        }
     }
 
-    comboBanner(text) {
-        const el = document.getElementById('combo-banner');
-        if (!el) return;
-        el.innerText = text;
-        el.classList.remove('show');
-        void el.offsetWidth;
-        el.classList.add('show');
+    /* ---------- Confetti ---------- */
+
+    playLottieConfetti() {
+        const container = document.getElementById('confetti-lottie');
+        if (!container || typeof lottie === 'undefined') return;
+        container.innerHTML = '';
+        const w = Math.max(1, window.innerWidth);
+        const h = Math.max(1, window.innerHeight);
+        const data = buildConfettiLottieData(w, h);
+        let anim;
+        try {
+            anim = lottie.loadAnimation({ container, renderer: 'svg', loop: false, autoplay: true, animationData: data });
+        } catch (e) { return; }
+        const cleanup = () => { try { anim.destroy(); } catch (e) {} container.innerHTML = ''; };
+        anim.addEventListener('complete', cleanup);
+        setTimeout(cleanup, (data.op / data.fr) * 1000 + 500);
     }
 
-    screenFlash() {
-        const flash = document.createElement('div');
-        flash.className = 'flash';
-        this.boardEl.appendChild(flash);
-        setTimeout(() => flash.remove(), 200);
-    }
-
-    /* ---------- Idle hint ---------- */
-
-    resetIdleTimer() {
-        this.lastActionAt = Date.now();
-    }
+    /* ---------- Idle hint & watchdog ---------- */
 
     startIdleWatcher() {
         setInterval(() => {
@@ -1854,39 +2132,19 @@ class Match3Game {
         }, 1000);
     }
 
-    /* ---------- Safety net ----------
-       Belt-and-braces for state I can't prove is unreachable: if input stays
-       blocked for an unreasonable stretch with no overlay to explain it, or
-       the board ends up with empty cells nothing is filling, self-heal
-       instead of leaving the player stuck with a dead board. */
     startWatchdog() {
         setInterval(() => {
             const overlayActive = document.getElementById('screen-overlay').classList.contains('active');
             if (this.isProcessing && !overlayActive) {
                 this.stuckTicks = (this.stuckTicks || 0) + 1;
-                if (this.stuckTicks > 7) {
-                    console.warn('[match] input was stuck; repairing board.');
-                    this.repairBoard();
-                }
+                if (this.stuckTicks > 7) { console.warn('[match] input was stuck; repairing board.'); this.repairBoard(); }
             } else {
                 this.stuckTicks = 0;
             }
-            if (!this.isProcessing && !overlayActive && this.board) {
-                for (let r = 0; r < ROWS; r++) {
-                    for (let c = 0; c < COLS; c++) {
-                        if (!this.board[r][c]) { this.repairBoard(); return; }
-                    }
-                }
-                // Continuous hygiene, independent of the stuck/hole checks above:
-                // once the board is settled, any .piece element that isn't the
-                // current occupant of its cell is a leftover from a timer that
-                // fired late (a real device under load can run setTimeout well
-                // past its requested delay). Sweep those every tick so a stray
-                // tile can never sit there indefinitely looking like it's
-                // "always reacting" to input meant for the real tile above it.
-                const valid = new Set();
-                for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) if (this.board[r][c]) valid.add(this.board[r][c].el);
-                this.layer.querySelectorAll('.piece').forEach(el => { if (!valid.has(el)) el.remove(); });
+            if (!this.isProcessing && !overlayActive && this.board && this.numColors) {
+                for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) if (!this.board[r][c]) { this.repairBoard(); return; }
+                const valid = new Set(this.allTiles().map(t => t.el));
+                this.grid.querySelectorAll('.tile').forEach(el => { if (!valid.has(el)) el.remove(); });
             }
         }, 1000);
     }
@@ -1894,571 +2152,174 @@ class Match3Game {
     async repairBoard() {
         if (this.repairing) return;
         this.repairing = true;
-        for (let r = 0; r < ROWS; r++) {
-            for (let c = 0; c < COLS; c++) {
-                if (!this.board[r][c]) this.spawnPiece(r, c, Math.floor(Math.random() * this.numColors) + 1, SPECIALS.NONE);
-            }
-        }
-        const valid = new Set();
-        for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) if (this.board[r][c]) valid.add(this.board[r][c].el);
-        this.layer.querySelectorAll('.piece').forEach(el => { if (!valid.has(el)) el.remove(); });
+        for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) if (!this.board[r][c]) this.createTile(r, c, Math.floor(Math.random() * this.numColors) + 1, SPECIALS.NONE);
+        const valid = new Set(this.allTiles().map(t => t.el));
+        this.grid.querySelectorAll('.tile').forEach(el => { if (!valid.has(el)) el.remove(); });
         this.updatePositions();
         this.isProcessing = false;
         this.stuckTicks = 0;
-        this.dragStart = null;
-        this.activePointerId = null;
+        this.drag = null;
         this.clearSelection();
         await this.ensureSolvable();
         this.repairing = false;
     }
 
-    findHintMove() {
-        // Collect every valid move and pick one at random - always returning
-        // the first hit from a (0,0)-first scan meant a hint would disproportionately
-        // land on the same top-left tiles almost every time it fired.
-        const moves = [];
-        for (let r = 0; r < ROWS; r++) {
-            for (let c = 0; c < COLS; c++) {
-                const p = this.board[r][c];
-                if (!p) continue;
-                if (c < COLS - 1) {
-                    const q = this.board[r][c + 1];
-                    if (q && (this.checkSpecialCombo(p, q).isCombo || this.simulateSwapHasMatch(r, c, r, c + 1))) moves.push([p, q]);
-                }
-                if (r < ROWS - 1) {
-                    const q = this.board[r + 1][c];
-                    if (q && (this.checkSpecialCombo(p, q).isCombo || this.simulateSwapHasMatch(r, c, r + 1, c))) moves.push([p, q]);
-                }
-            }
-        }
-        if (!moves.length) return null;
-        return moves[Math.floor(Math.random() * moves.length)];
+    /* ---------- Canvas FX engine ---------- */
+
+    safeFinished(animation) { return animation.finished.catch(() => {}); }
+
+    vibrate(ms) { if (navigator.vibrate) navigator.vibrate(ms); }
+
+    flashScreen(intensity = .3) {
+        this.flashEl.getAnimations().forEach(a => a.cancel());
+        this.flashEl.animate([{ opacity: 0 }, { opacity: intensity, offset: .28 }, { opacity: 0 }], { duration: 240, easing: 'ease-out' });
     }
 
-    showHint() {
-        const move = this.findHintMove();
-        if (!move) return;
-        this.hintActive = true;
-        const [p1, p2] = move;
-        p1.inner.classList.add('hint');
-        p2.inner.classList.add('hint');
-        setTimeout(() => {
-            p1.inner.classList.remove('hint');
-            p2.inner.classList.remove('hint');
-            this.hintActive = false;
-            // Require another full 10s of idling before nudging again.
-            this.resetIdleTimer();
-        }, 1100);
+    comboFeedback(text) {
+        const el = document.createElement('div');
+        el.className = 'combo-text';
+        el.textContent = text;
+        this.textLayer.appendChild(el);
+        const anim = el.animate(
+            [
+                { opacity: 0, transform: 'translate(-50%,14px) scale(.65)', offset: 0 },
+                { opacity: 1, transform: 'translate(-50%,-2px) scale(1.08)', offset: .28 },
+                { opacity: 1, transform: 'translate(-50%,-8px) scale(1)', offset: .72 },
+                { opacity: 0, transform: 'translate(-50%,-24px) scale(.96)', offset: 1 }
+            ],
+            { duration: 650, easing: 'cubic-bezier(.2,.88,.24,1)' }
+        );
+        anim.finished.finally(() => el.remove()).catch(() => el.remove());
     }
 
-    /* A quick tactile burst right where the player's finger lands. */
-    tapBurst(piece) {
-        const cellW = this.boardEl.clientWidth / COLS;
-        const cellH = this.boardEl.clientHeight / ROWS;
-        const x = (piece.c * cellW) + (cellW / 2);
-        const y = (piece.r * cellH) + (cellH / 2);
-        const col = piece.special === SPECIALS.BOMB ? '#E2F6F3' : COLORS[piece.color];
-
-        for (let i = 0; i < 4; i++) {
-            const p = document.createElement('div');
-            p.className = 'particle tap-particle';
-            p.style.background = col;
-            p.style.borderRadius = '50%';
-            const size = 4 + Math.random() * 4;
-            p.style.width = `${size}px`;
-            p.style.height = `${size}px`;
-            p.style.left = `${x}px`;
-            p.style.top = `${y}px`;
-            const angle = Math.random() * Math.PI * 2;
-            const dist = 14 + Math.random() * 14;
-            p.style.setProperty('--tx', `${Math.cos(angle) * dist}px`);
-            p.style.setProperty('--ty', `${Math.sin(angle) * dist}px`);
-            p.style.animationDuration = '0.35s';
-            this.layer.appendChild(p);
-            setTimeout(() => p.remove(), 380);
-        }
+    progressToast(text) {
+        const el = document.createElement('div');
+        el.className = 'combo-text';
+        el.style.top = '2%';
+        el.textContent = text;
+        this.textLayer.appendChild(el);
+        const anim = el.animate(
+            [
+                { opacity: 0, transform: 'translate(-50%,10px) scale(.72)' },
+                { opacity: 1, transform: 'translate(-50%,-2px) scale(1.08)', offset: .3 },
+                { opacity: 1, transform: 'translate(-50%,-6px) scale(1)', offset: .7 },
+                { opacity: 0, transform: 'translate(-50%,-20px) scale(.96)' }
+            ],
+            { duration: 720, easing: 'cubic-bezier(.2,.88,.24,1)' }
+        );
+        anim.finished.finally(() => el.remove()).catch(() => el.remove());
     }
 
-    handlePointerDown(e) {
-        this.resetIdleTimer();
-        if (this.isProcessing) return;
-        // A phone very easily registers a second, accidental touch (a palm
-        // resting on the glass, a thumb bracing the edge). Without tracking
-        // which pointer we actually started a gesture with, that stray touch
-        // gets processed as if it were part of the same interaction - which
-        // reads as some unrelated tile "randomly" reacting to every tap.
-        if (this.activePointerId !== null && e.pointerId !== this.activePointerId) return;
-
-        const target = e.target.closest('.piece');
-        if (!target) return;
-
-        const piece = this.getPieceFromElement(target);
-        if (!piece) return;
-
-        this.activePointerId = e.pointerId;
-        this.sfx.ensure();
-
-        if (this.pendingPowerUp === 'hammer') {
-            this.useHammer(piece);
-            return;
-        }
-        if (this.pendingPowerUp === 'megaHammer') {
-            this.useMegaHammer(piece);
-            return;
-        }
-
-        if (this.selectedPiece) {
-            if (this.selectedPiece === piece) { this.clearSelection(); return; }
-            const dr = Math.abs(this.selectedPiece.r - piece.r);
-            const dc = Math.abs(this.selectedPiece.c - piece.c);
-            if (dr + dc === 1) { this.attemptSwap(this.selectedPiece, piece); this.clearSelection(); return; }
-            this.clearSelection();
-        }
-
-        this.selectedPiece = piece;
-        piece.el.classList.add('selected');
-        this.tapBurst(piece);
-        this.dragStart = { x: e.clientX, y: e.clientY, piece: piece };
+    floatingScore(shellX, shellY, text) {
+        const el = document.createElement('div');
+        el.className = 'score-pop';
+        el.textContent = text;
+        el.style.left = `${shellX + 24}px`;
+        el.style.top = `${shellY + 52}px`;
+        this.textLayer.appendChild(el);
+        const anim = el.animate(
+            [
+                { opacity: 0, transform: 'translate(-50%,-25%) scale(.7)' },
+                { opacity: 1, transform: 'translate(-50%,-60%) scale(1.14)', offset: .25 },
+                { opacity: 0, transform: 'translate(-50%,-160%) scale(.92)' }
+            ],
+            { duration: 650, easing: 'ease-out' }
+        );
+        anim.finished.finally(() => el.remove()).catch(() => el.remove());
     }
 
-    handlePointerUp(e) {
-        if (e.pointerId !== this.activePointerId) return;
-        this.activePointerId = null;
-        if (!this.dragStart || this.isProcessing) return;
-        const dx = e.clientX - this.dragStart.x;
-        const dy = e.clientY - this.dragStart.y;
-        const threshold = Math.max(18, this.boardEl.clientWidth / COLS * 0.4);
-
-        if (Math.abs(dx) > threshold || Math.abs(dy) > threshold) {
-            let tr = this.dragStart.piece.r, tc = this.dragStart.piece.c;
-            if (Math.abs(dx) > Math.abs(dy)) tc += (dx > 0 ? 1 : -1); else tr += (dy > 0 ? 1 : -1);
-            // The target cell can be empty (board edge miscalculation, or an
-            // in-flight resolve) - swapping against null would throw and,
-            // since isProcessing is already latched true by then, permanently
-            // lock input. Only ever attempt a swap against a real piece.
-            if (tr >= 0 && tr < ROWS && tc >= 0 && tc < COLS && this.board[tr][tc]) {
-                this.attemptSwap(this.dragStart.piece, this.board[tr][tc]);
-            }
-            this.clearSelection();
-        }
-        this.dragStart = null;
-    }
-
-    clearSelection() {
-        if (this.selectedPiece) { this.selectedPiece.el.classList.remove('selected'); this.selectedPiece = null; }
-    }
-
-    getPieceFromElement(el) {
-        for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) if (this.board[r][c]?.el === el) return this.board[r][c];
-        return null;
-    }
-
-    async attemptSwap(p1, p2) {
-        // Belt-and-braces: never let a null piece reach swapData, which would
-        // throw and strand isProcessing at true forever.
-        if (!p1 || !p2) return;
-        this.isProcessing = true;
-        this.sfx.swap();
-
-        this.swapData(p1, p2);
-        this.updatePositions();
-        await wait(ANIM_DUR);
-
-        const comboResult = this.checkSpecialCombo(p1, p2);
-        let matchGroups = comboResult.isCombo ? [] : this.findMatches();
-
-        // Invalid move: wiggle and swap back (does not cost a move)
-        if (!comboResult.isCombo && matchGroups.length === 0) {
-            this.sfx.invalid();
-            p1.inner.classList.add('wiggle', 'invalid');
-            p2.inner.classList.add('wiggle', 'invalid');
-            await wait(300);
-            p1.inner.classList.remove('wiggle', 'invalid');
-            p2.inner.classList.remove('wiggle', 'invalid');
-
-            this.swapData(p1, p2);
-            this.updatePositions();
-            await wait(ANIM_DUR);
-
-            this.isProcessing = false;
-            return;
-        }
-
-        this.moves--;
-        this.bumpHUD(document.getElementById('moves-txt'));
-        this.updateHUD();
-
-        this.lastSwap = { p1, p2 };
-        await this.resolveBoard(matchGroups, comboResult);
-    }
-
-    swapData(p1, p2) {
-        const tR = p1.r, tC = p1.c;
-        p1.r = p2.r; p1.c = p2.c; p2.r = tR; p2.c = tC;
-        this.board[p1.r][p1.c] = p1; this.board[p2.r][p2.c] = p2;
-    }
-
-    updatePositions() {
-        for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) if (this.board[r][c]) this.board[r][c].el.style.transform = `translate(${c * 100}%, ${r * 100}%)`;
-    }
-
-    findMatches() {
-        let horiz = [], vert = [];
-        for (let r = 0; r < ROWS; r++) {
-            for (let c = 0; c < COLS - 2; c++) {
-                let col = this.board[r][c]?.color;
-                if (!col) continue;
-                let len = 1; while (c + len < COLS && this.board[r][c + len]?.color === col) len++;
-                if (len >= 3) {
-                    let g = []; for (let i = 0; i < len; i++) g.push(this.board[r][c + i]);
-                    horiz.push(g); c += len - 1;
-                }
-            }
-        }
-        for (let c = 0; c < COLS; c++) {
-            for (let r = 0; r < ROWS - 2; r++) {
-                let col = this.board[r][c]?.color;
-                if (!col) continue;
-                let len = 1; while (r + len < ROWS && this.board[r + len][c]?.color === col) len++;
-                if (len >= 3) {
-                    let g = []; for (let i = 0; i < len; i++) g.push(this.board[r + i][c]);
-                    vert.push(g); r += len - 1;
-                }
-            }
-        }
-        let all = [...horiz, ...vert], merged = [];
-        while (all.length > 0) {
-            let cur = new Set(all.shift()), found = true;
-            while (found) {
-                found = false;
-                for (let i = 0; i < all.length; i++) {
-                    if (all[i].some(p => cur.has(p))) { all[i].forEach(p => cur.add(p)); all.splice(i, 1); found = true; break; }
-                }
-            }
-            merged.push(Array.from(cur));
-        }
-        return merged;
-    }
-
-    // Simulates swapping the contents of two board cells and checks whether it produces a match.
-    // Does not touch piece.r/c, since findMatches() only reads through this.board[r][c].
-    simulateSwapHasMatch(r1, c1, r2, c2) {
-        const b = this.board;
-        const a = b[r1][c1], d = b[r2][c2];
-        b[r1][c1] = d; b[r2][c2] = a;
-        const hasMatch = this.findMatches().length > 0;
-        b[r1][c1] = a; b[r2][c2] = d;
-        return hasMatch;
-    }
-
-    hasPossibleMove() {
-        for (let r = 0; r < ROWS; r++) {
-            for (let c = 0; c < COLS; c++) {
-                const p = this.board[r][c];
-                if (!p) continue;
-                if (c < COLS - 1) {
-                    const q = this.board[r][c + 1];
-                    if (q && (this.checkSpecialCombo(p, q).isCombo || this.simulateSwapHasMatch(r, c, r, c + 1))) return true;
-                }
-                if (r < ROWS - 1) {
-                    const q = this.board[r + 1][c];
-                    if (q && (this.checkSpecialCombo(p, q).isCombo || this.simulateSwapHasMatch(r, c, r + 1, c))) return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    async ensureSolvable() {
-        if (!this.hasPossibleMove()) await this.reshuffleBoard();
-    }
-
-    async reshuffleBoard() {
-        this.comboBanner("SHUFFLING!");
-        this.sfx.shuffle();
-
-        for (let r = 0; r < ROWS; r++) {
-            for (let c = 0; c < COLS; c++) {
-                const p = this.board[r][c];
-                if (p) {
-                    p.el.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
-                    p.el.style.opacity = '0';
-                    p.el.style.transform += ' scale(0.4) rotate(20deg)';
-                }
-            }
-        }
-        await wait(320);
-
-        let attempts = 0;
-        do {
-            this.layer.innerHTML = '<div class="combo-banner" id="combo-banner"></div>';
-            this.board = Array(ROWS).fill().map(() => Array(COLS).fill(null));
-            this.fillBoardInitial();
-            attempts++;
-        } while (!this.hasPossibleMove() && attempts < 20);
-
-        await wait(100);
-    }
-
-    checkSpecialCombo(p1, p2) {
-        const s1 = p1.special, s2 = p2.special;
-        if (s1 === SPECIALS.NONE && s2 === SPECIALS.NONE) return { isCombo: false };
-
-        // Exactly one piece is special: only a colour bomb auto-triggers on swap.
-        if (s1 === SPECIALS.NONE || s2 === SPECIALS.NONE) {
-            const bomb = s1 === SPECIALS.BOMB ? p1 : (s2 === SPECIALS.BOMB ? p2 : null);
-            if (bomb) {
-                const normal = bomb === p1 ? p2 : p1;
-                return { isCombo: true, type: 'BOMB_COLOR', color: normal.color, origin: bomb };
-            }
-            return { isCombo: false };
-        }
-
-        // Both pieces are special.
-        if (s1 === SPECIALS.BOMB && s2 === SPECIALS.BOMB) return { isCombo: true, type: 'BOMB_BOMB' };
-        if (s1 === SPECIALS.BOMB || s2 === SPECIALS.BOMB) {
-            const bomb = s1 === SPECIALS.BOMB ? p1 : p2;
-            const other = bomb === p1 ? p2 : p1;
-            return { isCombo: true, type: 'BOMB_SPECIAL', origin: bomb, other };
-        }
-        const isStripe = s => s === SPECIALS.H_STRIPE || s === SPECIALS.V_STRIPE;
-        if (isStripe(s1) && isStripe(s2)) return { isCombo: true, type: 'STRIPE_STRIPE', origin: p2 };
-        if (s1 === SPECIALS.WRAP && s2 === SPECIALS.WRAP) return { isCombo: true, type: 'WRAP_WRAP', origin: p2 };
-
-        const wrapPiece = s1 === SPECIALS.WRAP ? p1 : p2;
-        return { isCombo: true, type: 'STRIPE_WRAP', origin: wrapPiece };
-    }
-
-    async resolveBoard(initialGroups, initialCombo) {
-        let groups = initialGroups, combo = initialCombo, comboCount = 0;
-
-        while (groups.length > 0 || combo?.isCombo) {
-            let toDestroy = new Set(), spawnQ = [];
-            let matchColor = null;
-            comboCount++;
-
-            if (combo?.isCombo) {
-                this.sfx.special();
-                if (combo.type === 'BOMB_BOMB') {
-                    for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) if (this.board[r][c]) toDestroy.add(this.board[r][c]);
-                    this.screenFlash();
-                    this.spawnShockwave(ROWS / 2, COLS / 2);
-                } else if (combo.type === 'BOMB_COLOR') {
-                    matchColor = combo.color;
-                    toDestroy.add(combo.origin);
-                    for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) if (this.board[r][c]?.color === combo.color) toDestroy.add(this.board[r][c]);
-                    this.screenFlash();
-                    this.spawnShockwave(combo.origin.r, combo.origin.c);
-                } else if (combo.type === 'BOMB_SPECIAL') {
-                    matchColor = combo.other.color;
-                    toDestroy.add(combo.origin); toDestroy.add(combo.other);
-                    for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) if (this.board[r][c]?.color === combo.other.color) toDestroy.add(this.board[r][c]);
-                    this.screenFlash();
-                    this.spawnShockwave(combo.origin.r, combo.origin.c);
-                } else if (combo.type === 'WRAP_WRAP') {
-                    matchColor = combo.origin.color;
-                    toDestroy.add(combo.origin);
-                    for (let r = Math.max(0, combo.origin.r - 2); r <= Math.min(ROWS - 1, combo.origin.r + 2); r++)
-                        for (let c = Math.max(0, combo.origin.c - 2); c <= Math.min(COLS - 1, combo.origin.c + 2); c++)
-                            if (this.board[r][c]) toDestroy.add(this.board[r][c]);
-                    this.screenFlash();
-                    this.spawnShockwave(combo.origin.r, combo.origin.c);
-                } else if (combo.type === 'STRIPE_WRAP') {
-                    matchColor = combo.origin.color;
-                    toDestroy.add(combo.origin);
-                    for (let dr = -1; dr <= 1; dr++) {
-                        const rr = combo.origin.r + dr;
-                        if (rr < 0 || rr >= ROWS) continue;
-                        for (let c = 0; c < COLS; c++) if (this.board[rr][c]) toDestroy.add(this.board[rr][c]);
-                    }
-                    for (let dc = -1; dc <= 1; dc++) {
-                        const cc = combo.origin.c + dc;
-                        if (cc < 0 || cc >= COLS) continue;
-                        for (let r = 0; r < ROWS; r++) if (this.board[r][cc]) toDestroy.add(this.board[r][cc]);
-                    }
-                    this.spawnShockwave(combo.origin.r, combo.origin.c);
-                } else if (combo.type === 'STRIPE_STRIPE') {
-                    matchColor = combo.origin.color;
-                    toDestroy.add(combo.origin);
-                    for (let c = 0; c < COLS; c++) if (this.board[combo.origin.r][c]) toDestroy.add(this.board[combo.origin.r][c]);
-                    for (let r = 0; r < ROWS; r++) if (this.board[r][combo.origin.c]) toDestroy.add(this.board[r][combo.origin.c]);
-                    this.spawnShockwave(combo.origin.r, combo.origin.c);
-                }
-                combo = null;
-            }
-
-            groups.forEach(g => {
-                g.forEach(p => toDestroy.add(p));
-                const points = g.length * 10 * comboCount;
-                this.addScore(points);
-
-                const mid = Math.floor(g.length / 2);
-                this.showFloatingText(g[mid].r, g[mid].c, `+${points}`);
-
-                let xs = g.map(p => p.c), ys = g.map(p => p.r);
-                let w = Math.max(...xs) - Math.min(...xs) + 1, h = Math.max(...ys) - Math.min(...ys) + 1;
-
-                let sP = g[0];
-                if (this.lastSwap && (g.includes(this.lastSwap.p1) || g.includes(this.lastSwap.p2))) {
-                    sP = g.includes(this.lastSwap.p1) ? this.lastSwap.p1 : this.lastSwap.p2;
-                }
-
-                if (g.length >= 5 && (w >= 5 || h >= 5)) spawnQ.push({ r: sP.r, c: sP.c, col: 0, sp: SPECIALS.BOMB });
-                else if (w >= 3 && h >= 3) spawnQ.push({ r: sP.r, c: sP.c, col: sP.color, sp: SPECIALS.WRAP });
-                else if (w === 4) spawnQ.push({ r: sP.r, c: sP.c, col: sP.color, sp: SPECIALS.V_STRIPE });
-                else if (h === 4) spawnQ.push({ r: sP.r, c: sP.c, col: sP.color, sp: SPECIALS.H_STRIPE });
-            });
-
-            // Retint the background to whichever colour was just matched -
-            // the group touching the player's actual swap wins on the first
-            // iteration; later cascade iterations (no swap to anchor to)
-            // fall back to the biggest group in that wave.
-            if (groups.length > 0) {
-                let primary = groups[0];
-                if (this.lastSwap) {
-                    const swapGroup = groups.find(g => g.includes(this.lastSwap.p1) || g.includes(this.lastSwap.p2));
-                    if (swapGroup) primary = swapGroup;
-                } else if (groups.length > 1) {
-                    primary = groups.reduce((a, b) => (b.length > a.length ? b : a), groups[0]);
-                }
-                if (primary[0]) matchColor = primary[0].color;
-            }
-            if (matchColor) this.applyMatchColor(matchColor);
-
-            // Find recursive special hits
-            let q = Array.from(toDestroy), done = new Set();
-            while (q.length > 0) {
-                let p = q.shift();
-                if (done.has(p)) continue;
-                done.add(p); toDestroy.add(p);
-
-                if (p.special === SPECIALS.H_STRIPE) { for (let c = 0; c < COLS; c++) if (this.board[p.r][c] && !done.has(this.board[p.r][c])) q.push(this.board[p.r][c]); }
-                else if (p.special === SPECIALS.V_STRIPE) { for (let r = 0; r < ROWS; r++) if (this.board[r][p.c] && !done.has(this.board[r][p.c])) q.push(this.board[r][p.c]); }
-                else if (p.special === SPECIALS.WRAP) {
-                    for (let r = Math.max(0, p.r - 1); r <= Math.min(ROWS - 1, p.r + 1); r++)
-                        for (let c = Math.max(0, p.c - 1); c <= Math.min(COLS - 1, p.c + 1); c++)
-                            if (this.board[r][c] && !done.has(this.board[r][c])) q.push(this.board[r][c]);
-                } else if (p.special === SPECIALS.BOMB) {
-                    let tc = Math.floor(Math.random() * this.numColors) + 1;
-                    for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) if (this.board[r][c]?.color === tc && !done.has(this.board[r][c])) q.push(this.board[r][c]);
-                }
-            }
-
-            if (toDestroy.size > 7) {
-                this.boardEl.classList.add('shake');
-                setTimeout(() => this.boardEl.classList.remove('shake'), 300);
-            }
-
-            if (toDestroy.size > 0) {
-                this.sfx.pop(comboCount);
-                if (comboCount > 1) {
-                    let word = ACTION_WORDS[Math.floor(Math.random() * ACTION_WORDS.length)];
-                    this.comboBanner(`${word} COMBO x${comboCount}!`);
-                }
-
-                // Stagger the pops into a little ripple instead of one flat pulse,
-                // and give the wait enough room to cover the longest delayed one.
-                const destroyList = Array.from(toDestroy);
-                const stagger = Math.min(18, 160 / Math.max(1, destroyList.length));
-                destroyList.forEach((p, i) => {
-                    const delay = i * stagger;
-                    setTimeout(() => this.createParticles(p), delay);
-                    p.el.style.animationDelay = `${delay}ms`;
-                    p.el.classList.add('pop');
-                    this.board[p.r][p.c] = null;
-                    setTimeout(() => p.el.remove(), delay + 250);
-                });
-                await wait(250 + Math.min(220, (destroyList.length - 1) * stagger) + 30);
-            }
-
-            spawnQ.forEach(s => this.spawnPiece(s.r, s.c, s.col, s.sp));
-            await this.applyGravity();
-            this.lastSwap = null;
-            groups = this.findMatches();
-        }
-
-        if (this.moves > 0 && this.score < this.starMax) await this.ensureSolvable();
-
-        this.checkWinLoss();
-    }
-
-    async applyGravity() {
-        let moved = false;
-        const movedPieces = [];
-        for (let c = 0; c < COLS; c++) {
-            let empty = 0;
-            for (let r = ROWS - 1; r >= 0; r--) {
-                if (this.board[r][c] === null) empty++;
-                else if (empty > 0) {
-                    let p = this.board[r][c];
-                    this.board[r][c] = null; p.r = r + empty; this.board[p.r][c] = p; moved = true;
-                    movedPieces.push(p);
-                }
-            }
-            for (let r = empty - 1; r >= 0; r--) {
-                movedPieces.push(this.spawnPiece(r, c, Math.floor(Math.random() * this.numColors) + 1, SPECIALS.NONE, empty));
-                moved = true;
-            }
-        }
-        if (moved) {
-            this.updatePositions();
-            await wait(300);
-            // A little squash on arrival gives falling tiles some weight.
-            movedPieces.forEach(p => {
-                p.inner.classList.add('land');
-                setTimeout(() => p.inner.classList.remove('land'), 220);
+    particleBurst(shellX, shellY, colorIdx, count = 12) {
+        const off = this.canvasOffset();
+        const x = shellX + off.x, y = shellY + off.y;
+        const color = COLORS[((colorIdx - 1 + 600) % 6) + 1] || COLORS[1];
+        const adaptive = this.perf.frame > 13 ? .65 : this.perf.frame > 10 ? .82 : 1;
+        const n = Math.max(4, Math.round(count * adaptive));
+        for (let i = 0; i < n; i++) {
+            const angle = Math.PI * 2 * (i / n) + Math.random() * .45;
+            const speed = 55 + Math.random() * 95;
+            this.particles.push({
+                x, y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed - 18,
+                life: 0, ttl: .42 + Math.random() * .24, size: 2.4 + Math.random() * 3.2, color
             });
         }
     }
 
-    computeStars() {
-        const ratio = this.score / this.targetScore;
-        if (ratio >= 1.35) return 3;
-        if (ratio >= 1.15) return 2;
-        return 1;
+    ringBurst(shellX, shellY, color, maxRadius = 58) {
+        const off = this.canvasOffset();
+        this.rings.push({ x: shellX + off.x, y: shellY + off.y, life: 0, ttl: .42, color, maxRadius });
     }
 
-    checkWinLoss() {
-        // Reaching the goal does NOT end the level by itself - the meter
-        // visibly keeps going past it toward the 2-star/3-star marks, so
-        // stopping the instant it's touched would make that bar a lie: the
-        // player would never have the moves-remaining chance to actually
-        // reach for the higher tiers it's showing them. The level only ends
-        // when there's nothing left to spend (out of moves) or nothing left
-        // to gain (already at the 3-star cap).
-        const done = this.moves <= 0 || this.score >= this.starMax;
-        if (!done) {
-            this.isProcessing = false;
-            return;
+    beamCross(shellX, shellY, color) {
+        const off = this.canvasOffset();
+        const extent = Math.max(this.shell.clientWidth, this.shell.clientHeight) * 1.15;
+        [0, Math.PI].forEach(angle => this.beams.push({ x: shellX + off.x, y: shellY + off.y, angle, length: extent, life: 0, ttl: .22, color }));
+        [-Math.PI / 2, Math.PI / 2].forEach(angle => this.beams.push({ x: shellX + off.x, y: shellY + off.y, angle, length: extent, life: 0, ttl: .22, color }));
+    }
+
+    drawFx(dt) {
+        const rect = this.canvas.getBoundingClientRect();
+        this.ctx.clearRect(0, 0, rect.width, rect.height);
+
+        for (let i = this.particles.length - 1; i >= 0; i--) {
+            const p = this.particles[i];
+            p.life += dt;
+            if (p.life >= p.ttl) { this.particles.splice(i, 1); continue; }
+            const t = p.life / p.ttl;
+            p.vy += 240 * dt; p.x += p.vx * dt; p.y += p.vy * dt;
+            this.ctx.globalAlpha = (1 - t) * (1 - t);
+            this.ctx.fillStyle = p.color;
+            this.ctx.beginPath();
+            this.ctx.arc(p.x, p.y, p.size * (1 - .6 * t), 0, Math.PI * 2);
+            this.ctx.fill();
         }
 
-        this.stopMeterSparks();
-        if (this.score >= this.targetScore) {
-            this.sfx.win();
-            this.playLottieConfetti();
-            const stars = this.computeStars();
-            const coinsEarned = stars * 15;
-            this.addCoins(coinsEarned);
-            this.currentLevelIdx++;
-            if (this.currentLevelIdx >= LEVELS.length) {
-                this.showScreen("YOU WIN!", `FINAL SCORE: ${this.score} · +${coinsEarned} COINS`, "PLAY AGAIN", stars, 'play');
-                this.currentLevelIdx = 0;
-                // A full clear ends the run - start the next one with a clean slate.
-                this.inventory = { hammer: 0, shuffle: 0, extraMoves: 0, colorBomb: 0, megaHammer: 0, doubleBomb: 0 };
-                this.coins = 0;
-                this.updatePowerUpTray();
-                this.updateCoinDisplay();
-            } else {
-                this.showScreen("LEVEL CLEAR!", `SCORE: ${this.score} / ${this.targetScore} · +${coinsEarned} COINS`, "CONTINUE", stars, 'reward');
-            }
-        } else {
-            this.sfx.lose();
-            this.showScreen("OUT OF MOVES", `SCORE: ${this.score} / ${this.targetScore}`, "TRY AGAIN", null, 'play');
+        for (let i = this.rings.length - 1; i >= 0; i--) {
+            const r = this.rings[i];
+            r.life += dt;
+            if (r.life >= r.ttl) { this.rings.splice(i, 1); continue; }
+            const t = r.life / r.ttl;
+            this.ctx.globalAlpha = 1 - t;
+            this.ctx.strokeStyle = r.color;
+            this.ctx.lineWidth = 3 * (1 - t) + .5;
+            this.ctx.beginPath();
+            this.ctx.arc(r.x, r.y, r.maxRadius * (.18 + .82 * t), 0, Math.PI * 2);
+            this.ctx.stroke();
         }
+
+        for (let i = this.beams.length - 1; i >= 0; i--) {
+            const b = this.beams[i];
+            b.life += dt;
+            if (b.life >= b.ttl) { this.beams.splice(i, 1); continue; }
+            const t = b.life / b.ttl;
+            const eased = 1 - Math.pow(1 - t, 3);
+            const len = b.length * eased;
+            const x2 = b.x + Math.cos(b.angle) * len, y2 = b.y + Math.sin(b.angle) * len;
+            this.ctx.globalAlpha = (1 - t) * .95;
+            this.ctx.strokeStyle = b.color;
+            this.ctx.lineCap = 'round';
+            this.ctx.lineWidth = 11 * (1 - t) + 4;
+            this.ctx.beginPath();
+            this.ctx.moveTo(b.x, b.y);
+            this.ctx.lineTo(x2, y2);
+            this.ctx.stroke();
+        }
+        this.ctx.globalAlpha = 1;
+    }
+
+    fxLoop(now) {
+        let dt = (now - this.perf.last) / 1000;
+        if (dt > 0.05) dt = 0.05;
+        this.perf.frame = dt * 1000;
+        this.drawFx(dt);
+        this.perf.last = now;
+        requestAnimationFrame(t => this.fxLoop(t));
     }
 }
 
-window.addEventListener('load', () => game = new Match3Game());
+window.addEventListener('load', () => { window.game = new Game(); });
+document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && window.game) window.game.perf.last = performance.now();
+});
 </script>
 </body>
 </html>
