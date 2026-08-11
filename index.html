@@ -682,23 +682,23 @@ button{touch-action:manipulation}
 
 <svg width="0" height="0" style="position:absolute;visibility:hidden" aria-hidden="true">
   <defs>
-    <symbol id="piece-burst" viewBox="0 0 100 100">
-      <path d="M50 12 C56 12 59 20 63 23 C68 21 76 17 80 22 C84 26 80 34 81 39 C86 42 93 45 93 51 C93 57 86 60 81 63 C81 69 84 76 80 80 C76 84 68 80 63 78 C59 82 56 90 50 90 C44 90 41 82 37 78 C32 80 24 84 20 80 C16 76 19 69 19 63 C14 60 7 57 7 51 C7 45 14 42 19 39 C18 34 16 26 20 22 C24 17 32 21 37 23 C41 20 44 12 50 12Z"/>
+    <symbol id="piece-circle" viewBox="0 0 480 480">
+      <circle cx="240" cy="240" r="240"/>
     </symbol>
-    <symbol id="piece-circle" viewBox="0 0 100 100">
-      <circle cx="50" cy="50" r="28"/>
+    <symbol id="piece-diamond" viewBox="0 0 480 480">
+      <path d="M197.6 42.4 42.4 197.6a60 60 0 0 0 0 84.8l155.2 155.2a60 60 0 0 0 84.8 0l155.2-155.2a60 60 0 0 0 0-84.8L282.4 42.4a60 60 0 0 0-84.8 0Z"/>
     </symbol>
-    <symbol id="piece-diamond" viewBox="0 0 100 100">
-      <path d="M50 17 L83 50 L50 83 L17 50 Z"/>
+    <symbol id="piece-x" viewBox="0 0 480 480">
+      <path d="M409.7 296.6 353.1 240l56.6-56.6A80 80 0 0 0 296.6 70.3L240 126.9l-56.6-56.6A80 80 0 0 0 70.3 183.4l56.6 56.6-56.6 56.6a80 80 0 0 0 113.1 113.1l56.6-56.6 56.6 56.6a80 80 0 0 0 113.1-113.1Z"/>
     </symbol>
-    <symbol id="piece-x" viewBox="0 0 100 100">
-      <path d="M31 18 C27 18 24 20 21 23 C18 27 18 31 21 35 L36 50 L21 65 C18 69 18 73 21 77 C24 80 27 82 31 82 C35 82 38 80 41 77 L50 68 L59 77 C62 80 65 82 69 82 C73 82 76 80 79 77 C82 73 82 69 79 65 L64 50 L79 35 C82 31 82 27 79 23 C76 20 73 18 69 18 C65 18 62 20 59 23 L50 32 L41 23 C38 20 35 18 31 18Z"/>
+    <symbol id="piece-burst" viewBox="0 0 480 480">
+      <path d="M480 240c0-29.1-20.7-55.8-55.2-76.5 9.7-39.1 5.5-72.6-15-93.2-20.7-20.6-54.2-24.8-93.3-15.1C295.8 20.7 269.1 0 240 0s-55.8 20.7-76.5 55.2c-39.1-9.7-72.6-5.5-93.2 15s-24.8 54.2-15.1 93.2C20.7 184.3 0 211 0 240s20.7 55.8 55.2 76.5c-9.7 39.1-5.5 72.6 15 93.2 20.7 20.6 54.2 24.8 93.2 15.1C184.3 459.3 211 480 240 480s55.8-20.7 76.5-55.2c39.1 9.7 72.6 5.5 93.2-15s24.8-54.2 15.1-93.2C459.3 295.8 480 269 480 240Z"/>
     </symbol>
-    <symbol id="piece-heart" viewBox="0 0 100 100">
-      <path d="M50 82 C22 60 8 42 8 25 C8 11 19 3 31 3 C41 3 47 9 50 16 C53 9 59 3 69 3 C81 3 92 11 92 25 C92 42 78 60 50 82Z"/>
+    <symbol id="piece-sparkle" viewBox="0 0 480 480">
+      <path d="M480 240A240 240 0 0 1 240 0 240 240 0 0 1 0 240a240 240 0 0 1 240 240 240 240 0 0 1 240-240Z"/>
     </symbol>
-    <symbol id="piece-star" viewBox="0 0 100 100">
-      <path d="M50 6 L61 38 L95 38 L67 59 L78 92 L50 71 L22 92 L33 59 L5 38 L39 38Z"/>
+    <symbol id="piece-8tip-star" viewBox="0 0 480 480">
+      <path d="M343.3 282.8A239 239 0 0 1 480 240c-50.8 0-98-15.8-136.8-42.8 8.4-46.5 30.6-91 66.5-127-36 36-80.4 58.2-127 66.5C255.9 98 240 50.8 240 0c0 50.8-15.8 98-42.8 136.8-46.5-8.4-91-30.6-127-66.5 36 36 58.2 80.4 66.5 127C98 224.1 50.8 240 0 240c50.8 0 98 15.8 136.8 42.8-8.4 46.5-30.6 91-66.5 127 36-36 80.4-58.2 127-66.6A239 239 0 0 1 240 480c0-50.8 15.8-98 42.8-136.8 46.5 8.4 91 30.6 127 66.5-36-36-58.2-80.4-66.5-127Z"/>
     </symbol>
 
     <symbol id="piece-horiz-row" viewBox="0 0 480 480">
@@ -843,7 +843,7 @@ const PREMIUM_POWER_UPS = {
 
 const ACTION_WORDS = ["BAM!", "RAD!", "BOOM!", "SICK!", "WILD!", "POP!", "SWEET!", "TASTY!"];
 
-const SHAPES = { 1: 'piece-burst', 2: 'piece-heart', 3: 'piece-circle', 4: 'piece-diamond', 5: 'piece-x', 6: 'piece-star' };
+const SHAPES = { 1: 'piece-burst', 2: 'piece-sparkle', 3: 'piece-circle', 4: 'piece-diamond', 5: 'piece-x', 6: 'piece-8tip-star' };
 const SPECIAL_SHAPES = { [SPECIALS.H_STRIPE]: 'piece-vert-row', [SPECIALS.V_STRIPE]: 'piece-horiz-row', [SPECIALS.WRAP]: 'piece-wrap', [SPECIALS.BOMB]: 'piece-bomb' };
 
 const COLORS = {
