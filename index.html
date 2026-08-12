@@ -156,11 +156,7 @@ html{
   width:100%;
   min-height:100%;
   height:100lvh;
-  background-color:var(--neutral-50);
-  background-image:linear-gradient(
-    var(--match-bg-tint, rgba(255,255,255,0)),
-    var(--match-bg-tint, rgba(255,255,255,0))
-  );
+  background:var(--match-bg-solid,var(--neutral-50));
 }
 
 body{
@@ -179,29 +175,6 @@ body{
   width:100%;
   height:100dvh;
 }
-.bg-wash{
-  position:fixed;
-  inset:0;
-  z-index:0;
-  pointer-events:none;
-  background:
-    radial-gradient(circle at 50% -5%,rgba(255,255,255,.95),transparent 40%),
-    rgba(255,255,255,0);
-  transition:background-color .8s ease;
-}
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]) .bg-wash{
-    background:
-      radial-gradient(circle at 50% -5%,rgba(255,255,255,.12),transparent 40%),
-      rgba(255,255,255,0);
-  }
-}
-:root[data-theme="dark"] .bg-wash{
-  background:
-    radial-gradient(circle at 50% -5%,rgba(255,255,255,.12),transparent 40%),
-    rgba(255,255,255,0);
-}
-
 .splash{
   position:fixed;
   inset:0;
@@ -358,7 +331,7 @@ button{touch-action:manipulation}
 .brand-card span,
 .pill span{
   margin-top:3px;
-  font-size:8.5px;
+  font-size:12px;
   color:var(--muted);
   text-transform:uppercase;
   letter-spacing:.08em;
@@ -816,7 +789,7 @@ symbol{
   padding:0 3px;
   background:var(--color-red-orange-base);
   color:#fff;
-  font-size:.72rem;
+  font-size:12px;
   font-weight:800;
   border-radius:999px;
   display:flex;
@@ -1180,7 +1153,7 @@ symbol{
 }
 
 .rc-desc{
-  font-size:.66rem;
+  font-size:12px;
   color:var(--neutral-900);
   opacity:.72;
   text-align:center;
@@ -1193,7 +1166,7 @@ symbol{
   margin-top:auto;
   width:100%;
   padding:9px 6px;
-  font:800 .72rem Manrope,sans-serif;
+  font:800 .75rem Manrope,sans-serif;
   letter-spacing:.02em;
   border:2.5px solid var(--neutral-900);
   border-radius:999px;
@@ -1242,7 +1215,7 @@ symbol{
 
 .collection-kicker{
   margin:-5px 0 2px;
-  font:800 .68rem/1 Manrope,sans-serif;
+  font:800 .75rem/1 Manrope,sans-serif;
   letter-spacing:.12em;
   text-transform:uppercase;
   color:var(--muted);
@@ -1321,7 +1294,7 @@ symbol{
   background:var(--neutral-0);
   color:var(--ink);
   box-shadow:2px 2px 0 var(--neutral-900);
-  font:800 .56rem/1.05 Manrope,sans-serif;
+  font:800 .75rem/1.05 Manrope,sans-serif;
   letter-spacing:.015em;
   text-transform:uppercase;
   white-space:nowrap;
@@ -1344,13 +1317,14 @@ symbol{
 .punch-category-track{
   display:flex;
   gap:14px;
-  width:100%;
-  margin:12px 0 0;
-  padding:4px 2px 10px;
+  width:calc(100% + 40px);
+  margin:12px -20px 0;
+  padding:4px 20px 10px;
   overflow-x:auto;
   overflow-y:visible;
   -webkit-overflow-scrolling:touch;
   scroll-snap-type:x mandatory;
+  scroll-padding-inline:20px;
   scrollbar-width:none;
   touch-action:pan-x pan-y;
 }
@@ -1383,7 +1357,7 @@ symbol{
 .punch-category-head span{
   display:block;
   margin-bottom:4px;
-  font:800 .56rem/1 Manrope,sans-serif;
+  font:800 .75rem/1 Manrope,sans-serif;
   letter-spacing:.1em;
   text-transform:uppercase;
   color:var(--muted);
@@ -1398,7 +1372,7 @@ symbol{
 .punch-category-head p{
   margin:5px 0 0!important;
   color:var(--muted)!important;
-  font-size:.66rem!important;
+  font-size:12px!important;
   font-weight:700!important;
   line-height:1.3!important;
 }
@@ -1411,8 +1385,8 @@ symbol{
   --card-base:var(--color-blue-base);
   --card-light:var(--color-blue-light);
   position:relative;
-  flex:0 0 228px;
-  width:228px;
+  flex:0 0 clamp(244px, calc(min(90vw, 380px) - 76px), 304px);
+  width:clamp(244px, calc(min(90vw, 380px) - 76px), 304px);
   scroll-snap-align:start;
   aspect-ratio:2 / 3;
   padding:0;
@@ -1467,7 +1441,7 @@ symbol{
 
 .punch-title{
   margin:0;
-  font:800 .98rem/1 Manrope,sans-serif;
+  font:800 1.05rem/1 Manrope,sans-serif;
   letter-spacing:-.01em;
   color:var(--ink-fixed);
   text-transform:uppercase;
@@ -1480,7 +1454,7 @@ symbol{
   border-radius:999px;
   background:#fff;
   color:var(--ink-fixed);
-  font:800 .58rem/1 Manrope,sans-serif;
+  font:800 .75rem/1 Manrope,sans-serif;
   box-shadow:2px 2px 0 var(--ink-fixed);
 }
 
@@ -1490,7 +1464,7 @@ symbol{
   margin:0!important;
   color:var(--ink-fixed)!important;
   opacity:.9;
-  font-size:.74rem!important;
+  font-size:12px!important;
   line-height:1.2!important;
   text-transform:none;
   letter-spacing:0;
@@ -1508,7 +1482,7 @@ symbol{
 }
 
 .punch-reward .stamp-face{
-  width:96px;
+  width:110px;
   aspect-ratio:4 / 5;
   padding:0;
   box-shadow:none;
@@ -1551,7 +1525,7 @@ symbol{
   box-shadow:none;
 }
 .punch-step-label{
-  font:800 .48rem/1 Manrope,sans-serif;
+  font:800 .75rem/1 Manrope,sans-serif;
   letter-spacing:.02em;
   color:var(--ink-fixed);
   opacity:.82;
@@ -1584,7 +1558,7 @@ symbol{
 }
 
 .punch-count{
-  font:800 .62rem/1.2 Manrope,sans-serif;
+  font:800 .75rem/1.2 Manrope,sans-serif;
   color:var(--ink-fixed);
 }
 
@@ -1594,7 +1568,7 @@ symbol{
   padding:7px 9px;
   background:var(--card-base);
   color:#fff;
-  font:800 .62rem/1 Manrope,sans-serif;
+  font:800 .75rem/1 Manrope,sans-serif;
   letter-spacing:.025em;
   box-shadow:2px 2px 0 var(--ink-fixed);
   cursor:pointer;
@@ -1614,7 +1588,7 @@ symbol{
   margin:8px 0 4px!important;
   text-align:left;
   color:var(--muted)!important;
-  font:700 .62rem/1.2 Inter,sans-serif!important;
+  font:700 .75rem/1.2 Inter,sans-serif!important;
   text-transform:uppercase;
   letter-spacing:.06em;
 }
@@ -1622,58 +1596,63 @@ symbol{
 .collection-note{
   margin:0!important;
   max-width:290px;
-  font-size:.72rem!important;
+  font-size:12px!important;
   line-height:1.35!important;
 }
 
-.sticker-sheet-head{
+.sticker-album-summary{
   width:100%;
-  display:grid;
-  grid-template-columns:36px 1fr 36px;
-  gap:8px;
-  align-items:center;
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:12px;
+  padding:4px 2px 12px;
+  border-bottom:2px solid var(--neutral-900);
 }
-
-.sticker-sheet-head button{
-  width:36px;
-  height:36px;
-  padding:0;
-  display:grid;
-  place-items:center;
-  border:2px solid var(--neutral-900);
-  border-radius:12px;
-  background:var(--neutral-0);
-  color:var(--ink);
-  font:800 1.35rem/1 Manrope,sans-serif;
-  box-shadow:2px 2px 0 var(--neutral-900);
-  cursor:pointer;
-}
-.sticker-sheet-head button:disabled{ opacity:.25; cursor:default; }
-.sticker-sheet-head button:not(:disabled):active{ transform:translate(2px,2px); box-shadow:none; }
-
-.sticker-sheet-title{
-  min-width:0;
-}
-.sticker-sheet-title b{
-  display:block;
-  font:800 .98rem/1 Manrope,sans-serif;
+.sticker-album-summary b{
+  font:800 1rem/1 Manrope,sans-serif;
   color:var(--ink);
   text-transform:uppercase;
 }
-.sticker-sheet-title span{
-  display:block;
-  margin-top:4px;
-  font:700 .68rem/1 Inter,sans-serif;
+.sticker-album-summary span{
+  font:800 .75rem/1 Inter,sans-serif;
   color:var(--muted);
+}
+
+.sticker-album-groups{
+  width:100%;
+  display:flex;
+  flex-direction:column;
+  gap:22px;
+  padding:14px 2px 8px;
+}
+
+.sticker-group{ width:100%; }
+
+.sticker-group-head{
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  gap:10px;
+  margin:0 2px 8px;
+}
+.sticker-group-head b{
+  font:800 .82rem/1 Manrope,sans-serif;
+  color:var(--ink);
   text-transform:uppercase;
+}
+.sticker-group-head span{
+  font:800 .75rem/1 Inter,sans-serif;
+  color:var(--muted);
 }
 
 .sticker-grid{
   width:100%;
   display:grid;
-  grid-template-columns:repeat(3,1fr);
+  grid-template-columns:repeat(auto-fit,minmax(96px,110px));
+  justify-content:flex-start;
   gap:12px;
-  padding:10px 3px 12px;
+  padding:2px 3px 8px;
 }
 
 .sticker-slot{
@@ -1681,102 +1660,40 @@ symbol{
   aspect-ratio:4 / 5;
   display:grid;
   place-items:center;
-  border:2px dashed var(--neutral-700);
-  border-radius:8px;
-  background:var(--neutral-50);
+  border:0;
+  border-radius:0;
+  background:transparent;
   overflow:visible;
 }
+.sticker-slot .stamp-face{ width:86%; }
+.sticker-slot.locked{ opacity:1; }
 
-.sticker-slot.locked{
+.sticker-group-reward{
+  margin:2px 2px 0;
+  font:700 .75rem/1.25 Inter,sans-serif;
   color:var(--muted);
-  font:800 .85rem/1 Manrope,sans-serif;
-  opacity:.48;
+}
+.sticker-group.complete .sticker-group-reward{
+  color:var(--color-green-base);
+  font-weight:800;
 }
 
-/* Temporary stamp artwork. The outer 4:5 postage format stays consistent;
-   only the flat icon panel inside changes shape. Real art can replace the
-   contents later without changing collection logic. */
-.stamp-face{
-  --stamp-bg:var(--color-pink-base);
-  --stamp-light:var(--color-pink-light);
-  --stamp-rot:0deg;
-  --stamp-cutout:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 125'%3E%3Cg fill='white'%3E%3Crect x='8' y='8' width='84' height='109'/%3E%3Ccircle cx='8' cy='18' r='5'/%3E%3Ccircle cx='8' cy='29' r='5'/%3E%3Ccircle cx='8' cy='40' r='5'/%3E%3Ccircle cx='8' cy='51' r='5'/%3E%3Ccircle cx='8' cy='62' r='5'/%3E%3Ccircle cx='8' cy='73' r='5'/%3E%3Ccircle cx='8' cy='84' r='5'/%3E%3Ccircle cx='8' cy='95' r='5'/%3E%3Ccircle cx='8' cy='106' r='5'/%3E%3Ccircle cx='18' cy='8' r='5'/%3E%3Ccircle cx='29' cy='8' r='5'/%3E%3Ccircle cx='40' cy='8' r='5'/%3E%3Ccircle cx='51' cy='8' r='5'/%3E%3Ccircle cx='62' cy='8' r='5'/%3E%3Ccircle cx='73' cy='8' r='5'/%3E%3Ccircle cx='84' cy='8' r='5'/%3E%3Ccircle cx='92' cy='18' r='5'/%3E%3Ccircle cx='92' cy='29' r='5'/%3E%3Ccircle cx='92' cy='40' r='5'/%3E%3Ccircle cx='92' cy='51' r='5'/%3E%3Ccircle cx='92' cy='62' r='5'/%3E%3Ccircle cx='92' cy='73' r='5'/%3E%3Ccircle cx='92' cy='84' r='5'/%3E%3Ccircle cx='92' cy='95' r='5'/%3E%3Ccircle cx='92' cy='106' r='5'/%3E%3Ccircle cx='18' cy='117' r='5'/%3E%3Ccircle cx='29' cy='117' r='5'/%3E%3Ccircle cx='40' cy='117' r='5'/%3E%3Ccircle cx='51' cy='117' r='5'/%3E%3Ccircle cx='62' cy='117' r='5'/%3E%3Ccircle cx='73' cy='117' r='5'/%3E%3Ccircle cx='84' cy='117' r='5'/%3E%3C/g%3E%3C/svg%3E");
-  position:relative;
-  width:78%;
-  aspect-ratio:4 / 5;
-  display:grid;
-  place-items:center;
-  background:none;
-  border:none;
-  outline:none;
-  color:var(--ink-fixed);
-  box-shadow:none;
-  transform:rotate(var(--stamp-rot));
-  overflow:visible;
-  isolation:isolate;
+/* Empty album positions reuse the real stamp silhouette, but without the
+   coloured fill or icon so the outline always renders cleanly. */
+.stamp-face.stamp-placeholder{
+  width:86%;
 }
-.stamp-face::before,
-.stamp-face::after{
-  content:"";
-  position:absolute;
-  inset:0;
-  pointer-events:none;
-  -webkit-mask:var(--stamp-cutout) center / 100% 100% no-repeat;
-  mask:var(--stamp-cutout) center / 100% 100% no-repeat;
+.stamp-face.stamp-placeholder::before{
+  background:transparent;
+  transform:none;
 }
-.stamp-face::before{
-  background:var(--neutral-900);
-  transform:translate(4px,4px);
-  z-index:0;
+.stamp-face.stamp-placeholder::after{
+  background:var(--neutral-50);
+  box-shadow:inset 0 0 0 2px var(--neutral-700);
 }
-.stamp-face::after{
-  background:var(--stamp-bg);
-  box-shadow:inset 0 0 0 2px var(--neutral-900);
-  z-index:1;
-}
-.stamp-face > *{
-  position:relative;
-  z-index:2;
-}
-
-.stamp-art{
-  width:75%;
-  aspect-ratio:2 / 2.6;
-  display:grid;
-  place-items:center;
-  background:var(--stamp-light);
-  border:2px solid var(--ink-fixed);
-  border-radius:3px;
-  color:var(--ink-fixed);
-}
-.stamp-art.rect,
-.stamp-art.oval,
-.stamp-art.circle,
-.stamp-art.arch{ border-radius:3px; }
-.stamp-art .material-symbols-outlined{
-  font-size:clamp(1.25rem,5vw,1.8rem);
-  color:var(--ink-fixed);
-  font-variation-settings:'FILL' 1,'wght' 650,'GRAD' 0,'opsz' 48;
-}
-
-.sticker-reveal-card{ gap:14px; }
-.sticker-reveal-big{
-  width:180px;
-  height:190px;
-  display:grid;
-  place-items:center;
-  margin:2px 0 4px;
-}
-.sticker-reveal-big .stamp-face{
-  width:112px;
-  aspect-ratio:4 / 5;
-  animation:stampReveal .5s cubic-bezier(.175,.885,.32,1.275) both;
-}
-.sticker-reveal-big .stamp-art .material-symbols-outlined{ font-size:2.25rem; }
-@keyframes stampReveal{
-  0%{ transform:scale(.2) rotate(-12deg); opacity:0; }
-  70%{ transform:scale(1.1) rotate(3deg); opacity:1; }
-  100%{ transform:scale(1) rotate(var(--stamp-rot)); opacity:1; }
+.stamp-face.stamp-placeholder .stamp-art{
+  background:transparent;
+  border-color:var(--neutral-700);
 }
 
 .collection-reward{
@@ -1786,7 +1703,7 @@ symbol{
   border-radius:14px;
   background:var(--color-green-light);
   color:var(--ink-fixed);
-  font:800 .72rem/1.2 Manrope,sans-serif;
+  font:800 .75rem/1.2 Manrope,sans-serif;
   box-shadow:2px 2px 0 var(--neutral-900);
 }
 
@@ -1908,10 +1825,46 @@ symbol{
   border-radius:0;
 }
 
-/* Horizontal carousels remain horizontal. */
+/* Horizontal carousels remain horizontal. The shop uses the same card
+   scale and same edge-to-edge swipe affordance as Punch Cards. */
 .shop-row{
-  padding-left:0;
-  padding-right:4px;
+  display:flex;
+  gap:14px;
+  width:calc(100% + 40px);
+  margin:12px -20px 0;
+  padding:4px 20px 14px;
+  overflow-x:auto;
+  overflow-y:visible;
+  -webkit-overflow-scrolling:touch;
+  scroll-snap-type:x mandatory;
+  scroll-padding-inline:20px;
+  scrollbar-width:none;
+  touch-action:pan-x pan-y;
+}
+.shop-row::-webkit-scrollbar{ display:none; }
+.shop-row .reward-card{
+  flex:0 0 clamp(244px, calc(min(90vw, 380px) - 76px), 304px);
+  width:clamp(244px, calc(min(90vw, 380px) - 76px), 304px);
+  min-height:calc(clamp(244px, calc(min(90vw, 380px) - 76px), 304px) * 1.28);
+  padding:20px 14px 16px;
+  border-radius:18px;
+  box-shadow:5px 5px 0 var(--neutral-900);
+  gap:10px;
+}
+.shop-row .reward-card .rc-icon{
+  width:74px;
+  height:74px;
+  margin-bottom:10px;
+}
+.shop-row .reward-card .rc-name{
+  font-size:.94rem;
+}
+.shop-row .reward-card .rc-desc{
+  min-height:3.6em;
+  font-size:12px;
+}
+.shop-row .reward-card .rc-buy{
+  margin-top:auto;
 }
 .shop-card-inset{
   padding:0;
@@ -1950,13 +1903,20 @@ symbol{
 }
 #menu-overlay .menu-mark{ margin-bottom:2px; }
 
-/* Other top-level sheets start lower so their first heading sits closer to
-   where the main-menu title begins on the page. */
+/* Most full-screen sheets share the same vertical starting point so the
+   first title lands on the same baseline across the app. The stamp album is
+   the exception because it carries denser vertical content. */
+#confirm-overlay .overlay-card,
 #howto-overlay .overlay-card,
 #punch-overlay .overlay-card,
-#sticker-overlay .overlay-card,
+#sticker-reveal-overlay .overlay-card,
+#screen-overlay .overlay-card,
+#reward-overlay .overlay-card,
 #shop-overlay .overlay-card{
   padding-top:calc(82px + env(safe-area-inset-top));
+}
+#sticker-overlay .overlay-card{
+  padding-top:calc(28px + env(safe-area-inset-top));
 }
 
 /* Confirmation, result, reward and reveal sheets use the same page geometry. */
@@ -1971,7 +1931,7 @@ symbol{
 }
 
 /* The gameplay view is another physical section of the same paper world.
-   It is wrapped as one composited layer so the board, HUD, background wash,
+   It is wrapped as one composited layer so the board, HUD, solid level colour,
    and power-up tray move together instead of being rebuilt underneath a
    moving overlay. */
 .game-page{
@@ -1979,7 +1939,7 @@ symbol{
   inset:0;
   z-index:1;
   overflow:hidden;
-  background:var(--neutral-50);
+  background:var(--match-bg-solid,var(--neutral-50));
   transform:translate3d(0,0,0);
   will-change:auto;
   pointer-events:auto;
@@ -2023,6 +1983,268 @@ symbol{
   .overlay{ transition-duration:.01ms!important; }
 }
 
+
+
+/* ============================================================
+   GLOBAL TYPOGRAPHY + COMPONENT CONSISTENCY PASS
+   Minimum rendered text/icon size: 12px.
+   ============================================================ */
+:root{
+  --type-page-title:2rem;
+  --type-card-title:1.05rem;
+  --type-body:1rem;
+  --type-meta:.75rem;
+}
+
+/* One page-title treatment everywhere. */
+.overlay h2,
+.punch-page-intro h2,
+.shop-card-inset > h2{
+  font:800 var(--type-page-title)/1.05 Manrope,sans-serif!important;
+  letter-spacing:-.03em!important;
+}
+
+/* One card/section heading treatment everywhere. */
+.punch-title,
+.rc-name,
+.sticker-album-summary b,
+.sticker-group-head b{
+  font:800 var(--type-card-title)/1.1 Manrope,sans-serif!important;
+  letter-spacing:-.01em!important;
+}
+
+/* One body-copy treatment everywhere. */
+.overlay p,
+.punch-desc,
+.rc-desc,
+.collection-note,
+.howto-list{
+  font-family:Inter,system-ui,sans-serif!important;
+  font-size:var(--type-body)!important;
+  line-height:1.4!important;
+}
+
+/* Metadata, counters and small labels all share the same minimum scale. */
+.brand-card span,
+.pill span,
+.collection-kicker,
+.punch-swipe-note,
+.punch-step-label,
+.punch-count,
+.punch-claim,
+.sticker-album-summary span,
+.sticker-group-head span,
+.sticker-group-reward,
+.collection-reward,
+.rc-buy,
+.pu-count{
+  font-size:var(--type-meta)!important;
+  line-height:1.2!important;
+}
+
+/* HUD primary values remain readable and consistent. */
+.brand-card b,
+.pill b,
+.coin-chip span:last-child,
+.menu-tool-btn .tool-label{
+  font-size:1rem!important;
+}
+
+/* Material glyphs can be larger per component, but never smaller than 12px. */
+.material-symbols-outlined{
+  min-width:12px;
+  min-height:12px;
+}
+
+/* ---------- Restored stamp component ---------- */
+.stamp-face{
+  --stamp-bg:var(--color-pink-base);
+  --stamp-light:var(--color-pink-light);
+  --stamp-rot:0deg;
+  --stamp-cutout:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 125'%3E%3Cg fill='white'%3E%3Crect x='8' y='8' width='84' height='109'/%3E%3Ccircle cx='8' cy='18' r='5'/%3E%3Ccircle cx='8' cy='29' r='5'/%3E%3Ccircle cx='8' cy='40' r='5'/%3E%3Ccircle cx='8' cy='51' r='5'/%3E%3Ccircle cx='8' cy='62' r='5'/%3E%3Ccircle cx='8' cy='73' r='5'/%3E%3Ccircle cx='8' cy='84' r='5'/%3E%3Ccircle cx='8' cy='95' r='5'/%3E%3Ccircle cx='8' cy='106' r='5'/%3E%3Ccircle cx='18' cy='8' r='5'/%3E%3Ccircle cx='29' cy='8' r='5'/%3E%3Ccircle cx='40' cy='8' r='5'/%3E%3Ccircle cx='51' cy='8' r='5'/%3E%3Ccircle cx='62' cy='8' r='5'/%3E%3Ccircle cx='73' cy='8' r='5'/%3E%3Ccircle cx='84' cy='8' r='5'/%3E%3Ccircle cx='92' cy='18' r='5'/%3E%3Ccircle cx='92' cy='29' r='5'/%3E%3Ccircle cx='92' cy='40' r='5'/%3E%3Ccircle cx='92' cy='51' r='5'/%3E%3Ccircle cx='92' cy='62' r='5'/%3E%3Ccircle cx='92' cy='73' r='5'/%3E%3Ccircle cx='92' cy='84' r='5'/%3E%3Ccircle cx='92' cy='95' r='5'/%3E%3Ccircle cx='92' cy='106' r='5'/%3E%3Ccircle cx='18' cy='117' r='5'/%3E%3Ccircle cx='29' cy='117' r='5'/%3E%3Ccircle cx='40' cy='117' r='5'/%3E%3Ccircle cx='51' cy='117' r='5'/%3E%3Ccircle cx='62' cy='117' r='5'/%3E%3Ccircle cx='73' cy='117' r='5'/%3E%3Ccircle cx='84' cy='117' r='5'/%3E%3C/g%3E%3C/svg%3E");
+  position:relative;
+  width:78%;
+  aspect-ratio:4 / 5;
+  display:grid;
+  place-items:center;
+  background:none;
+  border:0;
+  outline:0;
+  color:var(--ink-fixed);
+  box-shadow:none;
+  transform:rotate(var(--stamp-rot));
+  overflow:visible;
+  isolation:isolate;
+}
+.stamp-face::before,
+.stamp-face::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  -webkit-mask:var(--stamp-cutout) center / 100% 100% no-repeat;
+  mask:var(--stamp-cutout) center / 100% 100% no-repeat;
+}
+.stamp-face::before{
+  background:var(--neutral-900);
+  transform:translate(4px,4px);
+  z-index:0;
+}
+.stamp-face::after{
+  background:var(--stamp-bg);
+  z-index:1;
+}
+.stamp-face > *{
+  position:relative;
+  z-index:2;
+}
+.stamp-art{
+  width:75%;
+  aspect-ratio:2 / 2.6;
+  display:grid;
+  place-items:center;
+  background:var(--stamp-light);
+  border:2px solid var(--ink-fixed);
+  border-radius:3px;
+  color:var(--ink-fixed);
+}
+.stamp-art .material-symbols-outlined{
+  font-size:1.8rem!important;
+  color:var(--ink-fixed);
+  font-variation-settings:'FILL' 1,'wght' 650,'GRAD' 0,'opsz' 48;
+}
+.punch-reward .stamp-face{
+  width:110px;
+}
+.sticker-slot .stamp-face{
+  width:100px;
+}
+
+/* Empty slots use the exact same postage silhouette as a solid outline. */
+.stamp-placeholder{
+  --stamp-rot:0deg;
+  --stamp-cutout:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 125'%3E%3Cg fill='white'%3E%3Crect x='8' y='8' width='84' height='109'/%3E%3Ccircle cx='8' cy='18' r='5'/%3E%3Ccircle cx='8' cy='29' r='5'/%3E%3Ccircle cx='8' cy='40' r='5'/%3E%3Ccircle cx='8' cy='51' r='5'/%3E%3Ccircle cx='8' cy='62' r='5'/%3E%3Ccircle cx='8' cy='73' r='5'/%3E%3Ccircle cx='8' cy='84' r='5'/%3E%3Ccircle cx='8' cy='95' r='5'/%3E%3Ccircle cx='8' cy='106' r='5'/%3E%3Ccircle cx='18' cy='8' r='5'/%3E%3Ccircle cx='29' cy='8' r='5'/%3E%3Ccircle cx='40' cy='8' r='5'/%3E%3Ccircle cx='51' cy='8' r='5'/%3E%3Ccircle cx='62' cy='8' r='5'/%3E%3Ccircle cx='73' cy='8' r='5'/%3E%3Ccircle cx='84' cy='8' r='5'/%3E%3Ccircle cx='92' cy='18' r='5'/%3E%3Ccircle cx='92' cy='29' r='5'/%3E%3Ccircle cx='92' cy='40' r='5'/%3E%3Ccircle cx='92' cy='51' r='5'/%3E%3Ccircle cx='92' cy='62' r='5'/%3E%3Ccircle cx='92' cy='73' r='5'/%3E%3Ccircle cx='92' cy='84' r='5'/%3E%3Ccircle cx='92' cy='95' r='5'/%3E%3Ccircle cx='92' cy='106' r='5'/%3E%3Ccircle cx='18' cy='117' r='5'/%3E%3Ccircle cx='29' cy='117' r='5'/%3E%3Ccircle cx='40' cy='117' r='5'/%3E%3Ccircle cx='51' cy='117' r='5'/%3E%3Ccircle cx='62' cy='117' r='5'/%3E%3Ccircle cx='73' cy='117' r='5'/%3E%3Ccircle cx='84' cy='117' r='5'/%3E%3C/g%3E%3C/svg%3E");
+  position:relative;
+  width:100px;
+  aspect-ratio:4 / 5;
+  transform:rotate(var(--stamp-rot));
+  overflow:visible;
+}
+.stamp-placeholder::before,
+.stamp-placeholder::after{
+  content:"";
+  position:absolute;
+  pointer-events:none;
+  -webkit-mask:var(--stamp-cutout) center / 100% 100% no-repeat;
+  mask:var(--stamp-cutout) center / 100% 100% no-repeat;
+}
+.stamp-placeholder::before{
+  inset:0;
+  background:var(--neutral-700);
+}
+.stamp-placeholder::after{
+  inset:3px;
+  background:var(--neutral-50);
+}
+
+/* ---------- Shop cards mirror Punch Cards ---------- */
+.shop-row .reward-card{
+  --card-base:var(--color-yellow-orange-base);
+  --card-light:var(--color-yellow-orange-light);
+  flex:0 0 clamp(244px, calc(min(90vw, 380px) - 76px), 304px);
+  width:clamp(244px, calc(min(90vw, 380px) - 76px), 304px);
+  aspect-ratio:2 / 3;
+  min-height:0;
+  padding:0;
+  border:3px solid var(--neutral-900);
+  border-radius:10px;
+  background:var(--card-light);
+  box-shadow:5px 5px 0 var(--neutral-900);
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  align-items:stretch;
+  gap:0;
+  text-align:left;
+}
+.shop-row .reward-card.premium{
+  background:var(--card-light);
+}
+.shop-item-head{
+  flex:0 0 auto;
+  min-height:108px;
+  padding:16px 16px 14px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  gap:8px;
+  background:var(--neutral-0);
+  border-bottom:2px solid var(--neutral-900);
+}
+.shop-item-head .rc-name{
+  display:block;
+  color:var(--ink-fixed)!important;
+  text-transform:uppercase;
+}
+.shop-item-head .rc-desc{
+  display:block;
+  min-height:0;
+  margin:0;
+  color:var(--ink-fixed)!important;
+  opacity:.9;
+  text-align:left;
+}
+.shop-item-art{
+  flex:1 1 auto;
+  min-height:160px;
+  display:grid;
+  place-items:center;
+  padding:18px;
+  background:var(--card-light);
+}
+.shop-item-art .rc-icon{
+  width:94px;
+  height:94px;
+  margin:0;
+  background:var(--card-base);
+  border:3px solid var(--neutral-900);
+}
+.shop-item-art .rc-icon .material-symbols-outlined{
+  font-size:2.5rem!important;
+}
+.shop-item-art .rc-piece{
+  width:58%;
+  height:58%;
+}
+.shop-item-foot{
+  flex:0 0 auto;
+  padding:11px 14px 13px;
+  background:var(--neutral-0);
+  border-top:2px solid var(--neutral-900);
+}
+.shop-item-foot .rc-buy{
+  width:100%;
+  margin:0;
+  padding:9px 10px;
+  border:2px solid var(--ink-fixed);
+  border-radius:999px;
+  box-shadow:2px 2px 0 var(--ink-fixed);
+}
+.shop-row .reward-card.unaffordable{
+  opacity:.55;
+}
+
+/* Keep both carousels edge-to-edge while preserving the deliberate card gap. */
+.shop-row,
+.punch-category-track{
+  gap:14px;
+  width:calc(100% + 40px);
+  margin-left:-20px;
+  margin-right:-20px;
+  padding-left:20px;
+  padding-right:20px;
+  scroll-padding-inline:20px;
+}
 </style>
 </head>
 
@@ -2141,8 +2363,6 @@ symbol{
 </svg>
 
 <div class="game-page" id="game-page">
-<div class="bg-wash" id="bgWash"></div>
-
 <div class="app">
 <header class="topbar">
   <div class="brand-card">
@@ -2267,19 +2487,14 @@ symbol{
 <div class="overlay" id="sticker-overlay">
   <div class="overlay-card collection-card has-corner-close">
     <button class="modal-corner-close" id="sticker-close-btn" aria-label="Close Stamp Album"><span class="material-symbols-outlined">close</span></button>
-    <span class="collection-kicker">Your collection</span>
+    <span class="collection-kicker">Punch Card stamps</span>
     <h2>Stamp Album</h2>
-    <div class="sticker-sheet-head">
-      <button id="sticker-prev-btn" aria-label="Previous stamp set">‹</button>
-      <div class="sticker-sheet-title">
-        <b id="sticker-sheet-name">LOUD LABELS</b>
-        <span id="sticker-sheet-count">0 / 9</span>
-      </div>
-      <button id="sticker-next-btn" aria-label="Next stamp set">›</button>
+    <div class="sticker-album-summary">
+      <b>All stamps</b>
+      <span id="sticker-total-count">0 / 3</span>
     </div>
     <div class="collection-scroll ui-scroll">
-      <div class="sticker-grid" id="sticker-grid"></div>
-      <div class="collection-reward" id="sticker-sheet-reward">Complete the set for 150 coins.</div>
+      <div class="sticker-album-groups" id="sticker-album-groups"></div>
     </div>
   </div>
 </div>
@@ -2384,14 +2599,8 @@ const COLORS = {
 const COLORS_LIGHT = {
     1: '#FFDFAB', 2: '#FDB5CD', 3: '#63C5FB', 4: '#4FF0E1', 5: '#9F76D2', 6: '#FEA499'
 };
-const BG_TINTS = {
-    1: 'rgba(255,197,103,.22)', 2: 'rgba(251,125,168,.20)', 3: 'rgba(5,140,215,.18)',
-    4: 'rgba(13,148,136,.18)', 5: 'rgba(85,44,135,.16)', 6: 'rgba(253,90,70,.18)'
-};
-
-/* Opaque equivalents of each level tint over the light/dark neutral canvas.
-   These are used for Safari's theme-color while the CSS root background uses
-   the real translucent tint, keeping browser chrome and the game visually joined. */
+/* Solid per-level backgrounds. The gameplay page itself uses these colours,
+   and Safari's theme colour is kept in sync with the same exact value. */
 const BG_SOLIDS_LIGHT = {
     1:'#F9EAD2', 2:'#F8DDE2', 3:'#CBE2EC', 4:'#CDE4DD', 5:'#DDD5DF', 6:'#F8D9D1'
 };
@@ -2422,7 +2631,7 @@ const PUNCH_CARD_ORDER = ['level_lover','tile_tumbler','special_spark'];
 
 const PUNCH_CARD_DEFS = {
     level_lover: {
-        name:'Level Lover', description:'Beat levels', metric:'levelsCleared', colorId:2,
+        name:'Level Lover', description:'Beat levels', metric:'levelsCleared', colorId:2, sheetId:'level-lover',
         rounds:[
             [1,5,10,25,50],
             [75,100,150,250,400],
@@ -2431,7 +2640,7 @@ const PUNCH_CARD_DEFS = {
         unit:'levels', shortUnit:'LVL'
     },
     tile_tumbler: {
-        name:'Tile Tally', description:'Clear tiles', metric:'tilesCleared', colorId:3,
+        name:'Tile Tally', description:'Clear tiles', metric:'tilesCleared', colorId:3, sheetId:'tile-tally',
         rounds:[
             [25,100,250,500,1000],
             [1500,2500,4000,6000,8500],
@@ -2440,7 +2649,7 @@ const PUNCH_CARD_DEFS = {
         unit:'tiles', shortUnit:'TILE'
     },
     special_spark: {
-        name:'Special Spark', description:'Make special tiles', metric:'specialsMade', colorId:1,
+        name:'Special Spark', description:'Make special tiles', metric:'specialsMade', colorId:1, sheetId:'special-spark',
         rounds:[
             [1,3,5,10,20],
             [30,45,60,80,100],
@@ -2452,48 +2661,25 @@ const PUNCH_CARD_DEFS = {
 
 const STICKER_SHEETS = [
     {
-        id: 'loud-labels', name: 'Loud Labels', reward: 150,
+        id: 'level-lover', name: 'Level Lover', reward: 150,
         stickers: [
-            { id:'nice', label:'NICE!', icon:'sentiment_very_satisfied', colorId:2, shape:'oval', rot:-2 },
-            { id:'pop', label:'POP!', icon:'celebration', colorId:3, shape:'circle', rot:2 },
-            { id:'rad', label:'RAD!', icon:'bolt', colorId:1, shape:'arch', rot:-1 },
-            { id:'cool', label:'COOL', icon:'ac_unit', colorId:4, shape:'rect', rot:1 },
-            { id:'wow', label:'WOW!', icon:'star', colorId:6, shape:'oval', rot:-2 },
-            { id:'hi', label:'HI!', icon:'waving_hand', colorId:5, shape:'circle', rot:2 },
-            { id:'yep', label:'YEP!', icon:'check_circle', colorId:1, shape:'arch', rot:1 },
-            { id:'hundred', label:'100%', icon:'percent', colorId:6, shape:'rect', rot:-1 },
-            { id:'mellow', label:'MELLOW', icon:'spa', colorId:3, shape:'oval', rot:1 }
+            { id:'level-lover-stamp', label:'LEVEL LOVER', icon:'flag', colorId:2, shape:'rect', rot:-2 }
         ]
     },
     {
-        id: 'desk-junk', name: 'Desk Junk', reward: 150,
+        id: 'tile-tally', name: 'Tile Tally', reward: 150,
         stickers: [
-            { id:'stapler', label:'STAPLER', icon:'inventory_2', colorId:5, shape:'rect', rot:-1 },
-            { id:'tape', label:'TAPE', icon:'sell', colorId:1, shape:'oval', rot:2 },
-            { id:'clip', label:'CLIP', icon:'attach_file', colorId:3, shape:'circle', rot:-2 },
-            { id:'pencil', label:'PENCIL', icon:'edit', colorId:6, shape:'arch', rot:1 },
-            { id:'note', label:'NOTE', icon:'sticky_note_2', colorId:2, shape:'rect', rot:-1 },
-            { id:'coffee', label:'COFFEE', icon:'coffee', colorId:4, shape:'oval', rot:2 },
-            { id:'file', label:'FILE', icon:'folder', colorId:3, shape:'arch', rot:-1 },
-            { id:'calc', label:'CALC', icon:'calculate', colorId:1, shape:'circle', rot:2 },
-            { id:'floppy', label:'FLOPPY', icon:'save', colorId:5, shape:'rect', rot:-2 }
+            { id:'tile-tally-stamp', label:'TILE TALLY', icon:'grid_view', colorId:3, shape:'rect', rot:1 }
         ]
     },
     {
-        id: 'snack-attack', name: 'Snack Attack', reward: 150,
+        id: 'special-spark', name: 'Special Spark', reward: 150,
         stickers: [
-            { id:'pizza', label:'PIZZA', icon:'local_pizza', colorId:6, shape:'arch', rot:-1 },
-            { id:'fries', label:'FRIES', icon:'fastfood', colorId:1, shape:'rect', rot:2 },
-            { id:'donut', label:'DONUT', icon:'donut_large', colorId:2, shape:'circle', rot:-2 },
-            { id:'soda', label:'SODA', icon:'local_drink', colorId:3, shape:'oval', rot:1 },
-            { id:'taco', label:'TACO', icon:'restaurant', colorId:4, shape:'arch', rot:-1 },
-            { id:'popcorn', label:'POPCORN', icon:'takeout_dining', colorId:5, shape:'rect', rot:2 },
-            { id:'cookie', label:'COOKIE', icon:'cookie', colorId:1, shape:'circle', rot:-1 },
-            { id:'icecream', label:'ICE CREAM', icon:'icecream', colorId:2, shape:'oval', rot:1 },
-            { id:'snacktime', label:'SNACK TIME', icon:'restaurant_menu', colorId:6, shape:'arch', rot:-2 }
+            { id:'special-spark-stamp', label:'SPECIAL SPARK', icon:'mood', colorId:1, shape:'rect', rot:-1 }
         ]
     }
 ]
+
 const wait = ms => new Promise(res => setTimeout(res, ms));
 
 /* ---------- Procedural level generation ---------- */
@@ -2699,7 +2885,6 @@ this.levelEl = document.getElementById('level-txt');
 this.progressFill = document.getElementById('progressFill');
 this.progressHead = document.getElementById('progressHead');
 this.progressTrack = document.getElementById('progressTrack');
-        this.bgWash = document.getElementById('bgWash');
         this.mileEls = [document.getElementById('mile1'), document.getElementById('mile2'), document.getElementById('mile3')];
         this.textLayer = document.getElementById('textLayer');
         this.flashEl = document.getElementById('screenFlash');
@@ -2843,13 +3028,7 @@ this.progressTrack = document.getElementById('progressTrack');
     }
 
     applyMatchColor(colorId) {
-        const tint = BG_TINTS[colorId] || 'rgba(255,255,255,0)';
         this.currentMatchColorId = colorId;
-        this.bgWash.style.backgroundColor = tint;
-
-        /* Paint the same level tint on the root canvas. Unlike .app, html is
-           100lvh, so this colour continues behind Safari's translucent chrome. */
-        document.documentElement.style.setProperty('--match-bg-tint', tint);
         this.applyColorSchemeMeta(this.currentColorScheme());
     }
 
@@ -2888,14 +3067,20 @@ this.progressTrack = document.getElementById('progressTrack');
                 nextCards[id] = Object.assign({ tier:0, rewardSticker:null }, previousCards[id] || {});
             });
 
-            /* Migrate the earlier three-card build into the first collection page. */
-            if (previousCards.tiles) nextCards.loud_tiles.tier = Math.max(nextCards.loud_tiles.tier || 0, previousCards.tiles.tier || 0);
-            if (previousCards.levels) nextCards.loud_levels.tier = Math.max(nextCards.loud_levels.tier || 0, previousCards.levels.tier || 0);
-            if (previousCards.specials) nextCards.loud_specials.tier = Math.max(nextCards.loud_specials.tier || 0, previousCards.specials.tier || 0);
+            /* Migrate the earlier three-card build into the current card names. */
+            if (previousCards.tiles) nextCards.tile_tumbler.tier = Math.max(nextCards.tile_tumbler.tier || 0, previousCards.tiles.tier || 0);
+            if (previousCards.levels) nextCards.level_lover.tier = Math.max(nextCards.level_lover.tier || 0, previousCards.levels.tier || 0);
+            if (previousCards.specials) nextCards.special_spark.tier = Math.max(nextCards.special_spark.tier || 0, previousCards.specials.tier || 0);
 
             data.cards = nextCards;
-            data.stickers = Array.isArray(data.stickers) ? data.stickers : [];
-            data.completedSheets = Array.isArray(data.completedSheets) ? data.completedSheets : [];
+
+            /* The album now mirrors the three Punch Cards exactly. Keep only
+               stamp IDs that still exist in those three sets so old unrelated
+               album entries cannot inflate the collection count. */
+            const validStickerKeys = new Set(this.allStickerEntries().map(entry => entry.key));
+            const validSheetIds = new Set(STICKER_SHEETS.map(sheet => sheet.id));
+            data.stickers = (Array.isArray(data.stickers) ? data.stickers : []).filter(key => validStickerKeys.has(key));
+            data.completedSheets = (Array.isArray(data.completedSheets) ? data.completedSheets : []).filter(id => validSheetIds.has(id));
             this.ensurePunchCardRewards(data);
             return data;
         } catch (e) { return this.defaultCollection(); }
@@ -2912,12 +3097,15 @@ this.progressTrack = document.getElementById('progressTrack');
         return this.allStickerEntries().find(entry => entry.key === key) || null;
     }
 
-    chooseRandomUnownedStickerFromSheet(sheetId, data = this.collection, excludeKeys = new Set()) {
+    chooseUnownedStickerFromSheet(sheetId, data = this.collection, excludeKeys = new Set()) {
         const owned = new Set(data?.stickers || []);
-        const choices = this.allStickerEntries().filter(entry =>
-            !owned.has(entry.key) && !excludeKeys.has(entry.key)
-        );
-        return choices.length ? choices[Math.floor(Math.random() * choices.length)] : null;
+        const sheetIndex = STICKER_SHEETS.findIndex(sheet => sheet.id === sheetId);
+        if (sheetIndex < 0) return null;
+        const sheet = STICKER_SHEETS[sheetIndex];
+        const choices = sheet.stickers
+            .map(sticker => ({ sheet, sheetIndex, sticker, key:`${sheet.id}:${sticker.id}` }))
+            .filter(entry => !owned.has(entry.key) && !excludeKeys.has(entry.key));
+        return choices[0] || null;
     }
 
     ensurePunchCardRewards(data = this.collection) {
@@ -2938,7 +3126,7 @@ this.progressTrack = document.getElementById('progressTrack');
             const def = PUNCH_CARD_DEFS[id];
             const card = data.cards[id];
             if (card.rewardSticker) return;
-            const picked = this.chooseRandomUnownedStickerFromSheet(def.sheetId, data, reserved);
+            const picked = this.chooseUnownedStickerFromSheet(def.sheetId, data, reserved);
             card.rewardSticker = picked ? picked.key : null;
             if (picked) reserved.add(picked.key);
         });
@@ -2998,6 +3186,10 @@ this.progressTrack = document.getElementById('progressTrack');
         return `<div class="stamp-face" style="--stamp-bg:${bg};--stamp-light:${light};--stamp-rot:${sticker.rot || 0}deg">
           <div class="stamp-art rect"><span class="material-symbols-outlined" aria-hidden="true">${icon}</span></div>
         </div>`;
+    }
+
+    buildStickerPlaceholder(sticker) {
+        return `<div class="stamp-placeholder" style="--stamp-rot:${sticker.rot || 0}deg" aria-label="Empty stamp slot"></div>`;
     }
 
     captureCollectionReturn() {
@@ -3260,8 +3452,9 @@ this.progressTrack = document.getElementById('progressTrack');
         if (note) note.textContent = 'Swipe left or right to browse cards';
 
         const owned = new Set(this.collection.stickers || []);
-        const totalStamps = this.allStickerEntries().length;
-        const albumComplete = owned.size >= totalStamps;
+        const allEntries = this.allStickerEntries();
+        const totalStamps = allEntries.length;
+        const albumComplete = allEntries.length > 0 && allEntries.every(entry => owned.has(entry.key));
 
         PUNCH_CARD_ORDER.forEach(id => {
             const def = PUNCH_CARD_DEFS[id];
@@ -3271,16 +3464,17 @@ this.progressTrack = document.getElementById('progressTrack');
             const holes = milestones.filter(target => value >= target).length;
             const nextTarget = milestones.find(target => value < target) || milestones[milestones.length - 1];
             const reward = this.findStickerEntry(this.collection.cards[id]?.rewardSticker);
+            const cardSheet = STICKER_SHEETS.find(sheet => sheet.id === def.sheetId);
+            const setComplete = !!cardSheet && cardSheet.stickers.every(st => owned.has(this.stickerKey(cardSheet, st)));
             const ready = !!reward && holes >= PUNCHES_PER_CARD;
-            const rewardWaiting = !reward && !albumComplete;
             const rewardArt = reward
                 ? this.buildStickerFace(reward.sticker)
-                : albumComplete
+                : setComplete
                     ? '<div class="stamp-face" style="--stamp-bg:var(--color-true-yellow-base);--stamp-light:var(--color-true-yellow-light);--stamp-rot:0deg"><div class="stamp-art rect"><span class="material-symbols-outlined">check_circle</span></div></div>'
                     : '<div class="stamp-face" style="--stamp-bg:var(--neutral-100);--stamp-light:var(--neutral-0);--stamp-rot:0deg"><div class="stamp-art rect"><span class="material-symbols-outlined">hourglass_empty</span></div></div>';
 
             const card = document.createElement('div');
-            card.className = 'punch-card' + (ready ? ' ready' : '') + (albumComplete ? ' collection-finished' : '');
+            card.className = 'punch-card' + (ready ? ' ready' : '') + (setComplete ? ' collection-finished' : '');
             card.style.setProperty('--card-base', COLORS[def.colorId]);
             card.style.setProperty('--card-light', COLORS_LIGHT[def.colorId]);
             card.innerHTML = `
@@ -3295,7 +3489,7 @@ this.progressTrack = document.getElementById('progressTrack');
                   ${milestones.map((target, i) => `<div class="punch-step"><i class="punch-hole${i < holes ? ' punched' : ''}"></i><span class="punch-step-label">${target}</span></div>`).join('')}
                 </div>
                 <div class="punch-foot">
-                  <span class="punch-count">${albumComplete ? 'Album complete' : ready ? 'Ready to claim' : `${value.toLocaleString()} total · Next ${nextTarget}`}</span>
+                  <span class="punch-count">${setComplete ? 'Stamp set complete' : ready ? 'Ready to claim' : `${value.toLocaleString()} total · Next ${nextTarget}`}</span>
                   ${ready ? `<button class="punch-claim" data-card="${id}">CLAIM STAMP</button>` : ''}
                 </div>`;
             track.appendChild(card);
@@ -3418,7 +3612,6 @@ this.progressTrack = document.getElementById('progressTrack');
         const overlay = document.getElementById('sticker-overlay');
         if (!overlay.classList.contains('active')) this.captureCollectionReturn();
         const source = this.collectionReturnElement();
-        this.stickerBookPage = Math.max(0, Math.min(STICKER_SHEETS.length - 1, this.stickerBookPage ?? this.firstIncompleteStickerSheet()));
         this.renderStickerBook();
         this.swipeModalSwap(source, overlay, true);
     }
@@ -3429,32 +3622,43 @@ this.progressTrack = document.getElementById('progressTrack');
         this.restoreCollectionReturn(overlay);
     }
 
-    changeStickerSheet(delta) {
-        this.stickerBookPage = Math.max(0, Math.min(STICKER_SHEETS.length - 1, this.stickerBookPage + delta));
-        this.renderStickerBook();
-    }
-
     renderStickerBook() {
-        const sheet = STICKER_SHEETS[this.stickerBookPage];
-        if (!sheet) return;
         const owned = new Set(this.collection.stickers);
-        const count = sheet.stickers.filter(st => owned.has(this.stickerKey(sheet, st))).length;
-        document.getElementById('sticker-sheet-name').innerText = sheet.name;
-        document.getElementById('sticker-sheet-count').innerText = `${count} / ${sheet.stickers.length}`;
-        document.getElementById('sticker-prev-btn').disabled = this.stickerBookPage <= 0;
-        document.getElementById('sticker-next-btn').disabled = this.stickerBookPage >= STICKER_SHEETS.length - 1;
-        const reward = document.getElementById('sticker-sheet-reward');
-        const complete = count === sheet.stickers.length;
-        reward.innerText = complete ? `SET COMPLETE · ${sheet.reward} COINS CLAIMED` : `Complete the set for ${sheet.reward} coins.`;
+        const total = STICKER_SHEETS.reduce((n, sheet) => n + sheet.stickers.length, 0);
+        const totalOwned = STICKER_SHEETS.reduce((n, sheet) =>
+            n + sheet.stickers.filter(st => owned.has(this.stickerKey(sheet, st))).length, 0);
 
-        const grid = document.getElementById('sticker-grid');
-        grid.innerHTML = '';
-        sheet.stickers.forEach(st => {
-            const slot = document.createElement('div');
-            const has = owned.has(this.stickerKey(sheet, st));
-            slot.className = 'sticker-slot' + (has ? '' : ' locked');
-            slot.innerHTML = has ? this.buildStickerFace(st) : '???';
-            grid.appendChild(slot);
+        const totalCount = document.getElementById('sticker-total-count');
+        if (totalCount) totalCount.innerText = `${totalOwned} / ${total}`;
+
+        const groups = document.getElementById('sticker-album-groups');
+        if (!groups) return;
+        groups.innerHTML = '';
+
+        STICKER_SHEETS.forEach(sheet => {
+            const count = sheet.stickers.filter(st => owned.has(this.stickerKey(sheet, st))).length;
+            const complete = count === sheet.stickers.length;
+            const section = document.createElement('section');
+            section.className = 'sticker-group' + (complete ? ' complete' : '');
+            section.innerHTML = `
+                <div class="sticker-group-head">
+                  <b>${sheet.name}</b>
+                  <span>${count} / ${sheet.stickers.length}</span>
+                </div>
+                <div class="sticker-grid"></div>
+                <div class="sticker-group-reward">${complete ? `Punch Card complete · ${sheet.reward} coins claimed` : `Complete this Punch Card for ${sheet.reward} coins.`}</div>`;
+
+            const grid = section.querySelector('.sticker-grid');
+            sheet.stickers.forEach(st => {
+                const slot = document.createElement('div');
+                const has = owned.has(this.stickerKey(sheet, st));
+                slot.className = 'sticker-slot' + (has ? '' : ' locked');
+                slot.innerHTML = has
+                    ? this.buildStickerFace(st)
+                    : this.buildStickerPlaceholder(st);
+                grid.appendChild(slot);
+            });
+            groups.appendChild(section);
         });
     }
 
@@ -3699,8 +3903,6 @@ document.getElementById('menu-punch-btn').addEventListener('click', () => this.o
 document.getElementById('menu-stickers-btn').addEventListener('click', () => this.openStickerBook());
 document.getElementById('punch-close-btn').addEventListener('click', () => this.closePunchCards());
 document.getElementById('sticker-close-btn').addEventListener('click', () => this.closeStickerBook());
-document.getElementById('sticker-prev-btn').addEventListener('click', () => this.changeStickerSheet(-1));
-document.getElementById('sticker-next-btn').addEventListener('click', () => this.changeStickerSheet(1));
 document.getElementById('sticker-back-btn').addEventListener('click', () => this.backToPunchCardsFromReveal());
 document.getElementById('sticker-view-btn').addEventListener('click', () => this.viewStickerBookFromReveal());
 document.getElementById('menu-continue-btn').addEventListener('click', () => this.onMenuContinue());
@@ -3748,12 +3950,14 @@ document.getElementById('theme-btn').addEventListener('click', () => this.toggle
     }
 
     applyColorSchemeMeta(scheme) {
+        const map = scheme === 'dark' ? BG_SOLIDS_DARK : BG_SOLIDS_LIGHT;
+        const fallback = scheme === 'dark' ? '#2B2931' : '#F7F5F0';
+        const solid = map[this.currentMatchColorId] || fallback;
+        document.documentElement.style.setProperty('--match-bg-solid', solid);
+
         const meta = document.querySelector('meta[name="theme-color"]');
-        if (meta) {
-            const map = scheme === 'dark' ? BG_SOLIDS_DARK : BG_SOLIDS_LIGHT;
-            const fallback = scheme === 'dark' ? '#2B2931' : '#F7F5F0';
-            meta.setAttribute('content', map[this.currentMatchColorId] || fallback);
-        }
+        if (meta) meta.setAttribute('content', solid);
+
         const icon = document.getElementById('theme-icon');
         if (icon) icon.innerText = scheme === 'dark' ? 'light_mode' : 'dark_mode';
     }
@@ -4694,14 +4898,20 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
             const affordable = this.coins >= def.cost;
             const card = document.createElement('div');
             card.className = 'reward-card premium' + (affordable ? '' : ' unaffordable');
+            card.style.setProperty('--card-base', COLORS[def.colorId] || COLORS[1]);
+            card.style.setProperty('--card-light', COLORS_LIGHT[def.colorId] || COLORS_LIGHT[1]);
             card.innerHTML = `
-  ${this.buildCardIcon(def)}
-  <span class="rc-name">${def.name}</span>
-  <span class="rc-desc">${def.desc}</span>
-  <span class="rc-buy">
-    <span class="material-symbols-outlined">paid</span>
-    ${def.cost}
-  </span>
+  <div class="shop-item-head">
+    <span class="rc-name">${def.name}</span>
+    <span class="rc-desc">${def.desc}</span>
+  </div>
+  <div class="shop-item-art">${this.buildCardIcon(def)}</div>
+  <div class="shop-item-foot">
+    <span class="rc-buy">
+      <span class="material-symbols-outlined">paid</span>
+      ${def.cost}
+    </span>
+  </div>
 `;
             if (affordable) card.addEventListener('click', () => this.buyPremium(type));
             row.appendChild(card);
