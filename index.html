@@ -11,6 +11,14 @@
 <meta name="apple-mobile-web-app-title" content="Mellow Match">
 <meta name="theme-color" content="#F5F2EB">
 <meta name="format-detection" content="telephone=no">
+<script>
+(function(){
+  try {
+    var t = localStorage.getItem('mellowMatch.theme');
+    if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+  } catch (e) {}
+})();
+</script>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
@@ -75,6 +83,11 @@
   --neutral-800:#26242A;
   --neutral-900:#17161A;
 
+  /* Always dark, regardless of theme - for text/icons sitting on a fixed
+     vivid accent color (buttons, premium cards) that never inverts. */
+  --ink-fixed:#17161A;
+  --text-halo: rgba(255,255,255,.8);
+
 --accent: var(--color-blue-light);
 
 --board-pad:4px;
@@ -95,6 +108,38 @@
   5px
   0
   var(--neutral-900);
+}
+
+/* Dark mode: the "ink" tokens (neutral-700/800/900, used for borders,
+   shadows, and stroke outlines) flip to light values so the brutalist
+   outline is still visible against a dark surface, mirroring the light
+   theme's black-on-white outline as a light-on-dark one. Vivid accent
+   colors (tile gems, buttons, premium cards) stay fixed either way. */
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#131218;
+    --ink:#F3F1EA;
+    --muted:#9C988F;
+    --neutral-0:#242229;
+    --neutral-50:#2B2931;
+    --neutral-100:#35333B;
+    --neutral-700:#B6B2AA;
+    --neutral-800:#D8D4CB;
+    --neutral-900:#F5F3ED;
+    --text-halo: rgba(0,0,0,.55);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#131218;
+  --ink:#F3F1EA;
+  --muted:#9C988F;
+  --neutral-0:#242229;
+  --neutral-50:#2B2931;
+  --neutral-100:#35333B;
+  --neutral-700:#B6B2AA;
+  --neutral-800:#D8D4CB;
+  --neutral-900:#F5F3ED;
+  --text-halo: rgba(0,0,0,.55);
 }
 
 *{box-sizing:border-box}
@@ -123,6 +168,18 @@ body{
     radial-gradient(circle at 50% -5%,rgba(255,255,255,.95),transparent 40%),
     rgba(255,255,255,0);
   transition:background-color .8s ease;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .bg-wash{
+    background:
+      radial-gradient(circle at 50% -5%,rgba(255,255,255,.12),transparent 40%),
+      rgba(255,255,255,0);
+  }
+}
+:root[data-theme="dark"] .bg-wash{
+  background:
+    radial-gradient(circle at 50% -5%,rgba(255,255,255,.12),transparent 40%),
+    rgba(255,255,255,0);
 }
 
 .splash{
@@ -576,9 +633,9 @@ symbol{
   height:8px;
   transform:translate(-50%,-50%) translateZ(0);
   border-radius:50%;
-  background:rgba(0,0,0,.16);
+  background:var(--neutral-900);
   z-index:6;
-  opacity:1;
+  opacity:.16;
   transition:transform .22s ease,background .22s ease,opacity .22s ease;
 }
 .milestone-dot.passed{ opacity:0; transform:translate(-50%,-50%) scale(.45); }
@@ -615,7 +672,7 @@ symbol{
   font-size:13px;
   font-weight:800;
   color:var(--ink);
-  text-shadow:0 2px 9px rgba(255,255,255,.8);
+  text-shadow:0 2px 9px var(--text-halo);
 }
 
 .screen-flash{
@@ -664,6 +721,7 @@ symbol{
 .pu-btn .material-symbols-outlined{ font-size:1.15rem; color:var(--ink); font-variation-settings:'FILL' 1,'wght' 600; }
 .pu-btn.empty{ opacity:.32; pointer-events:none; }
 .pu-btn.armed{ background:var(--color-true-yellow-light); animation:armedPulse .9s ease-in-out infinite; }
+.pu-btn.armed .material-symbols-outlined{ color:var(--ink-fixed); }
 .pu-btn.premium{ background:linear-gradient(155deg,var(--color-true-yellow-light),var(--color-yellow-orange-light)); }
 .pu-btn.premium .material-symbols-outlined{ color:var(--color-yellow-orange-dark); }
 .pu-btn.premium .pu-count{ background:var(--color-yellow-orange-dark); }
@@ -737,7 +795,9 @@ symbol{
   border-radius:26px;
   box-shadow:var(--shadow-hard);
   padding:30px 26px;
+  width:100%;
   max-width:min(90vw,360px);
+  overflow:hidden;
   text-align:center;
   display:flex;
   flex-direction:column;
@@ -847,7 +907,7 @@ symbol{
   border:var(--border-thick) solid var(--neutral-900);
   border-radius:16px;
   background:var(--accent);
-  color:var(--neutral-900);
+  color:var(--ink-fixed);
   cursor:pointer;
   box-shadow:var(--shadow-hard);
   transition:transform .1s ease, box-shadow .1s ease;
@@ -861,17 +921,31 @@ symbol{
   justify-content:center;
 }
 
+.overlay-card.shop-card{
+  padding-left:0;
+  padding-right:0;
+}
+.shop-card-inset{
+  width:100%;
+  padding:0 26px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:12px;
+}
+
 .shop-row{
   display:flex;
   gap:12px;
   align-items:stretch;
   justify-content:flex-start;
   width:100%;
+  min-width:0;
   overflow-x:auto;
-  overflow-y:visible;
   scroll-snap-type:x proximity;
-  scroll-padding:4px;
-  padding:6px 4px 12px;
+  scroll-padding:16px;
+  padding:6px 16px 12px;
+  touch-action:pan-x;
   -webkit-overflow-scrolling:touch;
   scrollbar-width:none;
   -ms-overflow-style:none;
@@ -922,7 +996,6 @@ symbol{
   justify-content:center;
   background:var(--icon-base, var(--color-blue-base));
   border:3px solid var(--neutral-900);
-  box-shadow:3px 3px 0 var(--neutral-900);
   margin-bottom:6px;
 }
 .rc-icon .material-symbols-outlined{
@@ -931,35 +1004,16 @@ symbol{
   font-variation-settings:'FILL' 1,'wght' 700;
 }
 
-.rc-badge{
-  position:absolute;
-  right:-13px;
-  bottom:-9px;
-  width:32px;
-  height:32px;
-}
-.rc-badge svg{ width:100%; height:100%; overflow:visible; }
-.rc-badge use{
-  fill:var(--color-true-yellow-base);
-  stroke:var(--neutral-900);
-  stroke-width:16;
-  stroke-linejoin:round;
-}
-.rc-badge b{
-  position:absolute;
-  inset:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font:800 .58rem Manrope,sans-serif;
-  color:var(--neutral-900);
-}
-
 .rc-name{
   font-weight:800;
   font-size:.86rem;
   font-family:Manrope,sans-serif;
   color:var(--neutral-900);
+}
+
+.reward-card.premium .rc-name,
+.reward-card.premium .rc-desc{
+  color:var(--ink-fixed);
 }
 
 .rc-desc{
@@ -981,7 +1035,7 @@ symbol{
   border:2.5px solid var(--neutral-900);
   border-radius:999px;
   background:var(--color-green-light);
-  color:var(--neutral-900);
+  color:var(--ink-fixed);
   display:flex;
   align-items:center;
   justify-content:center;
@@ -990,7 +1044,7 @@ symbol{
 }
 .rc-buy .material-symbols-outlined{
   font-size:.82rem;
-  color:var(--neutral-900);
+  color:var(--ink-fixed);
   font-variation-settings:'FILL' 0,'wght' 700;
 }
 .reward-card.unaffordable .rc-buy{
@@ -1139,6 +1193,9 @@ symbol{
       <span id="coin-txt">0</span>
     </div>
 
+    <button class="icon-btn" id="theme-btn" aria-label="Toggle Dark Mode">
+      <span class="material-symbols-outlined" id="theme-icon">dark_mode</span>
+    </button>
     <button class="icon-btn" id="mute-btn" aria-label="Toggle Sound">
       <span class="material-symbols-outlined" id="mute-icon">volume_up</span>
     </button>
@@ -1211,10 +1268,11 @@ symbol{
   <div class="overlay-card">
     <h2>How To Play</h2>
     <ul class="howto-list">
-      <li>Swap two adjacent tiles to line up 3 or more of the same shape.</li>
-      <li>Match 4 or 5 in a row, or in an L/T shape, to create rockets, wrapped candies, and color bombs.</li>
+      <li>Swap two adjacent tiles to line up 3 or more of the same colour.</li>
+      <li>Match 4 in a row for a striped rocket, an L or T shape for a wrapped tile, or 5+ in a row for a colour bomb.</li>
+      <li>Combine two special tiles — like two rockets, or a rocket with a colour bomb — for an even bigger blast.</li>
       <li>Fill the meter before you run out of moves to clear the level and bank stars.</li>
-      <li>Boards come in different shapes with gaps carved in — tiles rest on top of them instead of falling through.</li>
+      <li>Boards can be different shapes with gaps carved in — tiles rest on top of the gaps instead of falling through.</li>
       <li>Earn free power-ups after every level, or spend coins on stronger ones in the Shop.</li>
     </ul>
     <button class="primary" id="howto-close-btn">GOT IT</button>
@@ -1242,16 +1300,20 @@ symbol{
 </div>
 
 <div class="overlay" id="shop-overlay">
-  <div class="overlay-card">
-    <h2>Shop</h2>
-    <div class="shop-balance">
+  <div class="overlay-card shop-card">
+    <div class="shop-card-inset">
+      <h2>Shop</h2>
+      <div class="shop-balance">
 <svg class="coin-icon" viewBox="0 0 256 256" aria-hidden="true">
   <use href="#icon-coins"></use>
 </svg>
   <span id="shop-coin-txt">0</span>
 </div>
-    <div class="reward-row shop-row" id="shop-row"></div>
-    <button class="primary" id="shop-close-btn">CLOSE</button>
+    </div>
+    <div class="reward-row shop-row h-scroll" id="shop-row"></div>
+    <div class="shop-card-inset">
+      <button class="primary" id="shop-close-btn">CLOSE</button>
+    </div>
   </div>
 </div>
 
@@ -1281,7 +1343,7 @@ const POWER_UPS = {
 const PREMIUM_POWER_UPS = {
     megaHammer: { icon: 'bolt', name: 'Mega Hammer', desc: 'Tap a tile to smash its whole row.', cost: 40, colorId: 6 },
     doubleBomb: { icon: 'stars', name: 'Double Bomb', desc: 'Drops two color bombs at once.', cost: 60, colorId: 5 },
-    megaWrap: { icon: 'blur_circular', name: 'Wrapped Candy', desc: 'Drops a wrapped tile — blasts a 3x3 area.', cost: 50, colorId: 2 },
+    megaWrap: { icon: 'blur_circular', name: 'Wrapped Bomb', desc: 'Drops a wrapped tile — blasts a 3x3 area.', cost: 50, colorId: 2 },
     bigMoves: { icon: 'add_box', name: '+10 Moves', desc: 'Adds 10 extra moves to spend.', cost: 35, colorId: 4 },
     undo: { icon: 'undo', name: 'Second Chance', desc: 'Undoes your last move and refunds it.', cost: 25, colorId: 3 },
     coinDoubler: { icon: 'currency_exchange', name: 'Coin Doubler', desc: "Doubles this level's coin payout.", cost: 45, colorId: 1 },
@@ -1633,6 +1695,7 @@ this.progressTrack = document.getElementById('progressTrack');
         this.sfx = new SFX();
 
         this.bindEvents();
+        this.initColorScheme();
         this.startIdleWatcher();
         this.startWatchdog();
         this.updatePowerUpTray();
@@ -1901,7 +1964,11 @@ this.progressTrack = document.getElementById('progressTrack');
     bindEvents() {
         window.addEventListener('resize', () => this.refreshGeometry());
         window.addEventListener('orientationchange', () => setTimeout(() => this.refreshGeometry(), 120));
-        document.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
+        document.addEventListener('touchmove', e => {
+            if (e.target.closest && e.target.closest('.h-scroll')) return;
+            e.preventDefault();
+        }, { passive: false });
+        this.enableHorizontalDragScroll(document.getElementById('shop-row'));
         document.addEventListener('gesturestart', e => e.preventDefault());
         document.addEventListener('dblclick', e => e.preventDefault());
 document.getElementById('mute-btn').addEventListener('click', () => this.toggleMute());
@@ -1914,6 +1981,60 @@ document.getElementById('menu-howto-btn').addEventListener('click', () => this.o
 document.getElementById('howto-close-btn').addEventListener('click', () => this.onHowToClose());
 document.getElementById('confirm-yes-btn').addEventListener('click', () => this.onConfirmYes());
 document.getElementById('confirm-no-btn').addEventListener('click', () => this.onConfirmNo());
+document.getElementById('theme-btn').addEventListener('click', () => this.toggleColorScheme());
+    }
+
+    /* Lets a mouse pointer drag the shop row horizontally; touch/pen use the
+       browser's native scroll (unblocked via the .h-scroll touchmove exception
+       above) so this only engages for mouse to avoid double-handling drags. */
+    enableHorizontalDragScroll(el) {
+        if (!el) return;
+        let dragging = false, moved = false, startX = 0, startScroll = 0;
+        el.addEventListener('pointerdown', e => {
+            if (e.pointerType !== 'mouse') return;
+            dragging = true; moved = false;
+            startX = e.clientX; startScroll = el.scrollLeft;
+        });
+        el.addEventListener('pointermove', e => {
+            if (!dragging) return;
+            const dx = e.clientX - startX;
+            if (Math.abs(dx) > 4) moved = true;
+            el.scrollLeft = startScroll - dx;
+        });
+        const stop = () => { dragging = false; };
+        el.addEventListener('pointerup', stop);
+        el.addEventListener('pointercancel', stop);
+        el.addEventListener('pointerleave', stop);
+        el.addEventListener('click', e => { if (moved) { e.stopPropagation(); e.preventDefault(); moved = false; } }, true);
+    }
+
+    /* ---------- Dark / light colour scheme (distinct from the per-level
+       accent set by applyTheme() above) ---------- */
+
+    systemPrefersDark() {
+        return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+
+    currentColorScheme() {
+        return document.documentElement.getAttribute('data-theme') || (this.systemPrefersDark() ? 'dark' : 'light');
+    }
+
+    applyColorSchemeMeta(scheme) {
+        const meta = document.querySelector('meta[name="theme-color"]');
+        if (meta) meta.setAttribute('content', scheme === 'dark' ? '#131218' : '#F5F2EB');
+        const icon = document.getElementById('theme-icon');
+        if (icon) icon.innerText = scheme === 'dark' ? 'light_mode' : 'dark_mode';
+    }
+
+    initColorScheme() {
+        this.applyColorSchemeMeta(this.currentColorScheme());
+    }
+
+    toggleColorScheme() {
+        const next = this.currentColorScheme() === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        try { localStorage.setItem('mellowMatch.theme', next); } catch (e) { /* ignore */ }
+        this.applyColorSchemeMeta(next);
     }
 
     toggleMute() {
@@ -2795,11 +2916,6 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
         return `
   <span class="rc-icon" style="--icon-base:${base};--icon-light:${light}">
     <span class="material-symbols-outlined">${def.icon}</span>
-    ${def.cost ? `
-    <span class="rc-badge">
-      <svg viewBox="0 0 480 480" aria-hidden="true"><use href="#piece-8tip-star" xlink:href="#piece-8tip-star"></use></svg>
-      <b>${def.cost}</b>
-    </span>` : ''}
   </span>`;
     }
 
