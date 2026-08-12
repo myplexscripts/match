@@ -15,11 +15,7 @@
 (function(){
   try {
     var t = localStorage.getItem('mellowMatch.theme');
-
-    document.documentElement.setAttribute(
-      'data-theme',
-      t === 'dark' ? 'dark' : 'light'
-    );
+    document.documentElement.setAttribute('data-theme', t === 'dark' ? 'dark' : 'light');
   } catch (e) {
     document.documentElement.setAttribute('data-theme', 'light');
   }
@@ -149,15 +145,33 @@
 }
 
 *{box-sizing:border-box}
-html,body{height:100%; height:100dvh;}
+
+/* The root canvas deliberately paints to the large viewport so Safari's
+   translucent status/address-bar areas have game colour behind them. The
+   actual interactive app remains 100dvh so controls stay inside the currently
+   visible viewport instead of slipping underneath browser chrome. */
+html{
+  margin:0;
+  padding:0;
+  width:100%;
+  min-height:100%;
+  height:100lvh;
+  background-color:var(--neutral-50);
+  background-image:linear-gradient(
+    var(--match-bg-tint, rgba(255,255,255,0)),
+    var(--match-bg-tint, rgba(255,255,255,0))
+  );
+}
+
 body{
   margin:0;
+  padding:0;
   overflow:hidden;
   user-select:none;
   -webkit-user-select:none;
   -webkit-tap-highlight-color:transparent;
   overscroll-behavior:none;
-  background: var(--neutral-50);
+  background:transparent;
   color:var(--ink);
   font-family:Inter,system-ui,sans-serif;
   position:fixed;
@@ -217,17 +231,19 @@ body{
   overflow:visible;
 }
 .splash-mark-shadow{
-  transform:translate(4px,4px);
+  inset:auto;
+  left:4px;
+  top:4px;
+  width:100%;
+  height:100%;
   z-index:0;
+  animation:splashSpin 3.2s linear infinite;
 }
 .splash-mark-shadow use{
   fill:var(--neutral-900);
   stroke:var(--neutral-900);
   stroke-width:10;
   stroke-linejoin:round;
-  transform-box:fill-box;
-  transform-origin:center;
-  animation:splashSpin 3.2s linear infinite;
 }
 .splash-mark-spinner{
   z-index:1;
@@ -819,13 +835,22 @@ symbol{
 
 .overlay{
   position:absolute; inset:0;
+  background:transparent;
+  backdrop-filter:none;
+  -webkit-backdrop-filter:none;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  z-index:200;
+  pointer-events:none;
+}
+.overlay.active{
+  pointer-events:auto;
   background:rgba(23,22,26,.55);
   backdrop-filter:blur(6px);
   -webkit-backdrop-filter:blur(6px);
-  display:flex; flex-direction:column; align-items:center; justify-content:center;
-  z-index:200; opacity:0; pointer-events:none; transition:opacity .25s;
 }
-.overlay.active{ opacity:1; pointer-events:auto; }
 
 .overlay-card{
   background:var(--neutral-0);
@@ -841,15 +866,79 @@ symbol{
   flex-direction:column;
   align-items:center;
   gap:12px;
-  transform:scale(.85);
-  transition:transform .3s cubic-bezier(.175,.885,.32,1.275);
+  transform:translate3d(110vw,10px,0) rotate(2deg);
+  transition:transform .38s cubic-bezier(.22,.8,.2,1);
+  will-change:transform;
 }
-.overlay.active .overlay-card{ transform:scale(1); }
+.overlay.active .overlay-card{ transform:translate3d(0,0,0) rotate(0deg); }
+
+/* Physical page-to-page motion. The backdrop stays put while the paper-like
+   modal cards travel across it. */
+.overlay.swipe-in-right .overlay-card{ transform:translate3d(110vw,10px,0) rotate(2deg); }
+.overlay.swipe-in-left .overlay-card{ transform:translate3d(-110vw,10px,0) rotate(-2deg); }
+.overlay.swipe-out-left .overlay-card{ transform:translate3d(-110vw,-8px,0) rotate(-2deg); }
+.overlay.swipe-out-right .overlay-card{ transform:translate3d(110vw,-8px,0) rotate(2deg); }
 
 .overlay h2{
+  margin:0;
+  width:100%;
+  align-self:stretch;
+  text-align:left;
   font:800 2rem/1.05 Manrope,sans-serif;
   letter-spacing:-.03em;
   color:var(--ink);
+}
+
+/* Modal hierarchy is intentionally consistent: title and introductory copy
+   always begin on the same left edge. Content inside the modal can still
+   centre itself where that makes sense (stars, rewards, buttons, etc.). */
+.overlay-card > p{
+  width:100%;
+  align-self:stretch;
+  text-align:left;
+}
+.shop-card-inset > h2{
+  width:100%;
+  text-align:left;
+}
+.collection-kicker{
+  width:100%;
+  align-self:stretch;
+  text-align:left;
+}
+
+/* Physical close control. It belongs to the popup card itself rather than
+   the scrollable content, so it remains easy to reach without creating a
+   sticky header or footer. */
+.overlay-card.has-corner-close{
+  position:relative;
+  overflow:visible;
+}
+.modal-corner-close{
+  position:absolute;
+  top:-13px;
+  right:-13px;
+  z-index:40;
+  width:42px;
+  height:42px;
+  padding:0;
+  display:grid;
+  place-items:center;
+  border:var(--border-thick) solid var(--neutral-900);
+  border-radius:14px;
+  background:var(--neutral-0);
+  color:var(--ink);
+  box-shadow:3px 3px 0 var(--neutral-900);
+  cursor:pointer;
+  transition:transform .1s ease, box-shadow .1s ease;
+}
+.modal-corner-close:active{
+  transform:translate(3px,3px);
+  box-shadow:0 0 0 var(--neutral-900);
+}
+.modal-corner-close .material-symbols-outlined{
+  font-size:1.25rem;
+  font-variation-settings:'FILL' 0,'wght' 700;
 }
 .overlay p{
   font-size:.98rem;
@@ -861,6 +950,7 @@ symbol{
 .menu-mark{
   width:64px;
   height:64px;
+  align-self:flex-start;
   filter:drop-shadow(3px 3px 0 var(--neutral-900));
 }
 .menu-mark svg{ width:100%; height:100%; overflow:visible; }
@@ -1146,25 +1236,35 @@ symbol{
 }
 .collection-scroll::-webkit-scrollbar{ display:none; }
 
-/* Punch Cards are a full scrolling page, not a modal with an internal scroller. */
-#punch-overlay{
-  display:block;
+/* ---------- Punch Cards ----------
+   This is one ordinary popup modal with one ordinary vertical scroll. Nothing
+   inside it is sticky or fixed. Category pages slide sideways as physical
+   sheets, but vertical scrolling always belongs to the popup itself. */
+.punch-modal-card{
+  align-items:stretch;
+  text-align:left;
+  width:min(90vw,380px);
+  max-width:min(90vw,380px);
+  max-height:min(86dvh,760px);
+  padding:0;
+  gap:0;
+  overflow:visible;
+}
+.punch-modal-scroll{
+  width:100%;
+  max-height:min(86dvh,760px);
+  padding:24px 20px 22px;
   overflow-y:auto;
   overflow-x:hidden;
   overscroll-behavior-y:contain;
   -webkit-overflow-scrolling:touch;
-  background:var(--neutral-50);
+  scrollbar-width:none;
+  border-radius:24px;
 }
-
-.punch-page-shell{
-  width:min(100%,480px);
-  min-height:100dvh;
-  margin:0 auto;
-  padding:calc(26px + env(safe-area-inset-top)) 16px calc(28px + env(safe-area-inset-bottom));
-  background:var(--neutral-0);
-}
+.punch-modal-scroll::-webkit-scrollbar{ display:none; }
 
 .punch-page-intro{
+  position:static;
   width:100%;
   text-align:left;
   padding:0 2px;
@@ -1172,6 +1272,8 @@ symbol{
 
 .punch-page-intro h2{
   margin:7px 0 8px;
+  width:100%;
+  text-align:left;
   font:800 2rem/1.05 Manrope,sans-serif;
   letter-spacing:-.03em;
   color:var(--ink);
@@ -1179,35 +1281,38 @@ symbol{
 
 .punch-page-intro .collection-note{
   margin:0!important;
-  max-width:390px;
+  max-width:100%;
   color:var(--muted)!important;
-  font-size:.78rem!important;
+  font-size:.76rem!important;
   line-height:1.4!important;
 }
 
+/* Tabs are part of the document flow. They scroll away with the title. */
 .punch-category-tabs{
-  display:flex;
-  gap:8px;
+  position:static;
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:7px;
   width:100%;
   margin:18px 0 12px;
-  overflow-x:auto;
-  padding:2px 3px 5px 1px;
-  scrollbar-width:none;
-  -webkit-overflow-scrolling:touch;
+  padding:2px 2px 4px 0;
+  overflow:visible;
 }
-.punch-category-tabs::-webkit-scrollbar{ display:none; }
 
 .punch-category-tab{
-  flex:0 0 auto;
+  min-width:0;
   border:2px solid var(--neutral-900);
   border-radius:999px;
-  padding:8px 12px;
+  padding:8px 5px;
   background:var(--neutral-0);
   color:var(--ink);
   box-shadow:2px 2px 0 var(--neutral-900);
-  font:800 .68rem/1 Manrope,sans-serif;
-  letter-spacing:.03em;
+  font:800 .56rem/1.05 Manrope,sans-serif;
+  letter-spacing:.015em;
   text-transform:uppercase;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
   cursor:pointer;
 }
 .punch-category-tab.active{
@@ -1219,83 +1324,96 @@ symbol{
   box-shadow:none;
 }
 
+/* Do not make this a nested scroll area. The track is simply translated left
+   and right. Its full card height remains in normal flow, so the popup itself
+   scrolls from the title all the way to the Close button. */
 .punch-category-track{
   display:flex;
-  width:calc(100% + 32px);
-  margin-left:-16px;
-  overflow-x:auto;
-  overflow-y:visible;
-  scroll-snap-type:x mandatory;
-  scroll-behavior:smooth;
-  overscroll-behavior-x:contain;
-  -webkit-overflow-scrolling:touch;
-  scrollbar-width:none;
-  touch-action:pan-x pan-y;
+  width:100%;
+  margin:0;
+  overflow:visible;
+  transform:translate3d(0,0,0);
+  transition:transform .32s cubic-bezier(.22,.8,.2,1);
+  will-change:transform;
+  touch-action:pan-y;
 }
-.punch-category-track::-webkit-scrollbar{ display:none; }
 
 .punch-category-page{
   flex:0 0 100%;
   min-width:0;
-  scroll-snap-align:start;
-  scroll-snap-stop:always;
-  padding:4px 16px 14px;
+  padding:4px 2px 14px;
 }
 
+/* A lightweight collection heading instead of another large nested card. */
 .punch-category-head{
   --category-color:var(--color-blue-light);
   position:relative;
-  margin:0 0 13px;
-  padding:14px 14px 13px;
-  border:3px solid var(--neutral-900);
-  border-radius:12px;
-  background:var(--category-color);
-  color:var(--ink-fixed);
-  box-shadow:4px 4px 0 var(--neutral-900);
+  margin:0 2px 18px;
+  padding:0 0 11px 13px;
+  border:0;
+  border-bottom:3px solid var(--neutral-900);
+  border-radius:0;
+  background:transparent;
+  color:var(--ink);
+  box-shadow:none;
   text-align:left;
+}
+.punch-category-head::before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:2px;
+  bottom:12px;
+  width:5px;
+  border:2px solid var(--neutral-900);
+  background:var(--category-color);
 }
 .punch-category-head span{
   display:block;
-  margin-bottom:5px;
-  font:800 .58rem/1 Manrope,sans-serif;
-  letter-spacing:.11em;
+  margin-bottom:4px;
+  font:800 .56rem/1 Manrope,sans-serif;
+  letter-spacing:.1em;
   text-transform:uppercase;
-  opacity:.68;
+  color:var(--muted);
 }
 .punch-category-head h3{
   margin:0;
-  font:800 1.28rem/1 Manrope,sans-serif;
+  font:800 1.18rem/1 Manrope,sans-serif;
   letter-spacing:-.025em;
   text-transform:uppercase;
+  color:var(--ink);
 }
 .punch-category-head p{
   margin:5px 0 0!important;
-  color:var(--ink-fixed)!important;
-  font-size:.68rem!important;
+  color:var(--muted)!important;
+  font-size:.66rem!important;
   font-weight:700!important;
-  line-height:1.25!important;
-  opacity:.75;
+  line-height:1.3!important;
 }
 
 .punch-list{
   display:flex;
   flex-direction:column;
-  gap:13px;
+  align-items:center;
+  gap:18px;
 }
 
 .punch-card{
   --card-base:var(--color-blue-base);
   --card-light:var(--color-blue-light);
   position:relative;
-  width:100%;
-  padding:14px 14px 13px;
+  width:min(100%,228px);
+  aspect-ratio:2 / 3;
+  padding:16px 15px 14px;
   border:3px solid var(--neutral-900);
   border-radius:10px;
   background:var(--card-light);
   color:var(--ink-fixed);
-  box-shadow:4px 4px 0 var(--neutral-900);
+  box-shadow:5px 5px 0 var(--neutral-900);
   text-align:left;
   overflow:hidden;
+  display:flex;
+  flex-direction:column;
 }
 
 .punch-card::before{
@@ -1312,9 +1430,7 @@ symbol{
   outline-offset:3px;
 }
 
-.punch-card.collection-finished{
-  opacity:.72;
-}
+.punch-card.collection-finished{ opacity:.72; }
 
 .punch-head{
   position:relative;
@@ -1322,12 +1438,12 @@ symbol{
   display:flex;
   align-items:flex-start;
   justify-content:space-between;
-  gap:10px;
+  gap:8px;
 }
 
 .punch-title{
   margin:0;
-  font:800 1rem/1 Manrope,sans-serif;
+  font:800 .98rem/1 Manrope,sans-serif;
   letter-spacing:-.01em;
   color:var(--ink-fixed);
   text-transform:uppercase;
@@ -1340,17 +1456,17 @@ symbol{
   border-radius:999px;
   background:#fff;
   color:var(--ink-fixed);
-  font:800 .62rem/1 Manrope,sans-serif;
+  font:800 .58rem/1 Manrope,sans-serif;
   box-shadow:2px 2px 0 var(--ink-fixed);
 }
 
 .punch-desc{
   position:relative;
   z-index:1;
-  margin:5px 0 9px!important;
+  margin:6px 0 4px!important;
   color:var(--ink-fixed)!important;
   opacity:.78;
-  font-size:.72rem!important;
+  font-size:.66rem!important;
   line-height:1.25!important;
   text-transform:uppercase;
   letter-spacing:.025em;
@@ -1359,8 +1475,9 @@ symbol{
 .punch-reward{
   position:relative;
   z-index:1;
-  min-height:104px;
-  margin:2px 0 10px;
+  flex:1 1 auto;
+  min-height:112px;
+  margin:4px 0 8px;
   display:grid;
   place-items:center;
 }
@@ -1370,15 +1487,15 @@ symbol{
   position:absolute;
   right:2px;
   bottom:0;
-  font:800 .52rem/1 Manrope,sans-serif;
+  font:800 .49rem/1 Manrope,sans-serif;
   letter-spacing:.08em;
   color:var(--ink-fixed);
   opacity:.55;
 }
 
 .punch-reward .sticker-face{
-  width:112px;
-  min-height:62px;
+  width:118px;
+  min-height:66px;
   padding:14px 10px;
   font-size:1rem;
   box-shadow:5px 5px 0 var(--ink-fixed);
@@ -1399,23 +1516,30 @@ symbol{
   position:relative;
   z-index:1;
   display:grid;
-  grid-template-columns:repeat(10,1fr);
-  gap:5px;
-  margin:0 0 9px;
+  grid-template-columns:repeat(5,1fr);
+  gap:7px 9px;
+  margin:2px 2px 10px;
 }
 
 .punch-hole{
+  position:relative;
   aspect-ratio:1;
   min-width:0;
   border-radius:50%;
-  border:2px solid var(--ink-fixed);
-  background:rgba(255,255,255,.42);
-  box-shadow:1px 1px 0 var(--ink-fixed);
+  border:2px dashed color-mix(in srgb, var(--ink-fixed) 72%, transparent);
+  background:transparent;
+  box-shadow:none;
 }
 
+/* The filled state deliberately uses the modal's surface colour so it reads as
+   a literal hole cut through the coloured card, with a dark inner paper edge. */
 .punch-hole.punched{
-  background:var(--ink-fixed);
-  box-shadow:none;
+  border:0;
+  background:var(--neutral-0);
+  box-shadow:
+    0 0 0 1.5px color-mix(in srgb, var(--ink-fixed) 72%, transparent),
+    inset 2px 2px 2px rgba(0,0,0,.38),
+    inset -1px -1px 1px rgba(255,255,255,.22);
 }
 
 .punch-foot{
@@ -1424,21 +1548,21 @@ symbol{
   display:flex;
   align-items:center;
   justify-content:space-between;
-  gap:10px;
+  gap:8px;
 }
 
 .punch-count{
-  font:800 .72rem/1 Manrope,sans-serif;
+  font:800 .68rem/1 Manrope,sans-serif;
   color:var(--ink-fixed);
 }
 
 .punch-claim{
   border:2px solid var(--ink-fixed);
   border-radius:999px;
-  padding:7px 11px;
+  padding:7px 9px;
   background:var(--card-base);
   color:#fff;
-  font:800 .66rem/1 Manrope,sans-serif;
+  font:800 .62rem/1 Manrope,sans-serif;
   letter-spacing:.025em;
   box-shadow:2px 2px 0 var(--ink-fixed);
   cursor:pointer;
@@ -1446,16 +1570,19 @@ symbol{
 .punch-claim:active{ transform:translate(2px,2px); box-shadow:none; }
 
 .punch-page-close{
+  position:static!important;
+  inset:auto!important;
   display:block;
+  flex:0 0 auto;
   width:100%;
-  margin:12px 0 0!important;
+  margin:20px 0 0!important;
 }
 
 .punch-swipe-note{
-  margin:2px 0 2px;
+  margin:2px 0 8px!important;
   text-align:center;
-  color:var(--muted);
-  font:700 .62rem/1.2 Inter,sans-serif;
+  color:var(--muted)!important;
+  font:700 .62rem/1.2 Inter,sans-serif!important;
   text-transform:uppercase;
   letter-spacing:.06em;
 }
@@ -1826,7 +1953,8 @@ symbol{
 </div>
 
 <div class="overlay" id="howto-overlay">
-  <div class="overlay-card">
+  <div class="overlay-card has-corner-close">
+    <button class="modal-corner-close" id="howto-close-btn" aria-label="Close How To Play"><span class="material-symbols-outlined">close</span></button>
     <h2>How To Play</h2>
     <ul class="howto-list">
       <li>Swap two adjacent tiles to line up 3 or more of the same colour.</li>
@@ -1836,26 +1964,28 @@ symbol{
       <li>Boards can be different shapes with gaps carved in — tiles rest on top of the gaps instead of falling through.</li>
       <li>Earn free power-ups after every level, or spend coins on stronger ones in the Shop.</li>
     </ul>
-    <button class="primary" id="howto-close-btn">GOT IT</button>
   </div>
 </div>
 
-<div class="overlay ui-scroll" id="punch-overlay">
-  <div class="punch-page-shell">
+<div class="overlay" id="punch-overlay">
+  <div class="overlay-card punch-modal-card has-corner-close">
+    <button class="modal-corner-close" id="punch-close-btn" aria-label="Close Punch Cards"><span class="material-symbols-outlined">close</span></button>
+    <div class="punch-modal-scroll ui-scroll">
     <div class="punch-page-intro">
       <span class="collection-kicker">Long-term goals</span>
       <h2>Punch Cards</h2>
       <p class="collection-note">Each sticker collection has its own page of punch cards. Swipe between collections, finish a card, then peel off the sticker printed on it.</p>
     </div>
-    <div class="punch-category-tabs h-scroll" id="punch-category-tabs" aria-label="Punch card collections"></div>
+    <div class="punch-category-tabs" id="punch-category-tabs" aria-label="Punch card collections"></div>
     <p class="punch-swipe-note">Swipe left or right to change collection</p>
-    <div class="punch-category-track h-scroll" id="punch-category-track"></div>
-    <button class="primary punch-page-close" id="punch-close-btn">CLOSE</button>
+    <div class="punch-category-track" id="punch-category-track"></div>
+    </div>
   </div>
 </div>
 
 <div class="overlay" id="sticker-overlay">
-  <div class="overlay-card collection-card">
+  <div class="overlay-card collection-card has-corner-close">
+    <button class="modal-corner-close" id="sticker-close-btn" aria-label="Close Sticker Book"><span class="material-symbols-outlined">close</span></button>
     <span class="collection-kicker">Your collection</span>
     <h2>Sticker Book</h2>
     <div class="sticker-sheet-head">
@@ -1870,7 +2000,6 @@ symbol{
       <div class="sticker-grid" id="sticker-grid"></div>
       <div class="collection-reward" id="sticker-sheet-reward">Complete the sheet for 150 coins.</div>
     </div>
-    <button class="primary" id="sticker-close-btn">CLOSE</button>
   </div>
 </div>
 
@@ -1910,7 +2039,8 @@ symbol{
 </div>
 
 <div class="overlay" id="shop-overlay">
-  <div class="overlay-card shop-card">
+  <div class="overlay-card shop-card has-corner-close">
+    <button class="modal-corner-close" id="shop-close-btn" aria-label="Close Shop"><span class="material-symbols-outlined">close</span></button>
     <div class="shop-card-inset">
       <h2>Shop</h2>
       <div class="shop-balance">
@@ -1921,9 +2051,6 @@ symbol{
 </div>
     </div>
     <div class="reward-row shop-row h-scroll" id="shop-row"></div>
-    <div class="shop-card-inset">
-      <button class="primary" id="shop-close-btn">CLOSE</button>
-    </div>
   </div>
 </div>
 
@@ -1979,6 +2106,16 @@ const COLORS_LIGHT = {
 const BG_TINTS = {
     1: 'rgba(255,197,103,.22)', 2: 'rgba(251,125,168,.20)', 3: 'rgba(5,140,215,.18)',
     4: 'rgba(13,148,136,.18)', 5: 'rgba(85,44,135,.16)', 6: 'rgba(253,90,70,.18)'
+};
+
+/* Opaque equivalents of each level tint over the light/dark neutral canvas.
+   These are used for Safari's theme-color while the CSS root background uses
+   the real translucent tint, keeping browser chrome and the game visually joined. */
+const BG_SOLIDS_LIGHT = {
+    1:'#F9EAD2', 2:'#F8DDE2', 3:'#CBE2EC', 4:'#CDE4DD', 5:'#DDD5DF', 6:'#F8D9D1'
+};
+const BG_SOLIDS_DARK = {
+    1:'#5A4B3D', 2:'#553A49', 3:'#243B4F', 4:'#263C41', 5:'#32293F', 6:'#513235'
 };
 
 const THEMES = [
@@ -2512,7 +2649,14 @@ this.progressTrack = document.getElementById('progressTrack');
     }
 
     applyMatchColor(colorId) {
-        this.bgWash.style.backgroundColor = BG_TINTS[colorId] || 'rgba(255,255,255,0)';
+        const tint = BG_TINTS[colorId] || 'rgba(255,255,255,0)';
+        this.currentMatchColorId = colorId;
+        this.bgWash.style.backgroundColor = tint;
+
+        /* Paint the same level tint on the root canvas. Unlike .app, html is
+           100lvh, so this colour continues behind Safari's translucent chrome. */
+        document.documentElement.style.setProperty('--match-bg-tint', tint);
+        this.applyColorSchemeMeta(this.currentColorScheme());
     }
 
     /* ---------- Punch cards + sticker collection ---------- */
@@ -2657,40 +2801,71 @@ this.progressTrack = document.getElementById('progressTrack');
     captureCollectionReturn() {
         if (document.getElementById('menu-overlay').classList.contains('active')) this.collectionReturnOverlay = 'menu';
         else if (document.getElementById('screen-overlay').classList.contains('active')) this.collectionReturnOverlay = 'screen';
-        if (this.collectionReturnOverlay === 'menu') document.getElementById('menu-overlay').classList.remove('active');
-        if (this.collectionReturnOverlay === 'screen') document.getElementById('screen-overlay').classList.remove('active');
     }
 
-    restoreCollectionReturn() {
+    collectionReturnElement() {
+        if (this.collectionReturnOverlay === 'menu') return document.getElementById('menu-overlay');
+        if (this.collectionReturnOverlay === 'screen') return document.getElementById('screen-overlay');
+        return null;
+    }
+
+    swipeModalSwap(fromEl, toEl, forward = true) {
+        const ms = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 1 : 380;
+        const inClass = forward ? 'swipe-in-right' : 'swipe-in-left';
+        const outClass = forward ? 'swipe-out-left' : 'swipe-out-right';
+
+        if (toEl) {
+            toEl.classList.add('active', inClass);
+            void toEl.offsetWidth;
+            requestAnimationFrame(() => toEl.classList.remove(inClass));
+        }
+
+        if (fromEl && fromEl !== toEl) {
+            fromEl.classList.add(outClass);
+            setTimeout(() => {
+                fromEl.classList.remove('active', outClass);
+            }, ms);
+        }
+    }
+
+    restoreCollectionReturn(fromEl) {
         const dest = this.collectionReturnOverlay;
         this.collectionReturnOverlay = null;
-        if (dest === 'menu') this.showMainMenu();
-        else if (dest === 'screen') {
+        let destEl = null;
+        if (dest === 'menu') {
+            this.showMainMenu();
+            destEl = document.getElementById('menu-overlay');
+        } else if (dest === 'screen') {
             document.getElementById('screen-punch-btn').hidden = !this.hasReadyPunchCards();
-            document.getElementById('screen-overlay').classList.add('active');
+            destEl = document.getElementById('screen-overlay');
         }
+        if (destEl) this.swipeModalSwap(fromEl, destEl, false);
+        else if (fromEl) fromEl.classList.remove('active');
     }
 
     openPunchCards() {
         const overlay = document.getElementById('punch-overlay');
         if (!overlay.classList.contains('active')) this.captureCollectionReturn();
+        const source = this.collectionReturnElement();
         this.renderPunchCards();
-        overlay.classList.add('active');
         overlay.scrollTop = 0;
+        this.swipeModalSwap(source, overlay, true);
         requestAnimationFrame(() => this.scrollToPunchCategory(this.punchCategoryIndex, false));
     }
 
     closePunchCards() {
-        document.getElementById('punch-overlay').classList.remove('active');
+        const overlay = document.getElementById('punch-overlay');
         this.updateCollectionMenuButtons();
-        this.restoreCollectionReturn();
+        this.restoreCollectionReturn(overlay);
     }
 
     scrollToPunchCategory(index, smooth = true) {
         const track = document.getElementById('punch-category-track');
         if (!track) return;
         this.punchCategoryIndex = Math.max(0, Math.min(PUNCH_CATEGORIES.length - 1, index));
-        track.scrollTo({ left:track.clientWidth * this.punchCategoryIndex, behavior:smooth ? 'smooth' : 'auto' });
+        track.style.transition = smooth ? 'transform .32s cubic-bezier(.22,.8,.2,1)' : 'none';
+        track.style.transform = `translate3d(-${this.punchCategoryIndex * 100}%,0,0)`;
+        if (!smooth) requestAnimationFrame(() => { track.style.transition = ''; });
         this.syncPunchCategoryTabs();
     }
 
@@ -2699,14 +2874,23 @@ this.progressTrack = document.getElementById('progressTrack');
         tabs.forEach((tab, index) => tab.classList.toggle('active', index === this.punchCategoryIndex));
     }
 
-    onPunchCategoryScroll() {
-        const track = document.getElementById('punch-category-track');
-        if (!track || !track.clientWidth) return;
-        const next = Math.max(0, Math.min(PUNCH_CATEGORIES.length - 1, Math.round(track.scrollLeft / track.clientWidth)));
-        if (next !== this.punchCategoryIndex) {
-            this.punchCategoryIndex = next;
-            this.syncPunchCategoryTabs();
-        }
+    enablePunchCategorySwipe(el) {
+        if (!el) return;
+        let startX = 0, startY = 0, tracking = false;
+        el.addEventListener('touchstart', e => {
+            if (!e.touches || e.touches.length !== 1) return;
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+            tracking = true;
+        }, { passive:true });
+        el.addEventListener('touchend', e => {
+            if (!tracking || !e.changedTouches || !e.changedTouches.length) return;
+            tracking = false;
+            const dx = e.changedTouches[0].clientX - startX;
+            const dy = e.changedTouches[0].clientY - startY;
+            if (Math.abs(dx) < 44 || Math.abs(dx) <= Math.abs(dy) * 1.15) return;
+            this.scrollToPunchCategory(this.punchCategoryIndex + (dx < 0 ? 1 : -1));
+        }, { passive:true });
     }
 
     renderPunchCards() {
@@ -2891,23 +3075,27 @@ this.progressTrack = document.getElementById('progressTrack');
     }
 
     viewStickerBookFromReveal() {
-        document.getElementById('sticker-reveal-overlay').classList.remove('active');
-        document.getElementById('punch-overlay').classList.remove('active');
+        const reveal = document.getElementById('sticker-reveal-overlay');
+        const punch = document.getElementById('punch-overlay');
+        const stickers = document.getElementById('sticker-overlay');
+        punch.classList.remove('active');
         this.renderStickerBook();
-        document.getElementById('sticker-overlay').classList.add('active');
+        this.swipeModalSwap(reveal, stickers, true);
     }
 
     openStickerBook() {
-        if (!document.getElementById('sticker-overlay').classList.contains('active')) this.captureCollectionReturn();
+        const overlay = document.getElementById('sticker-overlay');
+        if (!overlay.classList.contains('active')) this.captureCollectionReturn();
+        const source = this.collectionReturnElement();
         this.stickerBookPage = Math.max(0, Math.min(STICKER_SHEETS.length - 1, this.stickerBookPage ?? this.firstIncompleteStickerSheet()));
         this.renderStickerBook();
-        document.getElementById('sticker-overlay').classList.add('active');
+        this.swipeModalSwap(source, overlay, true);
     }
 
     closeStickerBook() {
-        document.getElementById('sticker-overlay').classList.remove('active');
+        const overlay = document.getElementById('sticker-overlay');
         this.updateCollectionMenuButtons();
-        this.restoreCollectionReturn();
+        this.restoreCollectionReturn(overlay);
     }
 
     changeStickerSheet(delta) {
@@ -3135,8 +3323,7 @@ this.progressTrack = document.getElementById('progressTrack');
             e.preventDefault();
         }, { passive: false });
         this.enableHorizontalDragScroll(document.getElementById('shop-row'));
-        this.enableHorizontalDragScroll(document.getElementById('punch-category-track'));
-        document.getElementById('punch-category-track').addEventListener('scroll', () => this.onPunchCategoryScroll(), { passive:true });
+        this.enablePunchCategorySwipe(document.getElementById('punch-category-track'));
         document.addEventListener('gesturestart', e => e.preventDefault());
         document.addEventListener('dblclick', e => e.preventDefault());
 document.getElementById('mute-btn').addEventListener('click', () => this.toggleMute());
@@ -3193,12 +3380,16 @@ document.getElementById('theme-btn').addEventListener('click', () => this.toggle
     }
 
     currentColorScheme() {
-    return document.documentElement.getAttribute('data-theme') || 'light';
-}
+        return document.documentElement.getAttribute('data-theme') || 'light';
+    }
 
     applyColorSchemeMeta(scheme) {
         const meta = document.querySelector('meta[name="theme-color"]');
-        if (meta) meta.setAttribute('content', scheme === 'dark' ? '#131218' : '#F5F2EB');
+        if (meta) {
+            const map = scheme === 'dark' ? BG_SOLIDS_DARK : BG_SOLIDS_LIGHT;
+            const fallback = scheme === 'dark' ? '#2B2931' : '#F7F5F0';
+            meta.setAttribute('content', map[this.currentMatchColorId] || fallback);
+        }
         const icon = document.getElementById('theme-icon');
         if (icon) icon.innerText = scheme === 'dark' ? 'light_mode' : 'dark_mode';
     }
