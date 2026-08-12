@@ -297,9 +297,18 @@ button{touch-action:manipulation}
 
 .topbar{
   display:grid;
-  grid-template-columns:repeat(3,minmax(0,1fr));
+  grid-template-columns:44px repeat(3,minmax(0,1fr));
   align-items:center;
   gap:8px;
+}
+
+.board-menu-btn{
+  width:44px;
+  height:46px;
+  min-width:44px;
+}
+.board-menu-btn .material-symbols-outlined{
+  font-size:1.25rem;
 }
 
 .brand-card,
@@ -744,6 +753,7 @@ symbol{
   display:flex;
   gap:5px;
   justify-content:center;
+  flex-wrap:wrap;
 }
 .pu-btn{
   position:relative;
@@ -1619,40 +1629,13 @@ symbol{
   color:var(--muted);
 }
 
-.sticker-album-groups{
-  width:100%;
-  display:flex;
-  flex-direction:column;
-  gap:22px;
-  padding:14px 2px 8px;
-}
-
-.sticker-group{ width:100%; }
-
-.sticker-group-head{
-  display:flex;
-  align-items:baseline;
-  justify-content:space-between;
-  gap:10px;
-  margin:0 2px 8px;
-}
-.sticker-group-head b{
-  font:800 .82rem/1 Manrope,sans-serif;
-  color:var(--ink);
-  text-transform:uppercase;
-}
-.sticker-group-head span{
-  font:800 .75rem/1 Inter,sans-serif;
-  color:var(--muted);
-}
-
-.sticker-grid{
+.sticker-album-groups,
+.sticker-grid-album{
   width:100%;
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(96px,110px));
-  justify-content:flex-start;
-  gap:12px;
-  padding:2px 3px 8px;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:18px 16px;
+  padding:18px 4px 8px;
 }
 
 .sticker-slot{
@@ -1665,35 +1648,24 @@ symbol{
   background:transparent;
   overflow:visible;
 }
-.sticker-slot .stamp-face{ width:86%; }
+.sticker-slot .stamp-face,
+.sticker-slot .stamp-placeholder{ width:100%; max-width:136px; }
 .sticker-slot.locked{ opacity:1; }
 
-.sticker-group-reward{
-  margin:2px 2px 0;
-  font:700 .75rem/1.25 Inter,sans-serif;
-  color:var(--muted);
+.stamp-placeholder{
+  --stamp-rot:0deg;
+  --stamp-cutout:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 125'%3E%3Cg fill='white'%3E%3Crect x='8' y='8' width='84' height='109'/%3E%3Ccircle cx='8' cy='18' r='5'/%3E%3Ccircle cx='8' cy='29' r='5'/%3E%3Ccircle cx='8' cy='40' r='5'/%3E%3Ccircle cx='8' cy='51' r='5'/%3E%3Ccircle cx='8' cy='62' r='5'/%3E%3Ccircle cx='8' cy='73' r='5'/%3E%3Ccircle cx='8' cy='84' r='5'/%3E%3Ccircle cx='8' cy='95' r='5'/%3E%3Ccircle cx='8' cy='106' r='5'/%3E%3Ccircle cx='18' cy='8' r='5'/%3E%3Ccircle cx='29' cy='8' r='5'/%3E%3Ccircle cx='40' cy='8' r='5'/%3E%3Ccircle cx='51' cy='8' r='5'/%3E%3Ccircle cx='62' cy='8' r='5'/%3E%3Ccircle cx='73' cy='8' r='5'/%3E%3Ccircle cx='84' cy='8' r='5'/%3E%3Ccircle cx='92' cy='18' r='5'/%3E%3Ccircle cx='92' cy='29' r='5'/%3E%3Ccircle cx='92' cy='40' r='5'/%3E%3Ccircle cx='92' cy='51' r='5'/%3E%3Ccircle cx='92' cy='62' r='5'/%3E%3Ccircle cx='92' cy='73' r='5'/%3E%3Ccircle cx='92' cy='84' r='5'/%3E%3Ccircle cx='92' cy='95' r='5'/%3E%3Ccircle cx='92' cy='106' r='5'/%3E%3Ccircle cx='18' cy='117' r='5'/%3E%3Ccircle cx='29' cy='117' r='5'/%3E%3Ccircle cx='40' cy='117' r='5'/%3E%3Ccircle cx='51' cy='117' r='5'/%3E%3Ccircle cx='62' cy='117' r='5'/%3E%3Ccircle cx='73' cy='117' r='5'/%3E%3Ccircle cx='84' cy='117' r='5'/%3E%3C/g%3E%3C/svg%3E");
+  position:relative;
+  aspect-ratio:4 / 5;
+  transform:rotate(var(--stamp-rot));
 }
-.sticker-group.complete .sticker-group-reward{
-  color:var(--color-green-base);
-  font-weight:800;
-}
-
-/* Empty album positions reuse the real stamp silhouette, but without the
-   coloured fill or icon so the outline always renders cleanly. */
-.stamp-face.stamp-placeholder{
-  width:86%;
-}
-.stamp-face.stamp-placeholder::before{
-  background:transparent;
-  transform:none;
-}
-.stamp-face.stamp-placeholder::after{
-  background:var(--neutral-50);
-  box-shadow:inset 0 0 0 2px var(--neutral-700);
-}
-.stamp-face.stamp-placeholder .stamp-art{
-  background:transparent;
-  border-color:var(--neutral-700);
+.stamp-placeholder::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  -webkit-mask:var(--stamp-cutout) center / 100% 100% no-repeat;
+  mask:var(--stamp-cutout) center / 100% 100% no-repeat;
+  background:#D9D9D6;
 }
 
 .collection-reward{
@@ -1711,9 +1683,6 @@ symbol{
   background:var(--color-true-yellow-light);
   color:var(--ink-fixed);
 }
-
-.confetti-lottie{ position:fixed; inset:0; z-index:250; pointer-events:none; }
-.confetti-lottie svg{ width:100%; height:100%; }
 
 @keyframes bumpVal{ 0%{transform:scale(1)} 40%{transform:scale(1.16)} 100%{transform:scale(1)} }
 
@@ -1984,6 +1953,119 @@ symbol{
 }
 
 
+
+/* ============================================================
+   END-OF-LEVEL + REWARD POPUPS
+   ============================================================ */
+#screen-overlay.popup-overlay,
+#reward-overlay.popup-overlay{
+  position:fixed;
+  inset:0;
+  z-index:230;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+  background:rgba(23,22,26,.22)!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+  transform:none!important;
+  transition:opacity .18s ease, visibility .18s ease!important;
+}
+#screen-overlay.popup-overlay.active,
+#reward-overlay.popup-overlay.active{
+  opacity:1;
+  visibility:visible;
+  pointer-events:auto;
+  transform:none!important;
+}
+#screen-overlay.popup-overlay .overlay-card,
+#reward-overlay.popup-overlay .overlay-card{
+  position:relative;
+  width:min(100%,360px);
+  max-width:360px;
+  min-height:0;
+  height:auto;
+  max-height:min(82dvh,620px);
+  margin:0;
+  padding:28px 24px 24px;
+  border:var(--border-thick) solid var(--neutral-900);
+  border-radius:24px;
+  box-shadow:var(--shadow-hard);
+  background:var(--neutral-0);
+  overflow:visible;
+  text-align:left;
+  display:block;
+  transform:none!important;
+  transition:none!important;
+}
+.popup-content{
+  position:relative;
+  z-index:2;
+  display:flex;
+  flex-direction:column;
+  align-items:stretch;
+  gap:14px;
+}
+.end-popup-card{ isolation:isolate; }
+.screen-confetti{
+  position:absolute;
+  inset:-84px;
+  z-index:1;
+  pointer-events:none;
+  overflow:visible;
+}
+.screen-confetti svg{
+  width:100%;
+  height:100%;
+  overflow:visible;
+}
+.end-screen-actions{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  width:100%;
+}
+.end-screen-actions > .primary{
+  width:100%;
+  margin:0!important;
+}
+.end-screen-secondary-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  width:100%;
+}
+.end-screen-secondary-actions .secondary{
+  width:100%;
+  margin:0!important;
+  padding-left:10px!important;
+  padding-right:10px!important;
+}
+.reward-earned-art{
+  min-height:110px;
+  display:grid;
+  place-items:center;
+  margin:2px 0;
+}
+.reward-earned-art .rc-icon{
+  width:88px;
+  height:88px;
+  margin:0;
+}
+.reward-earned-name{
+  font:800 1.05rem/1 Manrope,sans-serif;
+  text-align:center;
+  color:var(--ink);
+  text-transform:uppercase;
+}
+#reward-continue-btn{
+  width:100%;
+  margin:4px 0 0!important;
+}
 
 /* ============================================================
    GLOBAL TYPOGRAPHY + COMPONENT CONSISTENCY PASS
@@ -2365,6 +2447,9 @@ symbol{
 <div class="game-page" id="game-page">
 <div class="app">
 <header class="topbar">
+  <button class="icon-btn board-menu-btn" id="board-menu-btn" aria-label="Back to main menu">
+    <span class="material-symbols-outlined">menu</span>
+  </button>
   <div class="brand-card">
     <b id="level-txt">1</b>
     <span>level</span>
@@ -2401,7 +2486,7 @@ symbol{
   <footer class="bottom-bar">
     <div class="powerup-tray" id="powerup-tray">
       <div class="pu-row" id="pu-row-free"></div>
-      <div class="pu-row" id="pu-row-premium"></div>
+      
     </div>
   </footer>
 </div>
@@ -2420,14 +2505,13 @@ symbol{
       <svg viewBox="0 0 480 480" aria-hidden="true"><use href="#piece-8tip-star" xlink:href="#piece-8tip-star"></use></svg>
     </div>
     <h2>Mellow Match</h2>
-    <p>Match. Cascade. Repeat.</p>
+    <p>match, repeat.</p>
     <p class="menu-status" id="menu-status" hidden></p>
     <div class="menu-actions">
       <button class="primary" id="menu-continue-btn" hidden>CONTINUE</button>
-      <button class="secondary" id="menu-punch-btn">PUNCH CARDS</button>
-      <button class="secondary" id="menu-stickers-btn">STAMP ALBUM</button>
-      <button class="secondary" id="menu-newgame-btn">NEW GAME</button>
+      <button class="secondary" id="menu-newgame-btn">NEW</button>
       <button class="secondary" id="menu-howto-btn">HOW TO PLAY</button>
+      <button class="secondary" id="menu-stickers-btn">ALBUM</button>
     </div>
     <div class="menu-tools">
       <button class="secondary menu-tool-btn" id="theme-btn" aria-label="Toggle Light or Dark Mode">
@@ -2445,7 +2529,7 @@ symbol{
 <div class="overlay" id="confirm-overlay">
   <div class="overlay-card">
     <h2>Start Over?</h2>
-    <p>This erases your saved level, coins, and power-ups. Punch cards and stamps are kept.</p>
+    <p>This erases your saved level, coins, and power-ups. Your stamps are kept.</p>
     <div class="screen-actions">
       <button class="primary" id="confirm-yes-btn">YES, START OVER</button>
       <button class="secondary" id="confirm-no-btn">CANCEL</button>
@@ -2463,7 +2547,7 @@ symbol{
       <li>Combine two special tiles — like two rockets, or a rocket with a colour bomb — for an even bigger blast.</li>
       <li>Fill the meter before you run out of moves to clear the level and bank stars.</li>
       <li>Boards can be different shapes with gaps carved in — tiles rest on top of the gaps instead of falling through.</li>
-      <li>Earn free power-ups after every level, or spend coins on stronger ones in the Shop.</li>
+      <li>Earn a free power-up every 5 levels, or buy one anytime in the Shop.</li>
     </ul>
   </div>
 </div>
@@ -2487,50 +2571,60 @@ symbol{
 <div class="overlay" id="sticker-overlay">
   <div class="overlay-card collection-card has-corner-close">
     <button class="modal-corner-close" id="sticker-close-btn" aria-label="Close Stamp Album"><span class="material-symbols-outlined">close</span></button>
-    <span class="collection-kicker">Punch Card stamps</span>
+    <span class="collection-kicker">Your collection</span>
     <h2>Stamp Album</h2>
     <div class="sticker-album-summary">
       <b>All stamps</b>
       <span id="sticker-total-count">0 / 3</span>
     </div>
     <div class="collection-scroll ui-scroll">
-      <div class="sticker-album-groups" id="sticker-album-groups"></div>
+      <div class="sticker-grid sticker-grid-album" id="sticker-album-groups"></div>
     </div>
   </div>
 </div>
 
 <div class="overlay" id="sticker-reveal-overlay">
   <div class="overlay-card sticker-reveal-card">
-    <span class="collection-kicker">Punch card reward</span>
+    <span class="collection-kicker">Collection update</span>
     <h2 id="sticker-reveal-title">New Stamp!</h2>
     <div class="sticker-reveal-big" id="sticker-reveal-art"></div>
     <p id="sticker-reveal-name"></p>
     <div class="collection-reward" id="sticker-reveal-bonus" hidden></div>
     <div class="screen-actions">
       <button class="primary" id="sticker-view-btn">STAMP ALBUM</button>
-      <button class="secondary" id="sticker-back-btn">BACK TO CARDS</button>
+      <button class="secondary" id="sticker-back-btn">BACK</button>
     </div>
   </div>
 </div>
 
-<div class="overlay" id="screen-overlay">
-  <div class="overlay-card">
-    <h2 id="screen-title">LEVEL 1</h2>
-    <p id="screen-desc">SCORE POINTS TO FILL THE METER!</p>
-    <div class="stars-row" id="screen-stars"></div>
-    <div class="screen-actions">
-      <button class="primary" id="screen-btn">PLAY</button>
-      <button class="secondary" id="screen-shop-btn" hidden>SHOP</button>
-      <button class="secondary" id="screen-punch-btn" hidden>PUNCH CARDS</button>
+<div class="overlay popup-overlay" id="screen-overlay">
+  <div class="overlay-card end-popup-card">
+    <div class="screen-confetti" id="screen-confetti" aria-hidden="true"></div>
+    <div class="popup-content">
+      <h2 id="screen-title">LEVEL CLEAR!</h2>
+      <p id="screen-desc">SCORE</p>
+      <div class="stars-row" id="screen-stars"></div>
+      <div class="screen-actions end-screen-actions">
+        <button class="primary" id="screen-btn">CONTINUE</button>
+        <div class="end-screen-secondary-actions">
+          <button class="secondary" id="screen-shop-btn">SHOP</button>
+          <button class="secondary" id="screen-menu-btn">MAIN MENU</button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
 
-<div class="overlay" id="reward-overlay">
-  <div class="overlay-card">
-    <h2>Pick a Reward</h2>
-    <p>Keep one power-up for later — use it whenever you like.</p>
-    <div class="reward-row" id="reward-row"></div>
+<div class="overlay popup-overlay" id="reward-overlay">
+  <div class="overlay-card reward-popup-card">
+    <div class="popup-content">
+      <span class="collection-kicker">LEVEL REWARD</span>
+      <h2>Free Power-Up!</h2>
+      <p id="reward-message">You got a power-up!</p>
+      <div class="reward-earned-art" id="reward-earned-art"></div>
+      <div class="reward-earned-name" id="reward-earned-name"></div>
+      <button class="primary" id="reward-continue-btn">CONTINUE</button>
+    </div>
   </div>
 </div>
 
@@ -2550,7 +2644,6 @@ symbol{
   </div>
 </div>
 
-<div class="confetti-lottie" id="confetti-lottie"></div>
 
 <div class="level-wipe" id="levelWipe"></div>
 
@@ -2569,24 +2662,15 @@ const SPECIALS = { NONE: 0, H_STRIPE: 1, V_STRIPE: 2, BURST: 3, BOMB: 4 };
    SVG piece referenced by SPECIAL_SHAPES) instead of icon, so the tray/shop
    icon always matches the tile the power-up actually produces. */
 const POWER_UPS = {
-    hammer: { pieceIcon: 'pu-mallet', name: 'Hammer', desc: 'Tap any tile to smash it instantly.', colorId: 6 },
-    shuffle: { pieceIcon: 'pu-cards', name: 'Shuffle', desc: 'Reshuffle the whole board.', colorId: 3 },
-    extraMoves: { icon: 'add_circle', name: '+5 Moves', desc: 'Adds 5 extra moves to spend.', colorId: 4 },
-    colorBomb: { pieceIcon: 'piece-bomb', name: 'Color Bomb', desc: 'Drops a color bomb onto the board.', colorId: 1 },
-    rowRocket: { pieceIcon: 'piece-arrow-h', name: 'Row Rocket', desc: 'Drops a striped rocket that clears a row.', colorId: 1 },
-    colRocket: { pieceIcon: 'piece-arrow-v', name: 'Col Rocket', desc: 'Drops a striped rocket that clears a column.', colorId: 2 },
-    freeSwap: { pieceIcon: 'pu-exchange', name: 'Free Swap', desc: 'Swap any two tiles for free — no move spent.', colorId: 3 }
+    hammer: { pieceIcon: 'pu-mallet', name: 'Hammer', desc: 'Tap any tile to smash it instantly.', colorId: 6, cost: 20 },
+    shuffle: { pieceIcon: 'pu-cards', name: 'Shuffle', desc: 'Reshuffle the whole board.', colorId: 3, cost: 25 },
+    extraMoves: { icon: 'add_circle', name: '+5 Moves', desc: 'Adds 5 extra moves to spend.', colorId: 4, cost: 20 },
+    colorBomb: { pieceIcon: 'piece-bomb', name: 'Color Bomb', desc: 'Drops a color bomb onto the board.', colorId: 1, cost: 35 },
+    rowRocket: { pieceIcon: 'piece-arrow-h', name: 'Row Rocket', desc: 'Drops a striped rocket that clears a row.', colorId: 1, cost: 25 },
+    colRocket: { pieceIcon: 'piece-arrow-v', name: 'Col Rocket', desc: 'Drops a striped rocket that clears a column.', colorId: 2, cost: 25 }
 };
 
-const PREMIUM_POWER_UPS = {
-    megaHammer: { pieceIcon: 'pu-mallet', name: 'Mega Hammer', desc: 'Tap a tile to smash its whole row.', cost: 40, colorId: 6 },
-    doubleBomb: { pieceIcon: 'piece-bomb', name: 'Double Bomb', desc: 'Drops two color bombs at once.', cost: 60, colorId: 1 },
-    megaBurst: { pieceIcon: 'piece-corners', name: 'Mega Burst', desc: 'Drops a burst tile — blasts a 3x3 area.', cost: 50, colorId: 2 },
-    bigMoves: { icon: 'add_box', name: '+10 Moves', desc: 'Adds 10 extra moves to spend.', cost: 35, colorId: 4 },
-    undo: { pieceIcon: 'pu-rewind', name: 'Second Chance', desc: 'Undoes your last move and refunds it.', cost: 25, colorId: 3 },
-    coinDoubler: { pieceIcon: 'pu-coins', name: 'Coin Doubler', desc: "Doubles this level's coin payout.", cost: 45, colorId: 1 },
-    mysteryBox: { pieceIcon: 'pu-giftbox', name: 'Mystery Box', desc: 'Instantly grants 3 random free power-ups.', cost: 55, colorId: 5 }
-};
+const PREMIUM_POWER_UPS = {};
 
 const ACTION_WORDS = ["BAM!", "RAD!", "BOOM!", "SICK!", "WILD!", "POP!", "SWEET!", "TASTY!"];
 
@@ -2913,8 +2997,12 @@ this.progressTrack = document.getElementById('progressTrack');
         this._saveTimer = null;
 
         this.inventory = {
-            hammer: 0, shuffle: 0, extraMoves: 0, colorBomb: 0, rowRocket: 0, colRocket: 0, freeSwap: 0,
-            megaHammer: 0, doubleBomb: 0, megaBurst: 0, bigMoves: 0, undo: 0, coinDoubler: 0, mysteryBox: 0
+            hammer: 0,
+            shuffle: 0,
+            extraMoves: 0,
+            colorBomb: 0,
+            rowRocket: 0,
+            colRocket: 0
         };
         this.pendingPowerUp = null;
         this.coins = 0;
@@ -3192,6 +3280,22 @@ this.progressTrack = document.getElementById('progressTrack');
         return `<div class="stamp-placeholder" style="--stamp-rot:${sticker.rot || 0}deg" aria-label="Empty stamp slot"></div>`;
     }
 
+    nextUnownedStickerEntry() {
+        return this.allStickerEntries().find(entry => !(this.collection?.stickers || []).includes(entry.key)) || null;
+    }
+
+    earnNextStamp() {
+        if (!this.collection) return null;
+        const next = this.nextUnownedStickerEntry();
+        if (!next) return null;
+        if (!this.collection.stickers.includes(next.key)) {
+            this.collection.stickers.push(next.key);
+            this.saveCollection();
+            this.updateCollectionMenuButtons();
+        }
+        return next;
+    }
+
     captureCollectionReturn() {
         if (document.getElementById('menu-overlay').classList.contains('active')) this.collectionReturnOverlay = 'menu';
         else if (document.getElementById('screen-overlay').classList.contains('active')) this.collectionReturnOverlay = 'screen';
@@ -3410,7 +3514,6 @@ this.progressTrack = document.getElementById('progressTrack');
             this.showMainMenu();
             destEl = document.getElementById('menu-overlay');
         } else if (dest === 'screen') {
-            document.getElementById('screen-punch-btn').hidden = !this.hasReadyPunchCards();
             destEl = document.getElementById('screen-overlay');
         }
         if (destEl) this.swipeModalSwap(fromEl, destEl, false);
@@ -3623,58 +3726,30 @@ this.progressTrack = document.getElementById('progressTrack');
     }
 
     renderStickerBook() {
-        const owned = new Set(this.collection.stickers);
-        const total = STICKER_SHEETS.reduce((n, sheet) => n + sheet.stickers.length, 0);
-        const totalOwned = STICKER_SHEETS.reduce((n, sheet) =>
-            n + sheet.stickers.filter(st => owned.has(this.stickerKey(sheet, st))).length, 0);
+        const owned = new Set(this.collection.stickers || []);
+        const allEntries = this.allStickerEntries();
+        const total = allEntries.length;
+        const totalOwned = allEntries.filter(entry => owned.has(entry.key)).length;
 
         const totalCount = document.getElementById('sticker-total-count');
         if (totalCount) totalCount.innerText = `${totalOwned} / ${total}`;
 
-        const groups = document.getElementById('sticker-album-groups');
-        if (!groups) return;
-        groups.innerHTML = '';
+        const grid = document.getElementById('sticker-album-groups');
+        if (!grid) return;
+        grid.innerHTML = '';
 
-        STICKER_SHEETS.forEach(sheet => {
-            const count = sheet.stickers.filter(st => owned.has(this.stickerKey(sheet, st))).length;
-            const complete = count === sheet.stickers.length;
-            const section = document.createElement('section');
-            section.className = 'sticker-group' + (complete ? ' complete' : '');
-            section.innerHTML = `
-                <div class="sticker-group-head">
-                  <b>${sheet.name}</b>
-                  <span>${count} / ${sheet.stickers.length}</span>
-                </div>
-                <div class="sticker-grid"></div>
-                <div class="sticker-group-reward">${complete ? `Punch Card complete · ${sheet.reward} coins claimed` : `Complete this Punch Card for ${sheet.reward} coins.`}</div>`;
-
-            const grid = section.querySelector('.sticker-grid');
-            sheet.stickers.forEach(st => {
-                const slot = document.createElement('div');
-                const has = owned.has(this.stickerKey(sheet, st));
-                slot.className = 'sticker-slot' + (has ? '' : ' locked');
-                slot.innerHTML = has
-                    ? this.buildStickerFace(st)
-                    : this.buildStickerPlaceholder(st);
-                grid.appendChild(slot);
-            });
-            groups.appendChild(section);
+        allEntries.forEach(entry => {
+            const slot = document.createElement('div');
+            const has = owned.has(entry.key);
+            slot.className = 'sticker-slot' + (has ? '' : ' locked');
+            slot.innerHTML = has ? this.buildStickerFace(entry.sticker) : this.buildStickerPlaceholder(entry.sticker);
+            grid.appendChild(slot);
         });
     }
 
     updateCollectionMenuButtons() {
-        const punchBtn = document.getElementById('menu-punch-btn');
         const stickerBtn = document.getElementById('menu-stickers-btn');
-        if (punchBtn) {
-            const ready = this.readyPunchCards().length;
-            punchBtn.textContent = ready ? `PUNCH CARDS · ${ready} READY` : 'PUNCH CARDS';
-            punchBtn.classList.toggle('collection-ready', ready > 0);
-        }
-        if (stickerBtn) {
-            const owned = this.collection.stickers.length;
-            const total = STICKER_SHEETS.reduce((n, sh) => n + sh.stickers.length, 0);
-            stickerBtn.textContent = `STAMP ALBUM · ${owned}/${total}`;
-        }
+        if (stickerBtn) stickerBtn.textContent = 'ALBUM';
     }
 
     /* ---------- Save system ---------- */
@@ -3806,6 +3881,27 @@ this.progressTrack = document.getElementById('progressTrack');
         document.getElementById('menu-overlay').classList.add('active');
     }
 
+    async openMainMenuFromGame() {
+        this.flushSave();
+        const save = this.loadSave();
+        const continueBtn = document.getElementById('menu-continue-btn');
+        const status = document.getElementById('menu-status');
+        continueBtn.hidden = !save;
+        if (save) {
+            const lvl = save.level;
+            status.hidden = false;
+            status.innerText = lvl
+                ? `Saved · Level ${(save.currentLevelIdx || 0) + 1} in progress`
+                : `Saved · Level ${(save.currentLevelIdx || 0) + 1} · ${save.coins || 0} coins`;
+        } else {
+            status.hidden = true;
+        }
+        this.updateCollectionMenuButtons();
+        document.getElementById('screen-overlay').classList.remove('active');
+        document.getElementById('reward-overlay').classList.remove('active');
+        await this.panGameToSheet(document.getElementById('menu-overlay'));
+    }
+
     hideMainMenu() {
         const el = document.getElementById('menu-overlay');
         if (!el.classList.contains('active')) return;
@@ -3898,12 +3994,12 @@ document.getElementById('mute-btn').addEventListener('click', () => this.toggleM
 document.getElementById('shop-close-btn').addEventListener('click', () => this.closeShop());
 document.getElementById('screen-btn').addEventListener('click', () => this.onScreenButton());
 document.getElementById('screen-shop-btn').addEventListener('click', () => this.openShop());
-document.getElementById('screen-punch-btn').addEventListener('click', () => this.openPunchCards());
-document.getElementById('menu-punch-btn').addEventListener('click', () => this.openPunchCards());
+document.getElementById('screen-menu-btn').addEventListener('click', () => this.openMainMenuFromGame());
+document.getElementById('reward-continue-btn').addEventListener('click', () => this.onRewardContinue());
+document.getElementById('board-menu-btn').addEventListener('click', () => this.openMainMenuFromGame());
 document.getElementById('menu-stickers-btn').addEventListener('click', () => this.openStickerBook());
-document.getElementById('punch-close-btn').addEventListener('click', () => this.closePunchCards());
 document.getElementById('sticker-close-btn').addEventListener('click', () => this.closeStickerBook());
-document.getElementById('sticker-back-btn').addEventListener('click', () => this.backToPunchCardsFromReveal());
+document.getElementById('sticker-back-btn').addEventListener('click', () => this.closeStickerReveal());
 document.getElementById('sticker-view-btn').addEventListener('click', () => this.viewStickerBookFromReveal());
 document.getElementById('menu-continue-btn').addEventListener('click', () => this.onMenuContinue());
 document.getElementById('menu-newgame-btn').addEventListener('click', () => this.onMenuNewGame());
@@ -3984,34 +4080,30 @@ document.getElementById('theme-btn').addEventListener('click', () => this.toggle
     document.getElementById('screen-desc').innerText = desc;
     document.getElementById('screen-btn').innerText = btnText;
     document.getElementById('screen-shop-btn').hidden = !showShop;
-    document.getElementById('screen-punch-btn').hidden = !this.hasReadyPunchCards();
     this.screenAction = action;
     const starsRow = document.getElementById('screen-stars');
     starsRow.innerHTML = '';
     if (stars !== null && stars !== undefined) {
         for (let i = 0; i < 3; i++) {
-            const s = document.createElement('span');
-            s.className = 'material-symbols-outlined star' + (i < stars ? ' filled' : '');
-            s.innerText = 'star';
-            starsRow.appendChild(s);
+            const star = document.createElement('span');
+            star.className = 'material-symbols-outlined star' + (i < stars ? ' filled' : '');
+            star.innerText = 'star';
+            starsRow.appendChild(star);
         }
     }
     const screen = document.getElementById('screen-overlay');
-    this.panGameToSheet(screen);
+    screen.classList.add('active');
+    if (stars !== null && stars !== undefined) requestAnimationFrame(() => this.playLottieConfetti());
 }
 
     hideScreen() {
-        const el = document.getElementById('screen-overlay');
-        if (!el.classList.contains('active')) return;
-        this.setPaperUnderlay(true);
-        el.classList.add('swipe-out-left');
-        setTimeout(() => {
-            el.classList.remove('active', 'swipe-out-left');
-            this.syncPaperUnderlay();
-        }, 420);
+        document.getElementById('screen-overlay').classList.remove('active');
+        const confetti = document.getElementById('screen-confetti');
+        if (confetti) confetti.innerHTML = '';
     }
 
     onScreenButton() {
+        this.hideScreen();
         if (this.screenAction === 'reward') {
             this.showRewardPicker();
             return;
@@ -4893,9 +4985,9 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
     openShop() {
         const row = document.getElementById('shop-row');
         row.innerHTML = '';
-        Object.keys(PREMIUM_POWER_UPS).sort((a, b) => PREMIUM_POWER_UPS[a].cost - PREMIUM_POWER_UPS[b].cost).forEach(type => {
-            const def = PREMIUM_POWER_UPS[type];
-            const affordable = this.coins >= def.cost;
+        Object.keys(POWER_UPS).sort((a, b) => (POWER_UPS[a].cost || 0) - (POWER_UPS[b].cost || 0)).forEach(type => {
+            const def = POWER_UPS[type];
+            const affordable = this.coins >= (def.cost || 0);
             const card = document.createElement('div');
             card.className = 'reward-card premium' + (affordable ? '' : ' unaffordable');
             card.style.setProperty('--card-base', COLORS[def.colorId] || COLORS[1]);
@@ -4907,12 +4999,8 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
   </div>
   <div class="shop-item-art">${this.buildCardIcon(def)}</div>
   <div class="shop-item-foot">
-    <span class="rc-buy">
-      <span class="material-symbols-outlined">paid</span>
-      ${def.cost}
-    </span>
-  </div>
-`;
+    <span class="rc-buy"><span class="material-symbols-outlined">paid</span>${def.cost}</span>
+  </div>`;
             if (affordable) card.addEventListener('click', () => this.buyPremium(type));
             row.appendChild(card);
         });
@@ -4921,28 +5009,22 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
         if (!shop.classList.contains('active')) {
             const screen = document.getElementById('screen-overlay');
             this.shopReturnOverlay = screen.classList.contains('active') ? 'screen' : null;
-            this.swipeModalSwap(this.shopReturnOverlay === 'screen' ? screen : null, shop, true);
+            if (this.shopReturnOverlay === 'screen') screen.classList.remove('active');
+            this.panGameToSheet(shop);
         }
     }
 
-    closeShop() {
+    async closeShop() {
         const shop = document.getElementById('shop-overlay');
-        if (this.shopReturnOverlay === 'screen') {
-            this.swipeModalSwap(shop, document.getElementById('screen-overlay'), false);
-        } else {
-            this.setPaperUnderlay(true);
-            shop.classList.add('swipe-out-right');
-            setTimeout(() => {
-                shop.classList.remove('active', 'swipe-out-right');
-                this.syncPaperUnderlay();
-            }, 420);
-        }
+        const returnToScreen = this.shopReturnOverlay === 'screen';
         this.shopReturnOverlay = null;
+        await this.panSheetToGame(shop);
+        if (returnToScreen) document.getElementById('screen-overlay').classList.add('active');
     }
 
     buyPremium(type) {
-        const def = PREMIUM_POWER_UPS[type];
-        if (!def || this.coins < def.cost) return;
+        const def = POWER_UPS[type];
+        if (!def || this.coins < (def.cost || 0)) return;
         this.coins -= def.cost;
         this.inventory[type] = (this.inventory[type] || 0) + 1;
         this.sfx.special();
@@ -4956,16 +5038,15 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
     updatePowerUpTray() {
         const freeRow = document.getElementById('pu-row-free');
         const premiumRow = document.getElementById('pu-row-premium');
-        if (!freeRow || !premiumRow) return;
+        if (!freeRow) return;
         freeRow.innerHTML = '';
-        premiumRow.innerHTML = '';
-        const renderOne = (row, type, def, premium) => {
+        if (premiumRow) premiumRow.innerHTML = '';
+        const renderOne = (row, type, def) => {
             const count = this.inventory[type] || 0;
             const btn = document.createElement('button');
             btn.className = 'pu-btn'
                 + (count === 0 ? ' empty' : '')
-                + (this.pendingPowerUp === type ? ' armed' : '')
-                + (premium ? ' premium' : '');
+                + (this.pendingPowerUp === type ? ' armed' : '');
             btn.setAttribute('aria-label', `${def.name} (${count})`);
             if (def.pieceIcon) btn.style.setProperty('--piece-color', COLORS[def.colorId] || COLORS[1]);
             btn.innerHTML = this.buildIconGlyph(def)
@@ -4973,8 +5054,7 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
             btn.addEventListener('click', () => this.usePowerUp(type));
             row.appendChild(btn);
         };
-        Object.keys(POWER_UPS).forEach(type => renderOne(freeRow, type, POWER_UPS[type], false));
-        Object.keys(PREMIUM_POWER_UPS).forEach(type => renderOne(premiumRow, type, PREMIUM_POWER_UPS[type], true));
+        Object.keys(POWER_UPS).forEach(type => renderOne(freeRow, type, POWER_UPS[type]));
         this.markDirty();
     }
 
@@ -5155,30 +5235,29 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
     }
 
     showRewardPicker() {
-        const picks = Object.keys(POWER_UPS).sort(() => Math.random() - 0.5).slice(0, 2);
-        const row = document.getElementById('reward-row');
-        row.innerHTML = '';
-        picks.forEach(type => {
-            const def = POWER_UPS[type];
-            const card = document.createElement('div');
-            card.className = 'reward-card';
-            card.innerHTML = `
-  ${this.buildCardIcon(def)}
-  <span class="rc-name">${def.name}</span>
-  <span class="rc-desc">${def.desc}</span>
-  <span class="rc-buy">CHOOSE</span>
-`;
-            card.addEventListener('click', () => this.pickReward(type));
-            row.appendChild(card);
-        });
-        const reward = document.getElementById('reward-overlay');
-        const screen = document.getElementById('screen-overlay');
-        this.swipeModalSwap(screen.classList.contains('active') ? screen : null, reward, true);
+        const types = Object.keys(POWER_UPS);
+        if (!types.length) { this.startLevel(); return; }
+        const type = types[Math.floor(Math.random() * types.length)];
+        const def = POWER_UPS[type];
+        this.inventory[type] = (this.inventory[type] || 0) + 1;
+        this.updatePowerUpTray();
+        this.persist();
+
+        document.getElementById('reward-earned-art').innerHTML = this.buildCardIcon(def);
+        document.getElementById('reward-earned-name').innerText = def.name;
+        document.getElementById('reward-message').innerText = `You got ${def.name}! It has been added to your power-ups.`;
+        document.getElementById('reward-overlay').classList.add('active');
+    }
+
+    async onRewardContinue() {
+        document.getElementById('reward-overlay').classList.remove('active');
+        await this.startLevel();
     }
 
     async pickReward(type) {
         this.inventory[type] = (this.inventory[type] || 0) + 1;
         this.updatePowerUpTray();
+        document.getElementById('reward-overlay').classList.remove('active');
         await this.startLevel();
     }
 
@@ -5192,21 +5271,21 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
 
         if (this.score >= this.targetScore) {
             this.sfx.win();
-            this.playLottieConfetti();
             const stars = this.computeStars();
             let coinsEarned = stars * 15;
             if (this.coinDoublerActive) { coinsEarned *= 2; this.coinDoublerActive = false; }
             this.addCoins(coinsEarned);
             this.bumpCollectionStat('levelsCleared', 1);
             this.currentLevelIdx++;
-            const milestone = this.currentLevelIdx % 10 === 0;
-            const title = milestone ? `${this.currentLevelIdx} LEVELS CLEARED!` : 'Level Clear!';
-            const punchNote = this.hasReadyPunchCards() ? ' · PUNCH CARD READY!' : '';
-            this.showScreen(title, `SCORE: ${this.score} / ${this.targetScore} · +${coinsEarned} COINS${punchNote}`, 'CONTINUE', stars, 'reward', true);
+            const rewardMilestone = this.currentLevelIdx % 5 === 0;
+            const stampEarned = rewardMilestone ? this.earnNextStamp() : null;
+            const title = rewardMilestone ? `${this.currentLevelIdx} LEVELS CLEARED!` : 'Level Clear!';
+            const rewardNote = rewardMilestone ? ' · FREE POWER-UP' : '';
+            const stampNote = stampEarned ? ' · NEW STAMP' : '';
+            this.showScreen(title, `SCORE: ${this.score} / ${this.targetScore} · +${coinsEarned} COINS${rewardNote}${stampNote}`, 'CONTINUE', stars, rewardMilestone ? 'reward' : 'play', true);
         } else {
             this.sfx.lose();
-            const punchNote = this.hasReadyPunchCards() ? ' · PUNCH CARD READY!' : '';
-            this.showScreen('Out of Moves', `SCORE: ${this.score} / ${this.targetScore}${punchNote}`, 'TRY AGAIN', null, 'play', true);
+            this.showScreen('Out of Moves', `SCORE: ${this.score} / ${this.targetScore}`, 'TRY AGAIN', null, 'play', true);
         }
 
         this.persist();
@@ -5215,11 +5294,30 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
     /* ---------- Confetti ---------- */
 
     playLottieConfetti() {
-        const container = document.getElementById('confetti-lottie');
+        const container = document.getElementById('screen-confetti');
         if (!container || typeof lottie === 'undefined') return;
         container.innerHTML = '';
         let anim;
         const data = JSON.parse(JSON.stringify(CELEBRATION_CONFETTI));
+
+        const palette = [
+            [1,197/255,103/255,1],
+            [251/255,125/255,168/255,1],
+            [5/255,140/255,215/255,1],
+            [13/255,148/255,136/255,1],
+            [85/255,44/255,135/255,1],
+            [253/255,90/255,70/255,1]
+        ];
+        let colorIndex = 0;
+        const recolor = node => {
+            if (!node || typeof node !== 'object') return;
+            if (node.c && node.c.k && Array.isArray(node.c.k) && node.c.k.length === 4 && node.c.k.every(v => typeof v === 'number')) {
+                node.c.k = palette[colorIndex++ % palette.length].slice();
+            }
+            Object.values(node).forEach(recolor);
+        };
+        recolor(data);
+
         try {
             anim = lottie.loadAnimation({ container, renderer: 'svg', loop: false, autoplay: true, animationData: data });
         } catch (e) { return; }
