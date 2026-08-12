@@ -443,10 +443,6 @@ button{touch-action:manipulation}
   left:0;
   top:0;
   z-index:0;
-  border-radius:24%;
-  background:var(--neutral-100);
-  border:3px dashed var(--neutral-700);
-  opacity:.5;
   pointer-events:none;
 }
 .tile-inner{
@@ -719,6 +715,14 @@ symbol{
 }
 .pu-btn:active{ transform:translate(3px,3px); box-shadow:0 0 0 var(--neutral-900); }
 .pu-btn .material-symbols-outlined{ font-size:1.15rem; color:var(--ink); font-variation-settings:'FILL' 1,'wght' 600; }
+.pu-btn .rc-piece{ width:60%; height:60%; overflow:visible; }
+.pu-btn .rc-piece use{
+  fill:var(--piece-color, var(--ink));
+  stroke:var(--neutral-900);
+  stroke-width:19.2;
+  stroke-linejoin:round;
+  stroke-linecap:round;
+}
 .pu-btn.empty{ opacity:.32; pointer-events:none; }
 .pu-btn.armed{ background:var(--color-true-yellow-light); animation:armedPulse .9s ease-in-out infinite; }
 .pu-btn.armed .material-symbols-outlined{ color:var(--ink-fixed); }
@@ -1002,6 +1006,18 @@ symbol{
   font-size:1.75rem;
   color:var(--icon-light, var(--color-blue-light));
   font-variation-settings:'FILL' 1,'wght' 700;
+}
+.rc-icon .rc-piece{
+  width:58%;
+  height:58%;
+  overflow:visible;
+}
+.rc-icon .rc-piece use{
+  fill:var(--icon-light, var(--color-blue-light));
+  stroke:var(--neutral-900);
+  stroke-width:19.2;
+  stroke-linejoin:round;
+  stroke-linecap:round;
 }
 
 .rc-name{
@@ -1330,20 +1346,23 @@ symbol{
 
 const SPECIALS = { NONE: 0, H_STRIPE: 1, V_STRIPE: 2, BURST: 3, BOMB: 4 };
 
+/* Power-ups that drop a special tile onto the board use pieceIcon (the same
+   SVG piece referenced by SPECIAL_SHAPES) instead of icon, so the tray/shop
+   icon always matches the tile the power-up actually produces. */
 const POWER_UPS = {
     hammer: { icon: 'construction', name: 'Hammer', desc: 'Tap any tile to smash it instantly.', colorId: 6 },
     shuffle: { icon: 'shuffle', name: 'Shuffle', desc: 'Reshuffle the whole board.', colorId: 3 },
     extraMoves: { icon: 'add_circle', name: '+5 Moves', desc: 'Adds 5 extra moves to spend.', colorId: 4 },
-    colorBomb: { icon: 'auto_awesome', name: 'Color Bomb', desc: 'Drops a color bomb onto the board.', colorId: 5 },
-    rowRocket: { icon: 'view_agenda', name: 'Row Rocket', desc: 'Drops a striped rocket that clears a row.', colorId: 1 },
-    colRocket: { icon: 'view_week', name: 'Col Rocket', desc: 'Drops a striped rocket that clears a column.', colorId: 2 },
+    colorBomb: { pieceIcon: 'piece-bomb', name: 'Color Bomb', desc: 'Drops a color bomb onto the board.', colorId: 1 },
+    rowRocket: { pieceIcon: 'piece-arrow-h', name: 'Row Rocket', desc: 'Drops a striped rocket that clears a row.', colorId: 1 },
+    colRocket: { pieceIcon: 'piece-arrow-v', name: 'Col Rocket', desc: 'Drops a striped rocket that clears a column.', colorId: 2 },
     freeSwap: { icon: 'sync_alt', name: 'Free Swap', desc: 'Swap any two tiles for free — no move spent.', colorId: 3 }
 };
 
 const PREMIUM_POWER_UPS = {
     megaHammer: { icon: 'bolt', name: 'Mega Hammer', desc: 'Tap a tile to smash its whole row.', cost: 40, colorId: 6 },
-    doubleBomb: { icon: 'stars', name: 'Double Bomb', desc: 'Drops two color bombs at once.', cost: 60, colorId: 5 },
-    megaBurst: { icon: 'blur_circular', name: 'Mega Burst', desc: 'Drops a burst tile — blasts a 3x3 area.', cost: 50, colorId: 2 },
+    doubleBomb: { pieceIcon: 'piece-bomb', name: 'Double Bomb', desc: 'Drops two color bombs at once.', cost: 60, colorId: 1 },
+    megaBurst: { pieceIcon: 'piece-corners', name: 'Mega Burst', desc: 'Drops a burst tile — blasts a 3x3 area.', cost: 50, colorId: 2 },
     bigMoves: { icon: 'add_box', name: '+10 Moves', desc: 'Adds 10 extra moves to spend.', cost: 35, colorId: 4 },
     undo: { icon: 'undo', name: 'Second Chance', desc: 'Undoes your last move and refunds it.', cost: 25, colorId: 3 },
     coinDoubler: { icon: 'currency_exchange', name: 'Coin Doubler', desc: "Doubles this level's coin payout.", cost: 45, colorId: 1 },
@@ -2910,12 +2929,19 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
         this.bumpEl(document.getElementById('coin-chip'));
     }
 
+    buildIconGlyph(def) {
+        if (def.pieceIcon) {
+            return `<svg class="rc-piece" viewBox="0 0 480 480" aria-hidden="true"><use href="#${def.pieceIcon}" xlink:href="#${def.pieceIcon}"></use></svg>`;
+        }
+        return `<span class="material-symbols-outlined">${def.icon}</span>`;
+    }
+
     buildCardIcon(def) {
         const base = COLORS[def.colorId] || COLORS[1];
         const light = COLORS_LIGHT[def.colorId] || COLORS_LIGHT[1];
         return `
   <span class="rc-icon" style="--icon-base:${base};--icon-light:${light}">
-    <span class="material-symbols-outlined">${def.icon}</span>
+    ${this.buildIconGlyph(def)}
   </span>`;
     }
 
@@ -2972,7 +2998,8 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
                 + (this.pendingPowerUp === type ? ' armed' : '')
                 + (premium ? ' premium' : '');
             btn.setAttribute('aria-label', `${def.name} (${count})`);
-            btn.innerHTML = `<span class="material-symbols-outlined">${def.icon}</span>`
+            if (def.pieceIcon) btn.style.setProperty('--piece-color', COLORS[def.colorId] || COLORS[1]);
+            btn.innerHTML = this.buildIconGlyph(def)
                 + (count > 0 ? `<span class="pu-count">${count}</span>` : '');
             btn.addEventListener('click', () => this.usePowerUp(type));
             row.appendChild(btn);
