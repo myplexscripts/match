@@ -636,19 +636,24 @@ symbol{
 }
 .powerup-tray{
   display:flex;
-  gap:8px;
-  justify-content:center;
-  flex-wrap:wrap;
+  flex-direction:column;
+  gap:7px;
+  align-items:center;
   min-height:44px;
+}
+.pu-row{
+  display:flex;
+  gap:5px;
+  justify-content:center;
 }
 .pu-btn{
   position:relative;
-  width:42px;
-  height:42px;
+  width:39px;
+  height:39px;
   display:flex;
   align-items:center;
   justify-content:center;
-  border-radius:14px;
+  border-radius:13px;
   background:var(--neutral-0);
   border:var(--border-thick) solid var(--neutral-900);
   box-shadow:var(--shadow-small);
@@ -755,6 +760,54 @@ symbol{
   line-height:1.4;
 }
 
+.menu-mark{
+  width:64px;
+  height:64px;
+  filter:drop-shadow(3px 3px 0 var(--neutral-900));
+}
+.menu-mark svg{ width:100%; height:100%; overflow:visible; }
+.menu-mark use{
+  fill:var(--color-yellow-orange-base);
+  stroke:var(--neutral-900);
+  stroke-width:10;
+  stroke-linejoin:round;
+}
+
+.menu-status{
+  margin-top:-6px;
+  font-size:.78rem;
+  font-weight:700;
+  color:var(--color-green-base);
+  letter-spacing:.02em;
+  text-transform:uppercase;
+}
+
+.menu-actions{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  width:100%;
+  margin-top:6px;
+}
+.menu-actions button{
+  width:100%;
+  margin-top:0;
+}
+
+.howto-list{
+  margin:0;
+  padding-left:1.15em;
+  width:100%;
+  display:flex;
+  flex-direction:column;
+  gap:9px;
+  text-align:left;
+  font-size:.83rem;
+  font-weight:600;
+  color:var(--neutral-800);
+  line-height:1.4;
+}
+
 .stars-row{
   display:flex;
   gap:10px;
@@ -803,22 +856,41 @@ symbol{
 
 .reward-row{
   display:flex;
-  gap:10px;
+  gap:12px;
   align-items:stretch;
+  justify-content:center;
 }
 
+.shop-row{
+  display:flex;
+  gap:12px;
+  align-items:stretch;
+  justify-content:flex-start;
+  width:100%;
+  overflow-x:auto;
+  overflow-y:visible;
+  scroll-snap-type:x proximity;
+  scroll-padding:4px;
+  padding:6px 4px 12px;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+  -ms-overflow-style:none;
+}
+.shop-row::-webkit-scrollbar{ display:none; width:0; height:0; }
+
 .reward-card{
-  width:126px;
-  min-height:184px;
-  padding:18px 10px 14px;
+  flex:0 0 auto;
+  scroll-snap-align:start;
+  width:134px;
+  padding:20px 12px 14px;
   background:var(--neutral-50);
   border:var(--border-thick) solid var(--neutral-900);
-  border-radius:20px;
+  border-radius:22px;
   box-shadow:var(--shadow-small);
   display:flex;
   flex-direction:column;
   align-items:center;
-  gap:8px;
+  gap:6px;
   cursor:pointer;
   transition:transform .1s ease, box-shadow .1s ease;
   color:var(--neutral-900);
@@ -830,72 +902,101 @@ symbol{
   box-shadow:0 0 0 var(--neutral-900);
 }
 
-.reward-card .material-symbols-outlined{
-  font-size:1.9rem;
-  color:var(--neutral-900);
-  font-variation-settings:'FILL' 0,'wght' 600;
+.reward-card.premium{
+  background:var(--color-true-yellow-light);
 }
 
-.reward-card .rc-name{
+.reward-card.premium.unaffordable{
+  opacity:.55;
+  cursor:not-allowed;
+}
+
+.rc-icon{
+  position:relative;
+  width:60px;
+  height:60px;
+  flex:0 0 auto;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:var(--icon-base, var(--color-blue-base));
+  border:3px solid var(--neutral-900);
+  box-shadow:3px 3px 0 var(--neutral-900);
+  margin-bottom:6px;
+}
+.rc-icon .material-symbols-outlined{
+  font-size:1.75rem;
+  color:var(--icon-light, var(--color-blue-light));
+  font-variation-settings:'FILL' 1,'wght' 700;
+}
+
+.rc-badge{
+  position:absolute;
+  right:-13px;
+  bottom:-9px;
+  width:32px;
+  height:32px;
+}
+.rc-badge svg{ width:100%; height:100%; overflow:visible; }
+.rc-badge use{
+  fill:var(--color-true-yellow-base);
+  stroke:var(--neutral-900);
+  stroke-width:16;
+  stroke-linejoin:round;
+}
+.rc-badge b{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font:800 .58rem Manrope,sans-serif;
+  color:var(--neutral-900);
+}
+
+.rc-name{
   font-weight:800;
-  font-size:.92rem;
+  font-size:.86rem;
   font-family:Manrope,sans-serif;
   color:var(--neutral-900);
 }
 
-.reward-card .rc-desc{
-  font-size:.72rem;
+.rc-desc{
+  font-size:.66rem;
   color:var(--neutral-900);
+  opacity:.72;
   text-align:center;
-  line-height:1.3;
+  line-height:1.25;
   font-weight:600;
+  min-height:2.5em;
 }
 
-.reward-card .rc-cost{
+.rc-buy{
   margin-top:auto;
+  width:100%;
+  padding:9px 6px;
+  font:800 .72rem Manrope,sans-serif;
+  letter-spacing:.02em;
+  border:2.5px solid var(--neutral-900);
+  border-radius:999px;
+  background:var(--color-green-light);
+  color:var(--neutral-900);
   display:flex;
   align-items:center;
-  gap:4px;
-  font-weight:800;
-  font-size:.76rem;
-  color:var(--neutral-900);
-  background:var(--neutral-0);
-  padding:2px 8px;
-  border-radius:999px;
-  border:1.5px solid var(--neutral-900);
-}
-
-.reward-card .rc-cost .material-symbols-outlined{
-  font-size:.76rem;
-  color:var(--neutral-900);
-  font-variation-settings:'FILL' 0,'wght' 600;
-}
-
-.reward-card.premium{
-  background:var(--color-true-yellow-light);
-  border-color:var(--neutral-900);
-}
-
-.reward-card.premium.unaffordable{
-  opacity:.5;
-  cursor:not-allowed;
-}
-
-.shop-row{
-  flex-wrap:wrap;
   justify-content:center;
-  max-height:52vh;
-  overflow-y:auto;
-  padding:2px;
+  gap:4px;
+  box-shadow:2px 2px 0 var(--neutral-900);
 }
-.shop-row .reward-card{
-  width:102px;
-  min-height:156px;
-  padding:14px 8px 10px;
+.rc-buy .material-symbols-outlined{
+  font-size:.82rem;
+  color:var(--neutral-900);
+  font-variation-settings:'FILL' 0,'wght' 700;
 }
-.shop-row .reward-card .material-symbols-outlined{ font-size:1.6rem; }
-.shop-row .reward-card .rc-name{ font-size:.82rem; }
-.shop-row .reward-card .rc-desc{ font-size:.66rem; }
+.reward-card.unaffordable .rc-buy{
+  background:var(--neutral-100);
+  color:var(--muted);
+}
 
 .shop-balance{
   display:flex;
@@ -1070,11 +1171,55 @@ symbol{
   </main>
 
   <footer class="bottom-bar">
-    <div class="powerup-tray" id="powerup-tray"></div>
+    <div class="powerup-tray" id="powerup-tray">
+      <div class="pu-row" id="pu-row-free"></div>
+      <div class="pu-row" id="pu-row-premium"></div>
+    </div>
   </footer>
 </div>
 
 <div class="screen-flash" id="screenFlash"></div>
+
+<div class="overlay" id="menu-overlay">
+  <div class="overlay-card">
+    <div class="menu-mark">
+      <svg viewBox="0 0 480 480" aria-hidden="true"><use href="#piece-8tip-star" xlink:href="#piece-8tip-star"></use></svg>
+    </div>
+    <h2>Mellow Match</h2>
+    <p>Match. Cascade. Repeat.</p>
+    <p class="menu-status" id="menu-status" hidden></p>
+    <div class="menu-actions">
+      <button class="primary" id="menu-continue-btn" hidden>CONTINUE</button>
+      <button class="secondary" id="menu-newgame-btn">NEW GAME</button>
+      <button class="secondary" id="menu-howto-btn">HOW TO PLAY</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="confirm-overlay">
+  <div class="overlay-card">
+    <h2>Start Over?</h2>
+    <p>This erases your saved level, coins, and power-ups and begins a brand new game.</p>
+    <div class="screen-actions">
+      <button class="primary" id="confirm-yes-btn">YES, START OVER</button>
+      <button class="secondary" id="confirm-no-btn">CANCEL</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="howto-overlay">
+  <div class="overlay-card">
+    <h2>How To Play</h2>
+    <ul class="howto-list">
+      <li>Swap two adjacent tiles to line up 3 or more of the same shape.</li>
+      <li>Match 4 or 5 in a row, or in an L/T shape, to create rockets, wrapped candies, and color bombs.</li>
+      <li>Fill the meter before you run out of moves to clear the level and bank stars.</li>
+      <li>Boards come in different shapes with gaps carved in — tiles rest on top of them instead of falling through.</li>
+      <li>Earn free power-ups after every level, or spend coins on stronger ones in the Shop.</li>
+    </ul>
+    <button class="primary" id="howto-close-btn">GOT IT</button>
+  </div>
+</div>
 
 <div class="overlay" id="screen-overlay">
   <div class="overlay-card">
@@ -1124,23 +1269,23 @@ symbol{
 const SPECIALS = { NONE: 0, H_STRIPE: 1, V_STRIPE: 2, WRAP: 3, BOMB: 4 };
 
 const POWER_UPS = {
-    hammer: { icon: 'construction', name: 'Hammer', desc: 'Tap any tile to smash it instantly.' },
-    shuffle: { icon: 'shuffle', name: 'Shuffle', desc: 'Reshuffle the whole board.' },
-    extraMoves: { icon: 'add_circle', name: '+5 Moves', desc: 'Adds 5 extra moves to spend.' },
-    colorBomb: { icon: 'auto_awesome', name: 'Color Bomb', desc: 'Drops a color bomb onto the board.' },
-    rowRocket: { icon: 'view_agenda', name: 'Row Rocket', desc: 'Drops a striped rocket that clears a row.' },
-    colRocket: { icon: 'view_week', name: 'Col Rocket', desc: 'Drops a striped rocket that clears a column.' },
-    freeSwap: { icon: 'sync_alt', name: 'Free Swap', desc: 'Swap any two tiles for free — no move spent.' }
+    hammer: { icon: 'construction', name: 'Hammer', desc: 'Tap any tile to smash it instantly.', colorId: 6 },
+    shuffle: { icon: 'shuffle', name: 'Shuffle', desc: 'Reshuffle the whole board.', colorId: 3 },
+    extraMoves: { icon: 'add_circle', name: '+5 Moves', desc: 'Adds 5 extra moves to spend.', colorId: 4 },
+    colorBomb: { icon: 'auto_awesome', name: 'Color Bomb', desc: 'Drops a color bomb onto the board.', colorId: 5 },
+    rowRocket: { icon: 'view_agenda', name: 'Row Rocket', desc: 'Drops a striped rocket that clears a row.', colorId: 1 },
+    colRocket: { icon: 'view_week', name: 'Col Rocket', desc: 'Drops a striped rocket that clears a column.', colorId: 2 },
+    freeSwap: { icon: 'sync_alt', name: 'Free Swap', desc: 'Swap any two tiles for free — no move spent.', colorId: 3 }
 };
 
 const PREMIUM_POWER_UPS = {
-    megaHammer: { icon: 'bolt', name: 'Mega Hammer', desc: 'Tap a tile to smash its whole row.', cost: 40 },
-    doubleBomb: { icon: 'stars', name: 'Double Bomb', desc: 'Drops two color bombs at once.', cost: 60 },
-    megaWrap: { icon: 'blur_circular', name: 'Wrapped Candy', desc: 'Drops a wrapped tile — blasts a 3x3 area.', cost: 50 },
-    bigMoves: { icon: 'add_box', name: '+10 Moves', desc: 'Adds 10 extra moves to spend.', cost: 35 },
-    undo: { icon: 'undo', name: 'Second Chance', desc: 'Undoes your last move and refunds it.', cost: 25 },
-    coinDoubler: { icon: 'currency_exchange', name: 'Coin Doubler', desc: "Doubles this level's coin payout.", cost: 45 },
-    mysteryBox: { icon: 'card_giftcard', name: 'Mystery Box', desc: 'Instantly grants 3 random free power-ups.', cost: 55 }
+    megaHammer: { icon: 'bolt', name: 'Mega Hammer', desc: 'Tap a tile to smash its whole row.', cost: 40, colorId: 6 },
+    doubleBomb: { icon: 'stars', name: 'Double Bomb', desc: 'Drops two color bombs at once.', cost: 60, colorId: 5 },
+    megaWrap: { icon: 'blur_circular', name: 'Wrapped Candy', desc: 'Drops a wrapped tile — blasts a 3x3 area.', cost: 50, colorId: 2 },
+    bigMoves: { icon: 'add_box', name: '+10 Moves', desc: 'Adds 10 extra moves to spend.', cost: 35, colorId: 4 },
+    undo: { icon: 'undo', name: 'Second Chance', desc: 'Undoes your last move and refunds it.', cost: 25, colorId: 3 },
+    coinDoubler: { icon: 'currency_exchange', name: 'Coin Doubler', desc: "Doubles this level's coin payout.", cost: 45, colorId: 1 },
+    mysteryBox: { icon: 'card_giftcard', name: 'Mystery Box', desc: 'Instantly grants 3 random free power-ups.', cost: 55, colorId: 5 }
 };
 
 const ACTION_WORDS = ["BAM!", "RAD!", "BOOM!", "SICK!", "WILD!", "POP!", "SWEET!", "TASTY!"];
@@ -1470,7 +1615,6 @@ this.progressTrack = document.getElementById('progressTrack');
         this.coinDoublerActive = false;
         this.isLevelActive = false;
         this._saveTimer = null;
-        this._pendingResume = null;
 
         this.inventory = {
             hammer: 0, shuffle: 0, extraMoves: 0, colorBomb: 0, rowRocket: 0, colRocket: 0, freeSwap: 0,
@@ -1501,22 +1645,7 @@ this.progressTrack = document.getElementById('progressTrack');
         document.addEventListener('visibilitychange', () => { if (document.hidden) this.flushSave(); });
         window.addEventListener('pagehide', () => this.flushSave());
 
-        const save = this.loadSave();
-        if (save) {
-            this.currentLevelIdx = save.currentLevelIdx || 0;
-            this.coins = save.coins || 0;
-            if (save.inventory) this.inventory = Object.assign(this.inventory, save.inventory);
-            this.updateCoinDisplay();
-            this.updatePowerUpTray();
-        }
-        if (save && save.level) {
-            this._pendingResume = save;
-            const lvl = save.level;
-            this.showScreen('Welcome Back!', `RESUME LEVEL ${this.currentLevelIdx + 1} · SCORE ${lvl.score} / ${lvl.targetScore}`, 'CONTINUE', null, 'resume');
-        } else {
-            const next = generateLevel(this.currentLevelIdx + 1);
-            this.showScreen(`LEVEL ${this.currentLevelIdx + 1}`, next.desc, 'PLAY', null, 'play');
-        }
+        this.showMainMenu();
 
         requestAnimationFrame(now => this.fxLoop(now));
     }
@@ -1705,6 +1834,68 @@ this.progressTrack = document.getElementById('progressTrack');
         }
     }
 
+    /* ---------- Main menu ---------- */
+
+    showMainMenu() {
+        const save = this.loadSave();
+        const continueBtn = document.getElementById('menu-continue-btn');
+        const status = document.getElementById('menu-status');
+        continueBtn.hidden = !save;
+        if (save) {
+            const lvl = save.level;
+            status.hidden = false;
+            status.innerText = lvl
+                ? `Saved · Level ${(save.currentLevelIdx || 0) + 1} in progress`
+                : `Saved · Level ${(save.currentLevelIdx || 0) + 1} · ${save.coins || 0} coins`;
+        } else {
+            status.hidden = true;
+        }
+        document.getElementById('menu-overlay').classList.add('active');
+    }
+
+    hideMainMenu() { document.getElementById('menu-overlay').classList.remove('active'); }
+
+    onMenuContinue() {
+        const save = this.loadSave();
+        this.hideMainMenu();
+        if (!save) { this.startLevel(); return; }
+        this.currentLevelIdx = save.currentLevelIdx || 0;
+        this.coins = save.coins || 0;
+        if (save.inventory) this.inventory = Object.assign(this.inventory, save.inventory);
+        this.updateCoinDisplay();
+        this.updatePowerUpTray();
+        if (save.level) { this.resumeFromSave(save); return; }
+        this.startLevel();
+    }
+
+    onMenuNewGame() {
+        if (this.loadSave()) {
+            document.getElementById('confirm-overlay').classList.add('active');
+        } else {
+            this.beginNewGame();
+        }
+    }
+
+    beginNewGame() {
+        this.clearSave();
+        this.currentLevelIdx = 0;
+        this.coins = 0;
+        this.inventory = {
+            hammer: 0, shuffle: 0, extraMoves: 0, colorBomb: 0, rowRocket: 0, colRocket: 0, freeSwap: 0,
+            megaHammer: 0, doubleBomb: 0, megaWrap: 0, bigMoves: 0, undo: 0, coinDoubler: 0, mysteryBox: 0
+        };
+        this.updateCoinDisplay();
+        this.updatePowerUpTray();
+        document.getElementById('confirm-overlay').classList.remove('active');
+        this.hideMainMenu();
+        this.startLevel();
+    }
+
+    onMenuHowTo() { document.getElementById('howto-overlay').classList.add('active'); }
+    onHowToClose() { document.getElementById('howto-overlay').classList.remove('active'); }
+    onConfirmYes() { this.beginNewGame(); }
+    onConfirmNo() { document.getElementById('confirm-overlay').classList.remove('active'); }
+
     /* ---------- Setup ---------- */
 
     bindEvents() {
@@ -1717,6 +1908,12 @@ document.getElementById('mute-btn').addEventListener('click', () => this.toggleM
 document.getElementById('shop-close-btn').addEventListener('click', () => this.closeShop());
 document.getElementById('screen-btn').addEventListener('click', () => this.onScreenButton());
 document.getElementById('screen-shop-btn').addEventListener('click', () => this.openShop());
+document.getElementById('menu-continue-btn').addEventListener('click', () => this.onMenuContinue());
+document.getElementById('menu-newgame-btn').addEventListener('click', () => this.onMenuNewGame());
+document.getElementById('menu-howto-btn').addEventListener('click', () => this.onMenuHowTo());
+document.getElementById('howto-close-btn').addEventListener('click', () => this.onHowToClose());
+document.getElementById('confirm-yes-btn').addEventListener('click', () => this.onConfirmYes());
+document.getElementById('confirm-no-btn').addEventListener('click', () => this.onConfirmNo());
     }
 
     toggleMute() {
@@ -1750,13 +1947,6 @@ document.getElementById('screen-shop-btn').addEventListener('click', () => this.
         if (this.screenAction === 'reward') {
             this.hideScreen();
             this.showRewardPicker();
-            return;
-        }
-        if (this.screenAction === 'resume') {
-            this.hideScreen();
-            const save = this._pendingResume;
-            this._pendingResume = null;
-            this.resumeFromSave(save);
             return;
         }
         this.startLevel();
@@ -2599,6 +2789,20 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
         this.bumpEl(document.getElementById('coin-chip'));
     }
 
+    buildCardIcon(def) {
+        const base = COLORS[def.colorId] || COLORS[1];
+        const light = COLORS_LIGHT[def.colorId] || COLORS_LIGHT[1];
+        return `
+  <span class="rc-icon" style="--icon-base:${base};--icon-light:${light}">
+    <span class="material-symbols-outlined">${def.icon}</span>
+    ${def.cost ? `
+    <span class="rc-badge">
+      <svg viewBox="0 0 480 480" aria-hidden="true"><use href="#piece-8tip-star" xlink:href="#piece-8tip-star"></use></svg>
+      <b>${def.cost}</b>
+    </span>` : ''}
+  </span>`;
+    }
+
     openShop() {
         const row = document.getElementById('shop-row');
         row.innerHTML = '';
@@ -2608,10 +2812,10 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
             const card = document.createElement('div');
             card.className = 'reward-card premium' + (affordable ? '' : ' unaffordable');
             card.innerHTML = `
-  <span class="material-symbols-outlined">${def.icon}</span>
+  ${this.buildCardIcon(def)}
   <span class="rc-name">${def.name}</span>
   <span class="rc-desc">${def.desc}</span>
-  <span class="rc-cost">
+  <span class="rc-buy">
     <span class="material-symbols-outlined">paid</span>
     ${def.cost}
   </span>
@@ -2639,10 +2843,12 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
     /* ---------- Power-ups ---------- */
 
     updatePowerUpTray() {
-        const tray = document.getElementById('powerup-tray');
-        if (!tray) return;
-        tray.innerHTML = '';
-        const renderOne = (type, def, premium) => {
+        const freeRow = document.getElementById('pu-row-free');
+        const premiumRow = document.getElementById('pu-row-premium');
+        if (!freeRow || !premiumRow) return;
+        freeRow.innerHTML = '';
+        premiumRow.innerHTML = '';
+        const renderOne = (row, type, def, premium) => {
             const count = this.inventory[type] || 0;
             const btn = document.createElement('button');
             btn.className = 'pu-btn'
@@ -2650,12 +2856,13 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
                 + (this.pendingPowerUp === type ? ' armed' : '')
                 + (premium ? ' premium' : '');
             btn.setAttribute('aria-label', `${def.name} (${count})`);
-            btn.innerHTML = `<span class="material-symbols-outlined">${def.icon}</span><span class="pu-count">${count}</span>`;
+            btn.innerHTML = `<span class="material-symbols-outlined">${def.icon}</span>`
+                + (count > 0 ? `<span class="pu-count">${count}</span>` : '');
             btn.addEventListener('click', () => this.usePowerUp(type));
-            tray.appendChild(btn);
+            row.appendChild(btn);
         };
-        Object.keys(POWER_UPS).forEach(type => renderOne(type, POWER_UPS[type], false));
-        Object.keys(PREMIUM_POWER_UPS).forEach(type => renderOne(type, PREMIUM_POWER_UPS[type], true));
+        Object.keys(POWER_UPS).forEach(type => renderOne(freeRow, type, POWER_UPS[type], false));
+        Object.keys(PREMIUM_POWER_UPS).forEach(type => renderOne(premiumRow, type, PREMIUM_POWER_UPS[type], true));
         this.markDirty();
     }
 
@@ -2841,7 +3048,12 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
             const def = POWER_UPS[type];
             const card = document.createElement('div');
             card.className = 'reward-card';
-            card.innerHTML = `<span class="material-symbols-outlined">${def.icon}</span><span class="rc-name">${def.name}</span><span class="rc-desc">${def.desc}</span>`;
+            card.innerHTML = `
+  ${this.buildCardIcon(def)}
+  <span class="rc-name">${def.name}</span>
+  <span class="rc-desc">${def.desc}</span>
+  <span class="rc-buy">CHOOSE</span>
+`;
             card.addEventListener('click', () => this.pickReward(type));
             row.appendChild(card);
         });
