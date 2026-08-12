@@ -1269,7 +1269,7 @@ symbol{
     <h2>How To Play</h2>
     <ul class="howto-list">
       <li>Swap two adjacent tiles to line up 3 or more of the same colour.</li>
-      <li>Match 4 in a row for a striped rocket, an L or T shape for a wrapped tile, or 5+ in a row for a colour bomb.</li>
+      <li>Match 4 in a row for a striped rocket, an L or T shape for a burst tile, or 5+ in a row for a colour bomb.</li>
       <li>Combine two special tiles — like two rockets, or a rocket with a colour bomb — for an even bigger blast.</li>
       <li>Fill the meter before you run out of moves to clear the level and bank stars.</li>
       <li>Boards can be different shapes with gaps carved in — tiles rest on top of the gaps instead of falling through.</li>
@@ -1328,7 +1328,7 @@ symbol{
    levels: on a full 48-cell board that's roughly 27pts/cell at a gentle ramp,
    so a target of ~0.8x reads as a warm-up and ~1.4x demands deliberate play. */
 
-const SPECIALS = { NONE: 0, H_STRIPE: 1, V_STRIPE: 2, WRAP: 3, BOMB: 4 };
+const SPECIALS = { NONE: 0, H_STRIPE: 1, V_STRIPE: 2, BURST: 3, BOMB: 4 };
 
 const POWER_UPS = {
     hammer: { icon: 'construction', name: 'Hammer', desc: 'Tap any tile to smash it instantly.', colorId: 6 },
@@ -1343,7 +1343,7 @@ const POWER_UPS = {
 const PREMIUM_POWER_UPS = {
     megaHammer: { icon: 'bolt', name: 'Mega Hammer', desc: 'Tap a tile to smash its whole row.', cost: 40, colorId: 6 },
     doubleBomb: { icon: 'stars', name: 'Double Bomb', desc: 'Drops two color bombs at once.', cost: 60, colorId: 5 },
-    megaWrap: { icon: 'blur_circular', name: 'Wrapped Bomb', desc: 'Drops a wrapped tile — blasts a 3x3 area.', cost: 50, colorId: 2 },
+    megaBurst: { icon: 'blur_circular', name: 'Mega Burst', desc: 'Drops a burst tile — blasts a 3x3 area.', cost: 50, colorId: 2 },
     bigMoves: { icon: 'add_box', name: '+10 Moves', desc: 'Adds 10 extra moves to spend.', cost: 35, colorId: 4 },
     undo: { icon: 'undo', name: 'Second Chance', desc: 'Undoes your last move and refunds it.', cost: 25, colorId: 3 },
     coinDoubler: { icon: 'currency_exchange', name: 'Coin Doubler', desc: "Doubles this level's coin payout.", cost: 45, colorId: 1 },
@@ -1353,7 +1353,7 @@ const PREMIUM_POWER_UPS = {
 const ACTION_WORDS = ["BAM!", "RAD!", "BOOM!", "SICK!", "WILD!", "POP!", "SWEET!", "TASTY!"];
 
 const SHAPES = { 1: 'piece-burst', 2: 'piece-sparkle', 3: 'piece-circle', 4: 'piece-diamond', 5: 'piece-x', 6: 'piece-8tip-star' };
-const SPECIAL_SHAPES = { [SPECIALS.H_STRIPE]: 'piece-arrow-h', [SPECIALS.V_STRIPE]: 'piece-arrow-v', [SPECIALS.WRAP]: 'piece-corners', [SPECIALS.BOMB]: 'piece-bomb' };
+const SPECIAL_SHAPES = { [SPECIALS.H_STRIPE]: 'piece-arrow-h', [SPECIALS.V_STRIPE]: 'piece-arrow-v', [SPECIALS.BURST]: 'piece-corners', [SPECIALS.BOMB]: 'piece-bomb' };
 
 const COLORS = {
     1: '#FFC567', 2: '#FB7DA8', 3: '#058CD7', 4: '#0D9488', 5: '#552C87', 6: '#FD5A46'
@@ -1680,7 +1680,7 @@ this.progressTrack = document.getElementById('progressTrack');
 
         this.inventory = {
             hammer: 0, shuffle: 0, extraMoves: 0, colorBomb: 0, rowRocket: 0, colRocket: 0, freeSwap: 0,
-            megaHammer: 0, doubleBomb: 0, megaWrap: 0, bigMoves: 0, undo: 0, coinDoubler: 0, mysteryBox: 0
+            megaHammer: 0, doubleBomb: 0, megaBurst: 0, bigMoves: 0, undo: 0, coinDoubler: 0, mysteryBox: 0
         };
         this.pendingPowerUp = null;
         this.coins = 0;
@@ -1945,7 +1945,7 @@ this.progressTrack = document.getElementById('progressTrack');
         this.coins = 0;
         this.inventory = {
             hammer: 0, shuffle: 0, extraMoves: 0, colorBomb: 0, rowRocket: 0, colRocket: 0, freeSwap: 0,
-            megaHammer: 0, doubleBomb: 0, megaWrap: 0, bigMoves: 0, undo: 0, coinDoubler: 0, mysteryBox: 0
+            megaHammer: 0, doubleBomb: 0, megaBurst: 0, bigMoves: 0, undo: 0, coinDoubler: 0, mysteryBox: 0
         };
         this.updateCoinDisplay();
         this.updatePowerUpTray();
@@ -2635,10 +2635,10 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
         }
         const isStripe = s => s === SPECIALS.H_STRIPE || s === SPECIALS.V_STRIPE;
         if (isStripe(s1) && isStripe(s2)) return { isCombo: true, type: 'STRIPE_STRIPE', origin: p2 };
-        if (s1 === SPECIALS.WRAP && s2 === SPECIALS.WRAP) return { isCombo: true, type: 'WRAP_WRAP', origin: p2 };
+        if (s1 === SPECIALS.BURST && s2 === SPECIALS.BURST) return { isCombo: true, type: 'BURST_BURST', origin: p2 };
 
-        const wrapPiece = s1 === SPECIALS.WRAP ? p1 : p2;
-        return { isCombo: true, type: 'STRIPE_WRAP', origin: wrapPiece };
+        const burstPiece = s1 === SPECIALS.BURST ? p1 : p2;
+        return { isCombo: true, type: 'STRIPE_BURST', origin: burstPiece };
     }
 
     async resolveBoard(initialGroups, initialCombo) {
@@ -2669,7 +2669,7 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
                     this.flashScreen(.4);
                     const p = this.shellPointForCell(combo.origin.r, combo.origin.c);
                     this.ringBurst(p.x, p.y, COLORS[combo.other.color], 100);
-                } else if (combo.type === 'WRAP_WRAP') {
+                } else if (combo.type === 'BURST_BURST') {
                     matchColor = combo.origin.color;
                     toDestroy.add(combo.origin);
                     for (let r = Math.max(0, combo.origin.r - 2); r <= Math.min(ROWS - 1, combo.origin.r + 2); r++)
@@ -2678,7 +2678,7 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
                     this.flashScreen(.35);
                     const p = this.shellPointForCell(combo.origin.r, combo.origin.c);
                     this.ringBurst(p.x, p.y, COLORS[combo.origin.color], 90);
-                } else if (combo.type === 'STRIPE_WRAP') {
+                } else if (combo.type === 'STRIPE_BURST') {
                     matchColor = combo.origin.color;
                     toDestroy.add(combo.origin);
                     for (let dr = -1; dr <= 1; dr++) { const rr = combo.origin.r + dr; if (rr < 0 || rr >= ROWS) continue; for (let c = 0; c < COLS; c++) if (this.board[rr][c]) toDestroy.add(this.board[rr][c]); }
@@ -2714,7 +2714,7 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
                 }
 
                 if (g.length >= 5 && (w >= 5 || h >= 5)) spawnQ.push({ r: sP.r, c: sP.c, col: 0, sp: SPECIALS.BOMB });
-                else if (w >= 3 && h >= 3) spawnQ.push({ r: sP.r, c: sP.c, col: sP.color, sp: SPECIALS.WRAP });
+                else if (w >= 3 && h >= 3) spawnQ.push({ r: sP.r, c: sP.c, col: sP.color, sp: SPECIALS.BURST });
                 else if (w === 4) spawnQ.push({ r: sP.r, c: sP.c, col: sP.color, sp: SPECIALS.V_STRIPE });
                 else if (h === 4) spawnQ.push({ r: sP.r, c: sP.c, col: sP.color, sp: SPECIALS.H_STRIPE });
             });
@@ -2739,7 +2739,7 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
 
                 if (p.special === SPECIALS.H_STRIPE) { for (let c = 0; c < COLS; c++) if (this.board[p.r][c] && !done.has(this.board[p.r][c])) q.push(this.board[p.r][c]); }
                 else if (p.special === SPECIALS.V_STRIPE) { for (let r = 0; r < ROWS; r++) if (this.board[r][p.c] && !done.has(this.board[r][p.c])) q.push(this.board[r][p.c]); }
-                else if (p.special === SPECIALS.WRAP) {
+                else if (p.special === SPECIALS.BURST) {
                     for (let r = Math.max(0, p.r - 1); r <= Math.min(ROWS - 1, p.r + 1); r++)
                         for (let c = Math.max(0, p.c - 1); c <= Math.min(COLS - 1, p.c + 1); c++)
                             if (this.board[r][c] && !done.has(this.board[r][c])) q.push(this.board[r][c]);
@@ -2922,7 +2922,7 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
     openShop() {
         const row = document.getElementById('shop-row');
         row.innerHTML = '';
-        Object.keys(PREMIUM_POWER_UPS).forEach(type => {
+        Object.keys(PREMIUM_POWER_UPS).sort((a, b) => PREMIUM_POWER_UPS[a].cost - PREMIUM_POWER_UPS[b].cost).forEach(type => {
             const def = PREMIUM_POWER_UPS[type];
             const affordable = this.coins >= def.cost;
             const card = document.createElement('div');
@@ -3027,8 +3027,8 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
         } else if (type === 'colRocket') {
             this.dropSpecialAt(SPECIALS.V_STRIPE);
             this.updatePowerUpTray();
-        } else if (type === 'megaWrap') {
-            this.dropSpecialAt(SPECIALS.WRAP);
+        } else if (type === 'megaBurst') {
+            this.dropSpecialAt(SPECIALS.BURST);
             this.updatePowerUpTray();
         } else if (type === 'coinDoubler') {
             this.coinDoublerActive = true;
