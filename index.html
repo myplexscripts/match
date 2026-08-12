@@ -15,8 +15,14 @@
 (function(){
   try {
     var t = localStorage.getItem('mellowMatch.theme');
-    if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
-  } catch (e) {}
+
+    document.documentElement.setAttribute(
+      'data-theme',
+      t === 'dark' ? 'dark' : 'light'
+    );
+  } catch (e) {
+    document.documentElement.setAttribute('data-theme', 'light');
+  }
 })();
 </script>
 <link rel="manifest" href="manifest.json">
@@ -199,17 +205,35 @@ body{
   pointer-events:none;
 }
 .splash-mark{
+  position:relative;
   width:96px;
   height:96px;
-  filter:drop-shadow(4px 4px 0 var(--neutral-900));
-  animation:splashSpin 3.2s linear infinite;
 }
 .splash-mark svg{
+  position:absolute;
+  inset:0;
   width:100%;
   height:100%;
   overflow:visible;
 }
-.splash-mark use{
+.splash-mark-shadow{
+  transform:translate(4px,4px);
+  z-index:0;
+}
+.splash-mark-shadow use{
+  fill:var(--neutral-900);
+  stroke:var(--neutral-900);
+  stroke-width:10;
+  stroke-linejoin:round;
+  transform-box:fill-box;
+  transform-origin:center;
+  animation:splashSpin 3.2s linear infinite;
+}
+.splash-mark-spinner{
+  z-index:1;
+  animation:splashSpin 3.2s linear infinite;
+}
+.splash-mark-spinner use{
   fill:var(--color-yellow-orange-base);
   stroke:var(--neutral-900);
   stroke-width:10;
@@ -1096,6 +1120,482 @@ symbol{
   height:18px;
 }
 
+/* ---------- Punch cards + sticker book ---------- */
+.collection-card{
+  max-height:calc(100dvh - 28px);
+  padding:26px 20px 22px;
+  overflow:hidden;
+}
+
+.collection-kicker{
+  margin:-5px 0 2px;
+  font:800 .68rem/1 Manrope,sans-serif;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+
+.collection-scroll{
+  width:100%;
+  min-height:0;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+  padding:4px 5px 10px 2px;
+  scrollbar-width:none;
+}
+.collection-scroll::-webkit-scrollbar{ display:none; }
+
+/* Punch Cards are a full scrolling page, not a modal with an internal scroller. */
+#punch-overlay{
+  display:block;
+  overflow-y:auto;
+  overflow-x:hidden;
+  overscroll-behavior-y:contain;
+  -webkit-overflow-scrolling:touch;
+  background:var(--neutral-50);
+}
+
+.punch-page-shell{
+  width:min(100%,480px);
+  min-height:100dvh;
+  margin:0 auto;
+  padding:calc(26px + env(safe-area-inset-top)) 16px calc(28px + env(safe-area-inset-bottom));
+  background:var(--neutral-0);
+}
+
+.punch-page-intro{
+  width:100%;
+  text-align:left;
+  padding:0 2px;
+}
+
+.punch-page-intro h2{
+  margin:7px 0 8px;
+  font:800 2rem/1.05 Manrope,sans-serif;
+  letter-spacing:-.03em;
+  color:var(--ink);
+}
+
+.punch-page-intro .collection-note{
+  margin:0!important;
+  max-width:390px;
+  color:var(--muted)!important;
+  font-size:.78rem!important;
+  line-height:1.4!important;
+}
+
+.punch-category-tabs{
+  display:flex;
+  gap:8px;
+  width:100%;
+  margin:18px 0 12px;
+  overflow-x:auto;
+  padding:2px 3px 5px 1px;
+  scrollbar-width:none;
+  -webkit-overflow-scrolling:touch;
+}
+.punch-category-tabs::-webkit-scrollbar{ display:none; }
+
+.punch-category-tab{
+  flex:0 0 auto;
+  border:2px solid var(--neutral-900);
+  border-radius:999px;
+  padding:8px 12px;
+  background:var(--neutral-0);
+  color:var(--ink);
+  box-shadow:2px 2px 0 var(--neutral-900);
+  font:800 .68rem/1 Manrope,sans-serif;
+  letter-spacing:.03em;
+  text-transform:uppercase;
+  cursor:pointer;
+}
+.punch-category-tab.active{
+  background:var(--tab-color,var(--color-blue-light));
+  color:var(--ink-fixed);
+}
+.punch-category-tab:active{
+  transform:translate(2px,2px);
+  box-shadow:none;
+}
+
+.punch-category-track{
+  display:flex;
+  width:calc(100% + 32px);
+  margin-left:-16px;
+  overflow-x:auto;
+  overflow-y:visible;
+  scroll-snap-type:x mandatory;
+  scroll-behavior:smooth;
+  overscroll-behavior-x:contain;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+  touch-action:pan-x pan-y;
+}
+.punch-category-track::-webkit-scrollbar{ display:none; }
+
+.punch-category-page{
+  flex:0 0 100%;
+  min-width:0;
+  scroll-snap-align:start;
+  scroll-snap-stop:always;
+  padding:4px 16px 14px;
+}
+
+.punch-category-head{
+  --category-color:var(--color-blue-light);
+  position:relative;
+  margin:0 0 13px;
+  padding:14px 14px 13px;
+  border:3px solid var(--neutral-900);
+  border-radius:12px;
+  background:var(--category-color);
+  color:var(--ink-fixed);
+  box-shadow:4px 4px 0 var(--neutral-900);
+  text-align:left;
+}
+.punch-category-head span{
+  display:block;
+  margin-bottom:5px;
+  font:800 .58rem/1 Manrope,sans-serif;
+  letter-spacing:.11em;
+  text-transform:uppercase;
+  opacity:.68;
+}
+.punch-category-head h3{
+  margin:0;
+  font:800 1.28rem/1 Manrope,sans-serif;
+  letter-spacing:-.025em;
+  text-transform:uppercase;
+}
+.punch-category-head p{
+  margin:5px 0 0!important;
+  color:var(--ink-fixed)!important;
+  font-size:.68rem!important;
+  font-weight:700!important;
+  line-height:1.25!important;
+  opacity:.75;
+}
+
+.punch-list{
+  display:flex;
+  flex-direction:column;
+  gap:13px;
+}
+
+.punch-card{
+  --card-base:var(--color-blue-base);
+  --card-light:var(--color-blue-light);
+  position:relative;
+  width:100%;
+  padding:14px 14px 13px;
+  border:3px solid var(--neutral-900);
+  border-radius:10px;
+  background:var(--card-light);
+  color:var(--ink-fixed);
+  box-shadow:4px 4px 0 var(--neutral-900);
+  text-align:left;
+  overflow:hidden;
+}
+
+.punch-card::before{
+  content:"";
+  position:absolute;
+  inset:7px;
+  border:1.5px solid color-mix(in srgb, var(--ink-fixed) 26%, transparent);
+  border-radius:5px;
+  pointer-events:none;
+}
+
+.punch-card.ready{
+  outline:3px solid var(--card-base);
+  outline-offset:3px;
+}
+
+.punch-card.collection-finished{
+  opacity:.72;
+}
+
+.punch-head{
+  position:relative;
+  z-index:1;
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:10px;
+}
+
+.punch-title{
+  margin:0;
+  font:800 1rem/1 Manrope,sans-serif;
+  letter-spacing:-.01em;
+  color:var(--ink-fixed);
+  text-transform:uppercase;
+}
+
+.punch-tier{
+  flex:0 0 auto;
+  padding:4px 7px;
+  border:2px solid var(--ink-fixed);
+  border-radius:999px;
+  background:#fff;
+  color:var(--ink-fixed);
+  font:800 .62rem/1 Manrope,sans-serif;
+  box-shadow:2px 2px 0 var(--ink-fixed);
+}
+
+.punch-desc{
+  position:relative;
+  z-index:1;
+  margin:5px 0 9px!important;
+  color:var(--ink-fixed)!important;
+  opacity:.78;
+  font-size:.72rem!important;
+  line-height:1.25!important;
+  text-transform:uppercase;
+  letter-spacing:.025em;
+}
+
+.punch-reward{
+  position:relative;
+  z-index:1;
+  min-height:104px;
+  margin:2px 0 10px;
+  display:grid;
+  place-items:center;
+}
+
+.punch-reward::after{
+  content:"STICKER REWARD";
+  position:absolute;
+  right:2px;
+  bottom:0;
+  font:800 .52rem/1 Manrope,sans-serif;
+  letter-spacing:.08em;
+  color:var(--ink-fixed);
+  opacity:.55;
+}
+
+.punch-reward .sticker-face{
+  width:112px;
+  min-height:62px;
+  padding:14px 10px;
+  font-size:1rem;
+  box-shadow:5px 5px 0 var(--ink-fixed);
+  border-color:var(--ink-fixed);
+  transform:rotate(var(--sticker-rot));
+}
+
+.punch-card.ready .punch-reward .sticker-face{
+  animation:readySticker 1.1s ease-in-out infinite alternate;
+}
+
+@keyframes readySticker{
+  from{ transform:rotate(var(--sticker-rot)) scale(1); }
+  to{ transform:rotate(calc(var(--sticker-rot) + 2deg)) scale(1.04); }
+}
+
+.punch-holes{
+  position:relative;
+  z-index:1;
+  display:grid;
+  grid-template-columns:repeat(10,1fr);
+  gap:5px;
+  margin:0 0 9px;
+}
+
+.punch-hole{
+  aspect-ratio:1;
+  min-width:0;
+  border-radius:50%;
+  border:2px solid var(--ink-fixed);
+  background:rgba(255,255,255,.42);
+  box-shadow:1px 1px 0 var(--ink-fixed);
+}
+
+.punch-hole.punched{
+  background:var(--ink-fixed);
+  box-shadow:none;
+}
+
+.punch-foot{
+  position:relative;
+  z-index:1;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+
+.punch-count{
+  font:800 .72rem/1 Manrope,sans-serif;
+  color:var(--ink-fixed);
+}
+
+.punch-claim{
+  border:2px solid var(--ink-fixed);
+  border-radius:999px;
+  padding:7px 11px;
+  background:var(--card-base);
+  color:#fff;
+  font:800 .66rem/1 Manrope,sans-serif;
+  letter-spacing:.025em;
+  box-shadow:2px 2px 0 var(--ink-fixed);
+  cursor:pointer;
+}
+.punch-claim:active{ transform:translate(2px,2px); box-shadow:none; }
+
+.punch-page-close{
+  display:block;
+  width:100%;
+  margin:12px 0 0!important;
+}
+
+.punch-swipe-note{
+  margin:2px 0 2px;
+  text-align:center;
+  color:var(--muted);
+  font:700 .62rem/1.2 Inter,sans-serif;
+  text-transform:uppercase;
+  letter-spacing:.06em;
+}
+
+.collection-note{
+  margin:0!important;
+  max-width:290px;
+  font-size:.72rem!important;
+  line-height:1.35!important;
+}
+
+.sticker-sheet-head{
+  width:100%;
+  display:grid;
+  grid-template-columns:36px 1fr 36px;
+  gap:8px;
+  align-items:center;
+}
+
+.sticker-sheet-head button{
+  width:36px;
+  height:36px;
+  padding:0;
+  display:grid;
+  place-items:center;
+  border:2px solid var(--neutral-900);
+  border-radius:12px;
+  background:var(--neutral-0);
+  color:var(--ink);
+  font:800 1.35rem/1 Manrope,sans-serif;
+  box-shadow:2px 2px 0 var(--neutral-900);
+  cursor:pointer;
+}
+.sticker-sheet-head button:disabled{ opacity:.25; cursor:default; }
+.sticker-sheet-head button:not(:disabled):active{ transform:translate(2px,2px); box-shadow:none; }
+
+.sticker-sheet-title{
+  min-width:0;
+}
+.sticker-sheet-title b{
+  display:block;
+  font:800 .98rem/1 Manrope,sans-serif;
+  color:var(--ink);
+  text-transform:uppercase;
+}
+.sticker-sheet-title span{
+  display:block;
+  margin-top:4px;
+  font:700 .68rem/1 Inter,sans-serif;
+  color:var(--muted);
+  text-transform:uppercase;
+}
+
+.sticker-grid{
+  width:100%;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  padding:7px 3px 10px;
+}
+
+.sticker-slot{
+  min-width:0;
+  aspect-ratio:1;
+  display:grid;
+  place-items:center;
+  border:2px dashed var(--neutral-700);
+  border-radius:18px;
+  background:var(--neutral-50);
+  overflow:visible;
+}
+
+.sticker-slot.locked{
+  color:var(--muted);
+  font:800 1rem/1 Manrope,sans-serif;
+  opacity:.6;
+}
+
+.sticker-face{
+  --sticker-bg:var(--color-pink-base);
+  --sticker-rot:-3deg;
+  width:78%;
+  min-height:46%;
+  padding:8px 6px;
+  display:grid;
+  place-items:center;
+  background:var(--sticker-bg);
+  border:3px solid var(--neutral-900);
+  color:var(--ink-fixed);
+  box-shadow:3px 3px 0 var(--neutral-900);
+  transform:rotate(var(--sticker-rot));
+  font:800 clamp(.58rem,2.8vw,.78rem)/.95 Manrope,sans-serif;
+  text-align:center;
+  text-transform:uppercase;
+  letter-spacing:-.02em;
+}
+.sticker-face.round{ border-radius:999px; }
+.sticker-face.soft{ border-radius:18px 7px 20px 9px; }
+.sticker-face.block{ border-radius:5px; }
+.sticker-face.ticket{ border-radius:5px 18px 5px 18px; }
+.sticker-face.tag{ border-radius:20px 5px 20px 5px; }
+
+.sticker-reveal-card{ gap:14px; }
+.sticker-reveal-big{
+  width:180px;
+  height:180px;
+  display:grid;
+  place-items:center;
+  margin:2px 0 4px;
+}
+.sticker-reveal-big .sticker-face{
+  width:78%;
+  min-height:62px;
+  font-size:1.3rem;
+  padding:18px 12px;
+  box-shadow:6px 6px 0 var(--neutral-900);
+  animation:stickerReveal .5s cubic-bezier(.175,.885,.32,1.275) both;
+}
+@keyframes stickerReveal{
+  0%{ transform:scale(.2) rotate(-18deg); opacity:0; }
+  70%{ transform:scale(1.12) rotate(5deg); opacity:1; }
+  100%{ transform:scale(1) rotate(var(--sticker-rot)); opacity:1; }
+}
+
+.collection-reward{
+  width:100%;
+  padding:10px 12px;
+  border:2px solid var(--neutral-900);
+  border-radius:14px;
+  background:var(--color-green-light);
+  color:var(--ink-fixed);
+  font:800 .72rem/1.2 Manrope,sans-serif;
+  box-shadow:2px 2px 0 var(--neutral-900);
+}
+
+.menu-actions .collection-ready{
+  background:var(--color-true-yellow-light);
+  color:var(--ink-fixed);
+}
+
 .confetti-lottie{ position:fixed; inset:0; z-index:250; pointer-events:none; }
 .confetti-lottie svg{ width:100%; height:100%; }
 
@@ -1119,7 +1619,8 @@ symbol{
 <body>
 <div class="splash" id="splash" role="status" aria-live="polite">
   <div class="splash-mark">
-    <svg viewBox="0 0 480 480" aria-hidden="true"><use href="#piece-8tip-star" xlink:href="#piece-8tip-star"></use></svg>
+    <svg class="splash-mark-shadow" viewBox="0 0 480 480" aria-hidden="true"><use href="#piece-8tip-star" xlink:href="#piece-8tip-star"></use></svg>
+    <svg class="splash-mark-spinner" viewBox="0 0 480 480" aria-hidden="true"><use href="#piece-8tip-star" xlink:href="#piece-8tip-star"></use></svg>
   </div>
   <h1 class="splash-title">Mellow Match</h1>
   <p class="splash-tagline">match. cascade. repeat.</p>
@@ -1305,6 +1806,8 @@ symbol{
     <p class="menu-status" id="menu-status" hidden></p>
     <div class="menu-actions">
       <button class="primary" id="menu-continue-btn" hidden>CONTINUE</button>
+      <button class="secondary" id="menu-punch-btn">PUNCH CARDS</button>
+      <button class="secondary" id="menu-stickers-btn">STICKER BOOK</button>
       <button class="secondary" id="menu-newgame-btn">NEW GAME</button>
       <button class="secondary" id="menu-howto-btn">HOW TO PLAY</button>
     </div>
@@ -1314,7 +1817,7 @@ symbol{
 <div class="overlay" id="confirm-overlay">
   <div class="overlay-card">
     <h2>Start Over?</h2>
-    <p>This erases your saved level, coins, and power-ups and begins a brand new game.</p>
+    <p>This erases your saved level, coins, and power-ups. Punch cards and stickers are kept.</p>
     <div class="screen-actions">
       <button class="primary" id="confirm-yes-btn">YES, START OVER</button>
       <button class="secondary" id="confirm-no-btn">CANCEL</button>
@@ -1337,6 +1840,54 @@ symbol{
   </div>
 </div>
 
+<div class="overlay ui-scroll" id="punch-overlay">
+  <div class="punch-page-shell">
+    <div class="punch-page-intro">
+      <span class="collection-kicker">Long-term goals</span>
+      <h2>Punch Cards</h2>
+      <p class="collection-note">Each sticker collection has its own page of punch cards. Swipe between collections, finish a card, then peel off the sticker printed on it.</p>
+    </div>
+    <div class="punch-category-tabs h-scroll" id="punch-category-tabs" aria-label="Punch card collections"></div>
+    <p class="punch-swipe-note">Swipe left or right to change collection</p>
+    <div class="punch-category-track h-scroll" id="punch-category-track"></div>
+    <button class="primary punch-page-close" id="punch-close-btn">CLOSE</button>
+  </div>
+</div>
+
+<div class="overlay" id="sticker-overlay">
+  <div class="overlay-card collection-card">
+    <span class="collection-kicker">Your collection</span>
+    <h2>Sticker Book</h2>
+    <div class="sticker-sheet-head">
+      <button id="sticker-prev-btn" aria-label="Previous sticker sheet">‹</button>
+      <div class="sticker-sheet-title">
+        <b id="sticker-sheet-name">LOUD LABELS</b>
+        <span id="sticker-sheet-count">0 / 9</span>
+      </div>
+      <button id="sticker-next-btn" aria-label="Next sticker sheet">›</button>
+    </div>
+    <div class="collection-scroll ui-scroll">
+      <div class="sticker-grid" id="sticker-grid"></div>
+      <div class="collection-reward" id="sticker-sheet-reward">Complete the sheet for 150 coins.</div>
+    </div>
+    <button class="primary" id="sticker-close-btn">CLOSE</button>
+  </div>
+</div>
+
+<div class="overlay" id="sticker-reveal-overlay">
+  <div class="overlay-card sticker-reveal-card">
+    <span class="collection-kicker">Punch card reward</span>
+    <h2 id="sticker-reveal-title">New Sticker!</h2>
+    <div class="sticker-reveal-big" id="sticker-reveal-art"></div>
+    <p id="sticker-reveal-name"></p>
+    <div class="collection-reward" id="sticker-reveal-bonus" hidden></div>
+    <div class="screen-actions">
+      <button class="primary" id="sticker-view-btn">STICKER BOOK</button>
+      <button class="secondary" id="sticker-back-btn">BACK TO CARDS</button>
+    </div>
+  </div>
+</div>
+
 <div class="overlay" id="screen-overlay">
   <div class="overlay-card">
     <h2 id="screen-title">LEVEL 1</h2>
@@ -1345,6 +1896,7 @@ symbol{
     <div class="screen-actions">
       <button class="primary" id="screen-btn">PLAY</button>
       <button class="secondary" id="screen-shop-btn" hidden>SHOP</button>
+      <button class="secondary" id="screen-punch-btn" hidden>PUNCH CARDS</button>
     </div>
   </div>
 </div>
@@ -1445,6 +1997,108 @@ let ROWS = 8;
 const GAP = 7;
 const MAX_CELL = 110;
 const SAVE_KEY = 'mellowMatch.save.v1';
+const COLLECTION_KEY = 'mellowMatch.collection.v1';
+
+const PUNCH_CATEGORIES = [
+    { id:'loud-labels', name:'Loud Labels', colorId:2, cardIds:['loud_tiles','loud_levels','loud_specials'] },
+    { id:'desk-junk', name:'Desk Junk', colorId:3, cardIds:['desk_tiles','desk_levels','desk_specials'] },
+    { id:'snack-attack', name:'Snack Attack', colorId:1, cardIds:['snack_tiles','snack_levels','snack_specials'] }
+];
+
+const PUNCH_CARD_DEFS = {
+    loud_tiles: {
+        name:'Clear Crew', metric:'tilesCleared', colorId:3, sheetId:'loud-labels',
+        targets:[250,750,1500,3000,6000,12000],
+        describe:target => `Clear ${target.toLocaleString()} tiles`
+    },
+    loud_levels: {
+        name:'Level Club', metric:'levelsCleared', colorId:2, sheetId:'loud-labels',
+        targets:[5,15,30,60,120,250],
+        describe:target => `Clear ${target.toLocaleString()} levels`
+    },
+    loud_specials: {
+        name:'Special Ops', metric:'specialsMade', colorId:1, sheetId:'loud-labels',
+        targets:[10,30,75,150,300,600],
+        describe:target => `Create ${target.toLocaleString()} special tiles`
+    },
+
+    desk_tiles: {
+        name:'Paper Jam', metric:'tilesCleared', colorId:5, sheetId:'desk-junk',
+        targets:[500,1250,2500,5000,10000,20000],
+        describe:target => `Clear ${target.toLocaleString()} tiles`
+    },
+    desk_levels: {
+        name:'Clocked In', metric:'levelsCleared', colorId:4, sheetId:'desk-junk',
+        targets:[10,25,50,100,200,400],
+        describe:target => `Clear ${target.toLocaleString()} levels`
+    },
+    desk_specials: {
+        name:'Tool Time', metric:'specialsMade', colorId:3, sheetId:'desk-junk',
+        targets:[20,50,120,250,500,1000],
+        describe:target => `Create ${target.toLocaleString()} special tiles`
+    },
+
+    snack_tiles: {
+        name:'Snack Sweep', metric:'tilesCleared', colorId:1, sheetId:'snack-attack',
+        targets:[900,2000,4000,8000,16000,32000],
+        describe:target => `Clear ${target.toLocaleString()} tiles`
+    },
+    snack_levels: {
+        name:'Snack Run', metric:'levelsCleared', colorId:6, sheetId:'snack-attack',
+        targets:[18,40,80,160,320,640],
+        describe:target => `Clear ${target.toLocaleString()} levels`
+    },
+    snack_specials: {
+        name:'Extra Toppings', metric:'specialsMade', colorId:2, sheetId:'snack-attack',
+        targets:[35,80,180,375,750,1500],
+        describe:target => `Create ${target.toLocaleString()} special tiles`
+    }
+};
+
+const STICKER_SHEETS = [
+    {
+        id: 'loud-labels', name: 'Loud Labels', reward: 150,
+        stickers: [
+            { id:'nice', label:'NICE!', colorId:2, shape:'soft', rot:-5 },
+            { id:'pop', label:'POP!', colorId:3, shape:'round', rot:4 },
+            { id:'rad', label:'RAD!', colorId:1, shape:'ticket', rot:-3 },
+            { id:'cool', label:'COOL', colorId:4, shape:'block', rot:5 },
+            { id:'wow', label:'WOW!', colorId:6, shape:'tag', rot:-6 },
+            { id:'hi', label:'HI!', colorId:5, shape:'round', rot:3 },
+            { id:'yep', label:'YEP!', colorId:1, shape:'soft', rot:6 },
+            { id:'hundred', label:'100%', colorId:6, shape:'ticket', rot:-2 },
+            { id:'mellow', label:'MELLOW', colorId:3, shape:'block', rot:2 }
+        ]
+    },
+    {
+        id: 'desk-junk', name: 'Desk Junk', reward: 150,
+        stickers: [
+            { id:'stapler', label:'STAPLER', colorId:5, shape:'block', rot:-4 },
+            { id:'tape', label:'TAPE', colorId:1, shape:'round', rot:4 },
+            { id:'clip', label:'CLIP', colorId:3, shape:'soft', rot:-3 },
+            { id:'pencil', label:'PENCIL', colorId:6, shape:'ticket', rot:5 },
+            { id:'note', label:'NOTE', colorId:2, shape:'block', rot:-5 },
+            { id:'coffee', label:'COFFEE', colorId:4, shape:'round', rot:3 },
+            { id:'file', label:'FILE', colorId:3, shape:'tag', rot:-2 },
+            { id:'calc', label:'CALC', colorId:1, shape:'soft', rot:6 },
+            { id:'floppy', label:'FLOPPY', colorId:5, shape:'ticket', rot:-4 }
+        ]
+    },
+    {
+        id: 'snack-attack', name: 'Snack Attack', reward: 150,
+        stickers: [
+            { id:'pizza', label:'PIZZA', colorId:6, shape:'soft', rot:-4 },
+            { id:'fries', label:'FRIES', colorId:1, shape:'ticket', rot:5 },
+            { id:'donut', label:'DONUT', colorId:2, shape:'round', rot:-3 },
+            { id:'soda', label:'SODA', colorId:3, shape:'block', rot:4 },
+            { id:'taco', label:'TACO', colorId:4, shape:'tag', rot:-5 },
+            { id:'popcorn', label:'POPCORN', colorId:5, shape:'soft', rot:3 },
+            { id:'cookie', label:'COOKIE', colorId:1, shape:'round', rot:-2 },
+            { id:'icecream', label:'ICE CREAM', colorId:2, shape:'ticket', rot:5 },
+            { id:'snacktime', label:'SNACK TIME', colorId:6, shape:'block', rot:-4 }
+        ]
+    }
+];
 const wait = ms => new Promise(res => setTimeout(res, ms));
 
 /* ---------- Procedural level generation ---------- */
@@ -1748,6 +2402,12 @@ this.progressTrack = document.getElementById('progressTrack');
         };
         this.pendingPowerUp = null;
         this.coins = 0;
+        this.collection = this.loadCollection();
+        this.saveCollection();
+        this.stickerBookPage = this.firstIncompleteStickerSheet();
+        this.punchCategoryIndex = 0;
+        this.collectionReturnOverlay = null;
+        this.lastStickerReveal = null;
 
         this.geom = { cell: 0, step: 0 };
         this.particles = [];
@@ -1855,6 +2515,445 @@ this.progressTrack = document.getElementById('progressTrack');
         this.bgWash.style.backgroundColor = BG_TINTS[colorId] || 'rgba(255,255,255,0)';
     }
 
+    /* ---------- Punch cards + sticker collection ---------- */
+
+    defaultCollection() {
+        const save = this.loadSave ? this.loadSave() : null;
+        const cards = {};
+        Object.keys(PUNCH_CARD_DEFS).forEach(id => { cards[id] = { tier:0, rewardSticker:null }; });
+        const data = {
+            v: 1,
+            stats: {
+                tilesCleared: 0,
+                levelsCleared: save ? (save.currentLevelIdx || 0) : 0,
+                specialsMade: 0
+            },
+            cards,
+            stickers: [],
+            completedSheets: []
+        };
+        this.ensurePunchCardRewards(data);
+        return data;
+    }
+
+    loadCollection() {
+        try {
+            const raw = localStorage.getItem(COLLECTION_KEY);
+            if (!raw) return this.defaultCollection();
+            const data = JSON.parse(raw);
+            if (!data || data.v !== 1) return this.defaultCollection();
+
+            data.stats = Object.assign({ tilesCleared:0, levelsCleared:0, specialsMade:0 }, data.stats || {});
+            const previousCards = data.cards || {};
+            const nextCards = {};
+            Object.keys(PUNCH_CARD_DEFS).forEach(id => {
+                nextCards[id] = Object.assign({ tier:0, rewardSticker:null }, previousCards[id] || {});
+            });
+
+            /* Migrate the earlier three-card build into the first collection page. */
+            if (previousCards.tiles) nextCards.loud_tiles.tier = Math.max(nextCards.loud_tiles.tier || 0, previousCards.tiles.tier || 0);
+            if (previousCards.levels) nextCards.loud_levels.tier = Math.max(nextCards.loud_levels.tier || 0, previousCards.levels.tier || 0);
+            if (previousCards.specials) nextCards.loud_specials.tier = Math.max(nextCards.loud_specials.tier || 0, previousCards.specials.tier || 0);
+
+            data.cards = nextCards;
+            data.stickers = Array.isArray(data.stickers) ? data.stickers : [];
+            data.completedSheets = Array.isArray(data.completedSheets) ? data.completedSheets : [];
+            this.ensurePunchCardRewards(data);
+            return data;
+        } catch (e) { return this.defaultCollection(); }
+    }
+
+    allStickerEntries() {
+        return STICKER_SHEETS.flatMap((sheet, sheetIndex) =>
+            sheet.stickers.map(sticker => ({ sheet, sheetIndex, sticker, key:`${sheet.id}:${sticker.id}` }))
+        );
+    }
+
+    findStickerEntry(key) {
+        if (!key) return null;
+        return this.allStickerEntries().find(entry => entry.key === key) || null;
+    }
+
+    chooseRandomUnownedStickerFromSheet(sheetId, data = this.collection, excludeKeys = new Set()) {
+        const owned = new Set(data?.stickers || []);
+        const choices = this.allStickerEntries().filter(entry =>
+            entry.sheet.id === sheetId && !owned.has(entry.key) && !excludeKeys.has(entry.key)
+        );
+        return choices.length ? choices[Math.floor(Math.random() * choices.length)] : null;
+    }
+
+    ensurePunchCardRewards(data = this.collection) {
+        if (!data || !data.cards) return;
+        const reserved = new Set();
+
+        Object.keys(PUNCH_CARD_DEFS).forEach(id => {
+            const def = PUNCH_CARD_DEFS[id];
+            const card = data.cards[id] || (data.cards[id] = { tier:0, rewardSticker:null });
+            const current = this.findStickerEntry(card.rewardSticker);
+            const invalidSheet = current && current.sheet.id !== def.sheetId;
+            const alreadyOwned = current && (data.stickers || []).includes(current.key);
+            const duplicated = current && reserved.has(current.key);
+            if (!current || invalidSheet || alreadyOwned || duplicated) card.rewardSticker = null;
+            if (card.rewardSticker) reserved.add(card.rewardSticker);
+        });
+
+        Object.keys(PUNCH_CARD_DEFS).forEach(id => {
+            const def = PUNCH_CARD_DEFS[id];
+            const card = data.cards[id];
+            if (card.rewardSticker) return;
+            const picked = this.chooseRandomUnownedStickerFromSheet(def.sheetId, data, reserved);
+            card.rewardSticker = picked ? picked.key : null;
+            if (picked) reserved.add(picked.key);
+        });
+    }
+
+    saveCollection() {
+        if (!this.collection) return;
+        try { localStorage.setItem(COLLECTION_KEY, JSON.stringify(this.collection)); }
+        catch (e) { /* collection progress remains in memory */ }
+    }
+
+    bumpCollectionStat(metric, amount = 1) {
+        if (!this.collection || !this.collection.stats) return;
+        this.collection.stats[metric] = Math.max(0, (this.collection.stats[metric] || 0) + amount);
+        this.markDirty();
+    }
+
+    punchTarget(cardId) {
+        const def = PUNCH_CARD_DEFS[cardId];
+        const tier = Math.max(0, this.collection.cards[cardId]?.tier || 0);
+        if (tier < def.targets.length) return def.targets[tier];
+        const extra = tier - def.targets.length + 1;
+        return Math.round(def.targets[def.targets.length - 1] * Math.pow(1.75, extra) / 10) * 10;
+    }
+
+    readyPunchCards() {
+        return Object.keys(PUNCH_CARD_DEFS).filter(id => {
+            const def = PUNCH_CARD_DEFS[id];
+            const card = this.collection.cards[id];
+            return !!card?.rewardSticker && (this.collection.stats[def.metric] || 0) >= this.punchTarget(id);
+        });
+    }
+
+    hasReadyPunchCards() { return this.readyPunchCards().length > 0; }
+
+    firstIncompleteStickerSheet() {
+        const owned = new Set(this.collection?.stickers || []);
+        let bestIndex = 0, bestCount = -1;
+        STICKER_SHEETS.forEach((sheet, index) => {
+            const count = sheet.stickers.filter(st => owned.has(`${sheet.id}:${st.id}`)).length;
+            if (count < sheet.stickers.length && count > bestCount) { bestIndex = index; bestCount = count; }
+        });
+        return bestCount === -1 ? Math.max(0, STICKER_SHEETS.length - 1) : bestIndex;
+    }
+
+    stickerKey(sheet, sticker) { return `${sheet.id}:${sticker.id}`; }
+
+    buildStickerFace(sticker) {
+        const bg = COLORS[sticker.colorId] || COLORS[1];
+        return `<div class="sticker-face ${sticker.shape || 'soft'}" style="--sticker-bg:${bg};--sticker-rot:${sticker.rot || 0}deg">${sticker.label}</div>`;
+    }
+
+    captureCollectionReturn() {
+        if (document.getElementById('menu-overlay').classList.contains('active')) this.collectionReturnOverlay = 'menu';
+        else if (document.getElementById('screen-overlay').classList.contains('active')) this.collectionReturnOverlay = 'screen';
+        if (this.collectionReturnOverlay === 'menu') document.getElementById('menu-overlay').classList.remove('active');
+        if (this.collectionReturnOverlay === 'screen') document.getElementById('screen-overlay').classList.remove('active');
+    }
+
+    restoreCollectionReturn() {
+        const dest = this.collectionReturnOverlay;
+        this.collectionReturnOverlay = null;
+        if (dest === 'menu') this.showMainMenu();
+        else if (dest === 'screen') {
+            document.getElementById('screen-punch-btn').hidden = !this.hasReadyPunchCards();
+            document.getElementById('screen-overlay').classList.add('active');
+        }
+    }
+
+    openPunchCards() {
+        const overlay = document.getElementById('punch-overlay');
+        if (!overlay.classList.contains('active')) this.captureCollectionReturn();
+        this.renderPunchCards();
+        overlay.classList.add('active');
+        overlay.scrollTop = 0;
+        requestAnimationFrame(() => this.scrollToPunchCategory(this.punchCategoryIndex, false));
+    }
+
+    closePunchCards() {
+        document.getElementById('punch-overlay').classList.remove('active');
+        this.updateCollectionMenuButtons();
+        this.restoreCollectionReturn();
+    }
+
+    scrollToPunchCategory(index, smooth = true) {
+        const track = document.getElementById('punch-category-track');
+        if (!track) return;
+        this.punchCategoryIndex = Math.max(0, Math.min(PUNCH_CATEGORIES.length - 1, index));
+        track.scrollTo({ left:track.clientWidth * this.punchCategoryIndex, behavior:smooth ? 'smooth' : 'auto' });
+        this.syncPunchCategoryTabs();
+    }
+
+    syncPunchCategoryTabs() {
+        const tabs = document.querySelectorAll('.punch-category-tab');
+        tabs.forEach((tab, index) => tab.classList.toggle('active', index === this.punchCategoryIndex));
+    }
+
+    onPunchCategoryScroll() {
+        const track = document.getElementById('punch-category-track');
+        if (!track || !track.clientWidth) return;
+        const next = Math.max(0, Math.min(PUNCH_CATEGORIES.length - 1, Math.round(track.scrollLeft / track.clientWidth)));
+        if (next !== this.punchCategoryIndex) {
+            this.punchCategoryIndex = next;
+            this.syncPunchCategoryTabs();
+        }
+    }
+
+    renderPunchCards() {
+        const track = document.getElementById('punch-category-track');
+        const tabs = document.getElementById('punch-category-tabs');
+        if (!track || !tabs) return;
+        track.innerHTML = '';
+        tabs.innerHTML = '';
+
+        const owned = new Set(this.collection.stickers || []);
+
+        PUNCH_CATEGORIES.forEach((category, categoryIndex) => {
+            const sheet = STICKER_SHEETS.find(s => s.id === category.id);
+            const collected = sheet ? sheet.stickers.filter(st => owned.has(`${sheet.id}:${st.id}`)).length : 0;
+            const total = sheet ? sheet.stickers.length : 0;
+
+            const tab = document.createElement('button');
+            tab.type = 'button';
+            tab.className = 'punch-category-tab' + (categoryIndex === this.punchCategoryIndex ? ' active' : '');
+            tab.style.setProperty('--tab-color', COLORS_LIGHT[category.colorId]);
+            const readyInCategory = category.cardIds.filter(id => {
+                const def = PUNCH_CARD_DEFS[id];
+                const cardState = this.collection.cards[id];
+                return !!cardState?.rewardSticker && (this.collection.stats[def.metric] || 0) >= this.punchTarget(id);
+            }).length;
+            tab.textContent = readyInCategory ? `${category.name} · ${readyInCategory}` : category.name;
+            tab.addEventListener('click', () => this.scrollToPunchCategory(categoryIndex));
+            tabs.appendChild(tab);
+
+            const page = document.createElement('section');
+            page.className = 'punch-category-page';
+            page.dataset.category = category.id;
+            page.innerHTML = `
+                <div class="punch-category-head" style="--category-color:${COLORS_LIGHT[category.colorId]}">
+                  <span>Collection ${categoryIndex + 1} of ${PUNCH_CATEGORIES.length}</span>
+                  <h3>${category.name}</h3>
+                  <p>${collected} / ${total} stickers collected · Complete any card on this page to peel a sticker from this collection.</p>
+                </div>
+                <div class="punch-list"></div>`;
+
+            const list = page.querySelector('.punch-list');
+            category.cardIds.forEach(id => {
+                const def = PUNCH_CARD_DEFS[id];
+                const tier = Math.max(0, this.collection.cards[id]?.tier || 0);
+                const target = this.punchTarget(id);
+                const value = this.collection.stats[def.metric] || 0;
+                const pct = Math.max(0, Math.min(1, value / target));
+                const holes = Math.min(10, Math.floor(pct * 10 + 0.00001));
+                const reward = this.findStickerEntry(this.collection.cards[id]?.rewardSticker);
+                const ready = !!reward && value >= target;
+                const collectionFinished = collected >= total && total > 0;
+                const rewardWaiting = !reward && !collectionFinished;
+                const rewardArt = reward
+                    ? this.buildStickerFace(reward.sticker)
+                    : collectionFinished
+                        ? '<div class="sticker-face round" style="--sticker-bg:var(--color-true-yellow-base);--sticker-rot:0deg">DONE!</div>'
+                        : '<div class="sticker-face soft" style="--sticker-bg:var(--neutral-100);--sticker-rot:0deg">ON DECK</div>';
+
+                const card = document.createElement('div');
+                card.className = 'punch-card' + (ready ? ' ready' : '') + ((collectionFinished || rewardWaiting) ? ' collection-finished' : '');
+                card.style.setProperty('--card-base', COLORS[def.colorId]);
+                card.style.setProperty('--card-light', COLORS_LIGHT[def.colorId]);
+                card.innerHTML = `
+                    <div class="punch-head">
+                      <h3 class="punch-title">${def.name}</h3>
+                      <span class="punch-tier">${collectionFinished ? 'COMPLETE' : `CARD ${tier + 1}`}</span>
+                    </div>
+                    <p class="punch-desc">${collectionFinished ? `${category.name} sticker sheet complete` : rewardWaiting ? 'Remaining stickers are already printed on other cards' : def.describe(target)}</p>
+                    <div class="punch-reward" aria-label="Sticker reward">${rewardArt}</div>
+                    <div class="punch-holes" aria-hidden="true">
+                      ${Array.from({length:10}, (_,i) => `<i class="punch-hole${collectionFinished || i < holes ? ' punched' : ''}"></i>`).join('')}
+                    </div>
+                    <div class="punch-foot">
+                      <span class="punch-count">${collectionFinished ? `${collected} / ${total}` : `${Math.min(value, target).toLocaleString()} / ${target.toLocaleString()}`}</span>
+                      ${ready ? `<button class="punch-claim" data-card="${id}">PEEL STICKER</button>` : ''}
+                    </div>`;
+                list.appendChild(card);
+            });
+
+            track.appendChild(page);
+        });
+
+        track.querySelectorAll('.punch-claim').forEach(btn => btn.addEventListener('click', () => this.claimPunchCard(btn.dataset.card)));
+        requestAnimationFrame(() => this.scrollToPunchCategory(this.punchCategoryIndex, false));
+    }
+
+    async claimPunchCard(cardId) {
+        const def = PUNCH_CARD_DEFS[cardId];
+        if (!def) return;
+        if ((this.collection.stats[def.metric] || 0) < this.punchTarget(cardId)) return;
+
+        const cardState = this.collection.cards[cardId];
+        const reward = this.findStickerEntry(cardState?.rewardSticker);
+        if (!reward) return;
+        const rewardCategory = PUNCH_CATEGORIES.findIndex(category => category.id === reward.sheet.id);
+        if (rewardCategory >= 0) this.punchCategoryIndex = rewardCategory;
+
+        const cardEl = document.querySelector(`.punch-claim[data-card="${cardId}"]`)?.closest('.punch-card');
+        const peelEl = cardEl?.querySelector('.punch-reward .sticker-face');
+        if (peelEl && typeof peelEl.animate === 'function') {
+            try {
+                const peel = peelEl.animate([
+                    { transform:`rotate(${getComputedStyle(peelEl).getPropertyValue('--sticker-rot') || '0deg'}) translate(0,0) scale(1)`, opacity:1 },
+                    { transform:'rotate(-5deg) translate(10px,-10px) scale(1.08)', opacity:1, offset:.55 },
+                    { transform:'rotate(8deg) translate(65px,-70px) scale(.7)', opacity:0 }
+                ], { duration:420, easing:'cubic-bezier(.2,.8,.2,1)', fill:'forwards' });
+                await peel.finished;
+            } catch (e) { /* animation can be interrupted safely */ }
+        }
+        let sticker = null, sheet = null, sheetComplete = false, bonus = 0;
+
+        if (reward && !this.collection.stickers.includes(reward.key)) {
+            sticker = reward.sticker;
+            sheet = reward.sheet;
+            this.collection.stickers.push(reward.key);
+
+            const afterOwned = new Set(this.collection.stickers);
+            sheetComplete = sheet.stickers.every(st => afterOwned.has(this.stickerKey(sheet, st)));
+            if (sheetComplete && !this.collection.completedSheets.includes(sheet.id)) {
+                this.collection.completedSheets.push(sheet.id);
+                bonus = sheet.reward || 0;
+                if (bonus) this.creditPersistentCoins(bonus);
+            }
+            this.stickerBookPage = reward.sheetIndex;
+        } else {
+            bonus = 75;
+            this.creditPersistentCoins(bonus);
+        }
+
+        cardState.tier = (cardState.tier || 0) + 1;
+        cardState.rewardSticker = null;
+        this.ensurePunchCardRewards(this.collection);
+        this.saveCollection();
+        this.renderPunchCards();
+        this.updateCollectionMenuButtons();
+        this.showStickerReveal(sticker, sheet, sheetComplete, bonus);
+    }
+
+    creditPersistentCoins(amount) {
+        if (!amount) return;
+        try {
+            const raw = localStorage.getItem(SAVE_KEY);
+            if (raw) {
+                const save = JSON.parse(raw);
+                save.coins = (save.coins || 0) + amount;
+                localStorage.setItem(SAVE_KEY, JSON.stringify(save));
+                if (this.isLevelActive) this.coins += amount;
+                else this.coins = save.coins;
+            } else {
+                this.coins += amount;
+            }
+        } catch (e) { this.coins += amount; }
+        this.updateCoinDisplay();
+    }
+
+    showStickerReveal(sticker, sheet, sheetComplete, bonus) {
+        this.lastStickerReveal = { sticker, sheet, sheetComplete, bonus };
+        const art = document.getElementById('sticker-reveal-art');
+        const name = document.getElementById('sticker-reveal-name');
+        const title = document.getElementById('sticker-reveal-title');
+        const bonusEl = document.getElementById('sticker-reveal-bonus');
+        if (sticker && sheet) {
+            title.innerText = sheetComplete ? 'Sheet Complete!' : 'Sticker Peeled!';
+            art.innerHTML = this.buildStickerFace(sticker);
+            name.innerText = `${sticker.label} · ${sheet.name}`;
+            bonusEl.hidden = !bonus;
+            if (bonus) bonusEl.innerText = `SHEET COMPLETE · +${bonus} COINS`;
+        } else {
+            title.innerText = 'Collection Bonus!';
+            art.innerHTML = '<div class="sticker-face round" style="--sticker-bg:var(--color-true-yellow-base);--sticker-rot:0deg">BONUS!</div>';
+            name.innerText = 'You collected every current sticker.';
+            bonusEl.hidden = false;
+            bonusEl.innerText = `+${bonus} COINS`;
+        }
+        document.getElementById('sticker-reveal-overlay').classList.add('active');
+    }
+
+    backToPunchCardsFromReveal() {
+        document.getElementById('sticker-reveal-overlay').classList.remove('active');
+        this.renderPunchCards();
+        requestAnimationFrame(() => this.scrollToPunchCategory(this.punchCategoryIndex, false));
+    }
+
+    viewStickerBookFromReveal() {
+        document.getElementById('sticker-reveal-overlay').classList.remove('active');
+        document.getElementById('punch-overlay').classList.remove('active');
+        this.renderStickerBook();
+        document.getElementById('sticker-overlay').classList.add('active');
+    }
+
+    openStickerBook() {
+        if (!document.getElementById('sticker-overlay').classList.contains('active')) this.captureCollectionReturn();
+        this.stickerBookPage = Math.max(0, Math.min(STICKER_SHEETS.length - 1, this.stickerBookPage ?? this.firstIncompleteStickerSheet()));
+        this.renderStickerBook();
+        document.getElementById('sticker-overlay').classList.add('active');
+    }
+
+    closeStickerBook() {
+        document.getElementById('sticker-overlay').classList.remove('active');
+        this.updateCollectionMenuButtons();
+        this.restoreCollectionReturn();
+    }
+
+    changeStickerSheet(delta) {
+        this.stickerBookPage = Math.max(0, Math.min(STICKER_SHEETS.length - 1, this.stickerBookPage + delta));
+        this.renderStickerBook();
+    }
+
+    renderStickerBook() {
+        const sheet = STICKER_SHEETS[this.stickerBookPage];
+        if (!sheet) return;
+        const owned = new Set(this.collection.stickers);
+        const count = sheet.stickers.filter(st => owned.has(this.stickerKey(sheet, st))).length;
+        document.getElementById('sticker-sheet-name').innerText = sheet.name;
+        document.getElementById('sticker-sheet-count').innerText = `${count} / ${sheet.stickers.length}`;
+        document.getElementById('sticker-prev-btn').disabled = this.stickerBookPage <= 0;
+        document.getElementById('sticker-next-btn').disabled = this.stickerBookPage >= STICKER_SHEETS.length - 1;
+        const reward = document.getElementById('sticker-sheet-reward');
+        const complete = count === sheet.stickers.length;
+        reward.innerText = complete ? `SHEET COMPLETE · ${sheet.reward} COINS CLAIMED` : `Complete the sheet for ${sheet.reward} coins.`;
+
+        const grid = document.getElementById('sticker-grid');
+        grid.innerHTML = '';
+        sheet.stickers.forEach(st => {
+            const slot = document.createElement('div');
+            const has = owned.has(this.stickerKey(sheet, st));
+            slot.className = 'sticker-slot' + (has ? '' : ' locked');
+            slot.innerHTML = has ? this.buildStickerFace(st) : '???';
+            grid.appendChild(slot);
+        });
+    }
+
+    updateCollectionMenuButtons() {
+        const punchBtn = document.getElementById('menu-punch-btn');
+        const stickerBtn = document.getElementById('menu-stickers-btn');
+        if (punchBtn) {
+            const ready = this.readyPunchCards().length;
+            punchBtn.textContent = ready ? `PUNCH CARDS · ${ready} READY` : 'PUNCH CARDS';
+            punchBtn.classList.toggle('collection-ready', ready > 0);
+        }
+        if (stickerBtn) {
+            const owned = this.collection.stickers.length;
+            const total = STICKER_SHEETS.reduce((n, sh) => n + sh.stickers.length, 0);
+            stickerBtn.textContent = `STICKER BOOK · ${owned}/${total}`;
+        }
+    }
+
     /* ---------- Save system ---------- */
 
     loadSave() {
@@ -1893,6 +2992,7 @@ this.progressTrack = document.getElementById('progressTrack');
                 } : null
             };
             localStorage.setItem(SAVE_KEY, JSON.stringify(payload));
+            this.saveCollection();
         } catch (e) { /* storage unavailable or full - progress just won't persist */ }
     }
 
@@ -1910,6 +3010,7 @@ this.progressTrack = document.getElementById('progressTrack');
 
     flushSave() {
         if (this._saveTimer) { clearTimeout(this._saveTimer); this._saveTimer = null; }
+        this.saveCollection();
         if (!this.isProcessing) this.persist();
     }
 
@@ -1977,6 +3078,7 @@ this.progressTrack = document.getElementById('progressTrack');
         } else {
             status.hidden = true;
         }
+        this.updateCollectionMenuButtons();
         document.getElementById('menu-overlay').classList.add('active');
     }
 
@@ -2029,16 +3131,27 @@ this.progressTrack = document.getElementById('progressTrack');
         window.addEventListener('resize', () => this.refreshGeometry());
         window.addEventListener('orientationchange', () => setTimeout(() => this.refreshGeometry(), 120));
         document.addEventListener('touchmove', e => {
-            if (e.target.closest && e.target.closest('.h-scroll')) return;
+            if (e.target.closest && e.target.closest('.h-scroll, .ui-scroll')) return;
             e.preventDefault();
         }, { passive: false });
         this.enableHorizontalDragScroll(document.getElementById('shop-row'));
+        this.enableHorizontalDragScroll(document.getElementById('punch-category-track'));
+        document.getElementById('punch-category-track').addEventListener('scroll', () => this.onPunchCategoryScroll(), { passive:true });
         document.addEventListener('gesturestart', e => e.preventDefault());
         document.addEventListener('dblclick', e => e.preventDefault());
 document.getElementById('mute-btn').addEventListener('click', () => this.toggleMute());
 document.getElementById('shop-close-btn').addEventListener('click', () => this.closeShop());
 document.getElementById('screen-btn').addEventListener('click', () => this.onScreenButton());
 document.getElementById('screen-shop-btn').addEventListener('click', () => this.openShop());
+document.getElementById('screen-punch-btn').addEventListener('click', () => this.openPunchCards());
+document.getElementById('menu-punch-btn').addEventListener('click', () => this.openPunchCards());
+document.getElementById('menu-stickers-btn').addEventListener('click', () => this.openStickerBook());
+document.getElementById('punch-close-btn').addEventListener('click', () => this.closePunchCards());
+document.getElementById('sticker-close-btn').addEventListener('click', () => this.closeStickerBook());
+document.getElementById('sticker-prev-btn').addEventListener('click', () => this.changeStickerSheet(-1));
+document.getElementById('sticker-next-btn').addEventListener('click', () => this.changeStickerSheet(1));
+document.getElementById('sticker-back-btn').addEventListener('click', () => this.backToPunchCardsFromReveal());
+document.getElementById('sticker-view-btn').addEventListener('click', () => this.viewStickerBookFromReveal());
 document.getElementById('menu-continue-btn').addEventListener('click', () => this.onMenuContinue());
 document.getElementById('menu-newgame-btn').addEventListener('click', () => this.onMenuNewGame());
 document.getElementById('menu-howto-btn').addEventListener('click', () => this.onMenuHowTo());
@@ -2080,8 +3193,8 @@ document.getElementById('theme-btn').addEventListener('click', () => this.toggle
     }
 
     currentColorScheme() {
-        return document.documentElement.getAttribute('data-theme') || (this.systemPrefersDark() ? 'dark' : 'light');
-    }
+    return document.documentElement.getAttribute('data-theme') || 'light';
+}
 
     applyColorSchemeMeta(scheme) {
         const meta = document.querySelector('meta[name="theme-color"]');
@@ -2112,6 +3225,7 @@ document.getElementById('theme-btn').addEventListener('click', () => this.toggle
     document.getElementById('screen-desc').innerText = desc;
     document.getElementById('screen-btn').innerText = btnText;
     document.getElementById('screen-shop-btn').hidden = !showShop;
+    document.getElementById('screen-punch-btn').hidden = !this.hasReadyPunchCards();
     this.screenAction = action;
     const starsRow = document.getElementById('screen-stars');
     starsRow.innerHTML = '';
@@ -2837,12 +3951,14 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
                 }
 
                 const destroyList = Array.from(toDestroy);
+                this.bumpCollectionStat('tilesCleared', destroyList.length);
                 const stagger = Math.min(18, 160 / Math.max(1, destroyList.length));
                 const pops = destroyList.map((p, i) => this.popTile(p, i * stagger));
                 await Promise.all(pops);
                 for (const p of destroyList) { this.board[p.r][p.c] = null; }
             }
 
+            if (spawnQ.length) this.bumpCollectionStat('specialsMade', spawnQ.length);
             spawnQ.forEach(s => this.spawnSpecial(s.r, s.c, s.col, s.sp));
             await this.applyGravity();
             this.lastSwap = null;
@@ -3198,6 +4314,7 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
         this.isProcessing = true;
         this.sfx.pop(1);
         await this.popTile(tile, 0);
+        this.bumpCollectionStat('tilesCleared', 1);
         this.board[tile.r][tile.c] = null;
         this.addScore(20);
         await this.applyGravity();
@@ -3218,6 +4335,7 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
         const pops = victims.map((p, i) => this.popTile(p, i * 20));
         victims.forEach(p => this.addScore(15));
         await Promise.all(pops);
+        this.bumpCollectionStat('tilesCleared', victims.length);
         victims.forEach(p => { this.board[p.r][p.c] = null; });
         await this.applyGravity();
         if (this.moves > 0 && this.score < this.starMax) await this.ensureSolvable();
@@ -3281,13 +4399,16 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
             let coinsEarned = stars * 15;
             if (this.coinDoublerActive) { coinsEarned *= 2; this.coinDoublerActive = false; }
             this.addCoins(coinsEarned);
+            this.bumpCollectionStat('levelsCleared', 1);
             this.currentLevelIdx++;
             const milestone = this.currentLevelIdx % 10 === 0;
             const title = milestone ? `${this.currentLevelIdx} LEVELS CLEARED!` : 'Level Clear!';
-            this.showScreen(title, `SCORE: ${this.score} / ${this.targetScore} · +${coinsEarned} COINS`, 'CONTINUE', stars, 'reward', true);
+            const punchNote = this.hasReadyPunchCards() ? ' · PUNCH CARD READY!' : '';
+            this.showScreen(title, `SCORE: ${this.score} / ${this.targetScore} · +${coinsEarned} COINS${punchNote}`, 'CONTINUE', stars, 'reward', true);
         } else {
             this.sfx.lose();
-            this.showScreen('Out of Moves', `SCORE: ${this.score} / ${this.targetScore}`, 'TRY AGAIN', null, 'play', true);
+            const punchNote = this.hasReadyPunchCards() ? ' · PUNCH CARD READY!' : '';
+            this.showScreen('Out of Moves', `SCORE: ${this.score} / ${this.targetScore}${punchNote}`, 'TRY AGAIN', null, 'play', true);
         }
 
         this.persist();
