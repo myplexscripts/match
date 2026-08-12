@@ -681,6 +681,16 @@ symbol{
   mix-blend-mode:screen;
 }
 
+.level-wipe{
+  position:fixed;
+  inset:0;
+  z-index:250;
+  pointer-events:none;
+  background:var(--color-blue-base);
+  transform:translateX(-100%);
+  will-change:transform;
+}
+
 .bottom-bar{
   flex:0 0 auto;
   padding:14px 0 max(14px, env(safe-area-inset-bottom));
@@ -1335,6 +1345,8 @@ symbol{
 
 <div class="confetti-lottie" id="confetti-lottie"></div>
 
+<div class="level-wipe" id="levelWipe"></div>
+
 <script src="lib/lottie-light.min.js"></script>
 <script>
 'use strict';
@@ -1674,6 +1686,7 @@ this.progressTrack = document.getElementById('progressTrack');
         this.mileEls = [document.getElementById('mile1'), document.getElementById('mile2'), document.getElementById('mile3')];
         this.textLayer = document.getElementById('textLayer');
         this.flashEl = document.getElementById('screenFlash');
+        this.levelWipeEl = document.getElementById('levelWipe');
         this.canvas = document.getElementById('fxCanvas');
         this.ctx = this.canvas.getContext('2d', { alpha: true, desynchronized: true });
 
@@ -2462,7 +2475,16 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
 
         const aa = a.el.animate([{ transform: aStart, offset: 0 }, { transform: aEnd.replace('scale(1,1)', 'scale(1.045,1.045)'), offset: .72 }, { transform: aEnd, offset: 1 }], options);
         const bb = b.el.animate([{ transform: bStart, offset: 0 }, { transform: bEnd.replace('scale(1,1)', 'scale(1.045,1.045)'), offset: .72 }, { transform: bEnd, offset: 1 }], options);
-        await Promise.all([this.safeFinished(aa), this.safeFinished(bb)]);
+
+        // The tiles spin a full turn as they slide, in opposite directions,
+        // so they read as rotating into their new spots rather than sliding
+        // flat - lives on .tile-inner so it never fights the position tween
+        // driving .tile's own transform above.
+        const spinOptions = { duration: options.duration, easing: 'cubic-bezier(.3,.1,.2,1)' };
+        const aSpin = a.inner.animate([{ transform: 'rotate(0deg)' }, { transform: 'rotate(360deg)' }], spinOptions);
+        const bSpin = b.inner.animate([{ transform: 'rotate(0deg)' }, { transform: 'rotate(-360deg)' }], spinOptions);
+
+        await Promise.all([this.safeFinished(aa), this.safeFinished(bb), this.safeFinished(aSpin), this.safeFinished(bSpin)]);
         a.el.style.transform = aEnd; b.el.style.transform = bEnd;
     }
 
@@ -3203,11 +3225,13 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
         document.getElementById('reward-overlay').classList.add('active');
     }
 
-    pickReward(type) {
+    async pickReward(type) {
         this.inventory[type] = (this.inventory[type] || 0) + 1;
         this.updatePowerUpTray();
         document.getElementById('reward-overlay').classList.remove('active');
-        this.startLevel();
+        await this.playLevelWipe();
+        await this.startLevel();
+        await this.hideLevelWipe();
     }
 
     /* ---------- Win / loss ---------- */
@@ -3307,6 +3331,31 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
     flashScreen(intensity = .3) {
         this.flashEl.getAnimations().forEach(a => a.cancel());
         this.flashEl.animate([{ opacity: 0 }, { opacity: intensity, offset: .28 }, { opacity: 0 }], { duration: 240, easing: 'ease-out' });
+    }
+
+    /* ---------- Level transition wipe ---------- */
+
+    async playLevelWipe() {
+        const el = this.levelWipeEl;
+        if (!el) return;
+        const palette = Object.values(COLORS);
+        el.style.background = palette[Math.floor(Math.random() * palette.length)];
+        const anim = el.animate(
+            [{ transform: 'translateX(-100%)' }, { transform: 'translateX(0%)' }],
+            { duration: 260, easing: 'cubic-bezier(.4,0,.2,1)', fill: 'forwards' }
+        );
+        await this.safeFinished(anim);
+    }
+
+    async hideLevelWipe() {
+        const el = this.levelWipeEl;
+        if (!el) return;
+        const anim = el.animate(
+            [{ transform: 'translateX(0%)' }, { transform: 'translateX(100%)' }],
+            { duration: 260, easing: 'cubic-bezier(.4,0,.2,1)', fill: 'forwards' }
+        );
+        await this.safeFinished(anim);
+        el.style.transform = 'translateX(-100%)';
     }
 
     comboFeedback(text) {
