@@ -3008,6 +3008,310 @@ symbol{
   opacity:.62;
 }
 
+
+
+.mini-album-heading{
+  grid-column:1 / -1;
+  margin-top:8px;
+  padding:12px 0 2px;
+  border-top:3px solid var(--border-color);
+  font:800 .82rem/1 Manrope,sans-serif;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+.sticker-slot.mini-game-stamp{aspect-ratio:1 / 1;}
+.sticker-slot.mini-game-stamp .mini-reward-stamp{width:100%;max-width:136px;box-shadow:none;transform:none;}
+
+/* ---------- Sliding stamp challenge ---------- */
+.mini-game-card,
+.debug-card{
+  width:min(100%,480px);
+  max-width:480px;
+  min-height:100dvh;
+  padding:calc(34px + env(safe-area-inset-top)) 20px calc(28px + env(safe-area-inset-bottom));
+  align-items:stretch;
+  text-align:left;
+  overflow-y:auto;
+}
+.mini-game-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:14px;
+  width:100%;
+}
+.mini-game-head-copy{min-width:0;}
+.mini-game-kicker,
+.debug-kicker{
+  display:block;
+  margin-bottom:7px;
+  font:800 .75rem/1 Manrope,sans-serif;
+  letter-spacing:.11em;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+.mini-game-head h2,
+.debug-card h2{margin:0;text-align:left;}
+.mini-game-meta{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+  margin-top:18px;
+}
+.mini-game-meta > div{
+  padding:10px 0 9px;
+  border-bottom:3px solid var(--border-color);
+}
+.mini-game-meta b{
+  display:block;
+  font:800 1.45rem/1 Manrope,sans-serif;
+  color:var(--ink);
+}
+.mini-game-meta span{
+  display:block;
+  margin-top:5px;
+  font:800 .72rem/1 Inter,sans-serif;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+.slide-puzzle-wrap{
+  display:flex;
+  justify-content:center;
+  width:100%;
+  margin:20px 0 16px;
+}
+.slide-puzzle{
+  --puzzle-cols:3;
+  --puzzle-rows:3;
+  position:relative;
+  width:min(78vw,340px);
+  aspect-ratio:1 / 1;
+  display:grid;
+  grid-template-columns:repeat(var(--puzzle-cols),1fr);
+  grid-template-rows:repeat(var(--puzzle-rows),1fr);
+  gap:5px;
+  padding:5px;
+  background:var(--neutral-900);
+  border:3px solid var(--border-color);
+  box-shadow:5px 5px 0 var(--shadow-color);
+  overflow:hidden;
+}
+.slide-tile{
+  position:relative;
+  min-width:0;
+  min-height:0;
+  padding:0;
+  border:2px solid var(--border-color);
+  border-radius:9px;
+  background-repeat:no-repeat;
+  cursor:pointer;
+  box-shadow:2px 2px 0 var(--shadow-color);
+  transition:transform .12s ease, box-shadow .12s ease;
+}
+.slide-tile:active{transform:translate(2px,2px);box-shadow:none;}
+.slide-tile.blank{
+  background:var(--neutral-0)!important;
+  border-style:dashed;
+  box-shadow:none;
+  opacity:.45;
+  pointer-events:none;
+}
+.mini-game-note{
+  margin:0!important;
+  color:var(--muted)!important;
+  font-size:.82rem!important;
+  line-height:1.4!important;
+  text-align:left!important;
+}
+.mini-game-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;}
+.mini-game-actions button{min-height:48px;}
+
+.mini-reward-card{align-items:center;text-align:center;}
+.mini-reward-card h2{text-align:center;}
+.mini-reward-stamp{
+  width:128px;
+  aspect-ratio:1 / 1;
+  padding:7px;
+  background:var(--neutral-0);
+  border:3px solid var(--border-color);
+  box-shadow:5px 5px 0 var(--shadow-color);
+  transform:rotate(-2deg);
+}
+.mini-reward-stamp-art{
+  width:100%;height:100%;
+  background-size:cover;
+  background-position:center;
+  border:2px solid var(--border-color);
+}
+.mini-reward-copy{text-align:center!important;max-width:290px;}
+.mini-bonus-placeholder{
+  width:100%;
+  padding:12px 14px;
+  border:2px dashed var(--border-color);
+  color:var(--muted);
+  font:800 .75rem/1.2 Inter,sans-serif;
+  text-transform:uppercase;
+  letter-spacing:.07em;
+}
+
+/* ---------- Settings ---------- */
+#menu-settings-btn{background:var(--neutral-100);}
+.settings-card{
+  width:min(100%,480px);
+  max-width:480px;
+  min-height:100dvh;
+  padding:calc(82px + env(safe-area-inset-top)) 20px calc(28px + env(safe-area-inset-bottom));
+  align-items:stretch;
+  text-align:left;
+  overflow-y:auto;
+}
+.settings-card h2{text-align:left;}
+.settings-section{
+  width:100%;
+  margin-top:24px;
+}
+.settings-section h3{
+  margin:0 0 10px;
+  font:800 .78rem/1 Manrope,sans-serif;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+.settings-choice{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+}
+.settings-choice-btn{
+  min-height:48px;
+  width:100%;
+  margin:0!important;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+}
+.settings-choice-btn.active{
+  background:var(--color-blue-light)!important;
+  color:var(--ink-fixed)!important;
+}
+.settings-choice-btn .material-symbols-outlined{font-size:1.05rem;}
+.settings-audio-control{
+  padding:16px 0 18px;
+  border-top:3px solid var(--border-color);
+}
+.settings-audio-control:last-child{border-bottom:3px solid var(--border-color);}
+.settings-audio-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+}
+.settings-audio-head > div{min-width:0;}
+.settings-audio-head b{
+  display:block;
+  font:800 1rem/1.15 Manrope,sans-serif;
+  color:var(--ink);
+}
+.settings-audio-head span{
+  display:block;
+  margin-top:5px;
+  font:700 .75rem/1.35 Inter,sans-serif;
+  color:var(--muted);
+}
+.settings-mute-btn{
+  flex:0 0 auto;
+  min-width:100px;
+  min-height:48px;
+  margin:0!important;
+  padding:0 12px!important;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  font-size:.75rem!important;
+}
+.settings-mute-btn .material-symbols-outlined{font-size:1.05rem;}
+.settings-mute-btn.muted{background:var(--neutral-100)!important;}
+.settings-slider-row{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 48px;
+  align-items:center;
+  gap:12px;
+  margin-top:15px;
+}
+.settings-slider-row input[type="range"]{
+  width:100%;
+  min-height:48px;
+  margin:0;
+  accent-color:var(--color-blue-base);
+  cursor:pointer;
+  touch-action:pan-x;
+}
+.settings-slider-row output{
+  font:800 .82rem/1 Manrope,sans-serif;
+  color:var(--ink);
+  text-align:right;
+}
+
+/* Sliding puzzle pieces are draggable as well as tappable. */
+.slide-puzzle{touch-action:none;}
+.slide-tile{
+  touch-action:none;
+  user-select:none;
+  -webkit-user-select:none;
+  will-change:transform;
+}
+.slide-tile.dragging{
+  z-index:5;
+  transition:none!important;
+  cursor:grabbing;
+  box-shadow:1px 1px 0 var(--shadow-color);
+}
+.slide-tile.sliding{
+  z-index:4;
+  transition:transform .13s cubic-bezier(.22,.8,.2,1),box-shadow .13s ease!important;
+  box-shadow:1px 1px 0 var(--shadow-color);
+}
+
+/* ---------- Debug lab ---------- */
+#menu-debug-btn{background:var(--neutral-100);}
+.debug-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+  width:100%;
+  margin-top:12px;
+}
+.debug-section{margin-top:22px;}
+.debug-section h3{
+  margin:0 0 8px;
+  font:800 .78rem/1 Manrope,sans-serif;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+.debug-grid button,
+.debug-card > .secondary{
+  min-height:48px;
+  width:100%;
+  margin:0;
+  padding:10px 12px;
+  font-size:.78rem;
+}
+.debug-state{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:10px 0;
+  border-bottom:3px solid var(--border-color);
+  font-weight:800;
+}
+.debug-state span:last-child{color:var(--muted);font-size:.78rem;}
+
 </style>
 </head>
 
@@ -3213,29 +3517,63 @@ symbol{
       <button class="secondary" id="menu-howto-btn">HOW TO PLAY</button>
       <button class="secondary" id="menu-stickers-btn">ALBUM</button>
       <button class="secondary" id="menu-stats-btn">STATS</button>
+      <button class="secondary" id="menu-debug-btn">DEBUG</button>
+      <button class="secondary" id="menu-settings-btn">SETTINGS</button>
     </div>
-    <div class="music-preview" aria-label="Background music preview">
-      <div class="music-preview-head">
-        <span>BACKGROUND MUSIC</span>
-        <span id="music-preview-status">TAP A TRACK TO PREVIEW</span>
+  </div>
+</div>
+
+<div class="overlay" id="settings-overlay">
+  <div class="overlay-card settings-card has-corner-close">
+    <button class="modal-corner-close" id="settings-close-btn" aria-label="Close Settings"><span class="material-symbols-outlined">close</span></button>
+    <span class="collection-kicker">Preferences</span>
+    <h2>Settings</h2>
+
+    <section class="settings-section" aria-labelledby="settings-appearance-title">
+      <h3 id="settings-appearance-title">Appearance</h3>
+      <div class="settings-choice" role="group" aria-label="Appearance">
+        <button class="secondary settings-choice-btn" type="button" data-setting-theme="light"><span class="material-symbols-outlined">light_mode</span>LIGHT</button>
+        <button class="secondary settings-choice-btn" type="button" data-setting-theme="dark"><span class="material-symbols-outlined">dark_mode</span>DARK</button>
       </div>
-      <div class="music-preview-grid">
-        <button class="secondary music-track-btn" type="button" data-music-track="puzzler">8-BIT PUZZLER</button>
-        <button class="secondary music-track-btn" type="button" data-music-track="mindBenderLoFi">MIND-BENDER LO-FI</button>
-        <button class="secondary music-track-btn" type="button" data-music-track="mindBender">MIND-BENDER</button>
-        <button class="secondary music-track-btn" type="button" data-music-track="chillhop">CHILLHOP</button>
+    </section>
+
+    <section class="settings-section" aria-labelledby="settings-audio-title">
+      <h3 id="settings-audio-title">Audio</h3>
+
+      <div class="settings-audio-control">
+        <div class="settings-audio-head">
+          <div>
+            <b>Background music</b>
+            <span>Mind-Bender · 8-Bit Puzzler during slide challenges</span>
+          </div>
+          <button class="secondary settings-mute-btn" type="button" id="music-mute-btn" aria-pressed="false">
+            <span class="material-symbols-outlined" id="music-mute-icon">volume_up</span>
+            <span id="music-mute-label">MUTE</span>
+          </button>
+        </div>
+        <div class="settings-slider-row">
+          <input id="music-volume-slider" type="range" min="0" max="100" step="1" value="24" aria-label="Background music volume">
+          <output id="music-volume-output" for="music-volume-slider">24%</output>
+        </div>
       </div>
-    </div>
-    <div class="menu-tools">
-      <button class="secondary menu-tool-btn" id="theme-btn" aria-label="Toggle Light or Dark Mode">
-        <span class="material-symbols-outlined" id="theme-icon">dark_mode</span>
-        <span class="tool-label">THEME</span>
-      </button>
-      <button class="secondary menu-tool-btn" id="mute-btn" aria-label="Toggle Sound">
-        <span class="material-symbols-outlined" id="mute-icon">volume_up</span>
-        <span class="tool-label">SOUND</span>
-      </button>
-    </div>
+
+      <div class="settings-audio-control">
+        <div class="settings-audio-head">
+          <div>
+            <b>Sound effects</b>
+            <span>Matches, power-ups, rewards, and interface sounds</span>
+          </div>
+          <button class="secondary settings-mute-btn" type="button" id="sfx-mute-btn" aria-pressed="false">
+            <span class="material-symbols-outlined" id="sfx-mute-icon">volume_up</span>
+            <span id="sfx-mute-label">MUTE</span>
+          </button>
+        </div>
+        <div class="settings-slider-row">
+          <input id="sfx-volume-slider" type="range" min="0" max="100" step="1" value="82" aria-label="Sound effects volume">
+          <output id="sfx-volume-output" for="sfx-volume-slider">82%</output>
+        </div>
+      </div>
+    </section>
   </div>
 </div>
 
@@ -3329,7 +3667,7 @@ symbol{
             <div class="howto-item-icon" style="--icon-base:var(--color-yellow-orange-base);--icon-light:var(--color-yellow-orange-light)">
               <svg class="powerup-asset" viewBox="0 0 256 256" style="--icon-scale:1.06" aria-hidden="true"><use href="#pu-bomb-new"></use></svg>
             </div>
-            <div class="howto-item-copy"><b>Color Bomb</b><span>Make 5 in a row to create it. Tap it to clear a random colour, or swap it with another tile for a bigger effect.</span></div>
+            <div class="howto-item-copy"><b>Colour Bomb</b><span>Make 5 in a row to create it. Tap it to clear a random colour, or swap it with another tile for a bigger effect.</span></div>
           </div>
         </div>
       </div>
@@ -3500,6 +3838,83 @@ symbol{
 </div>
 
 
+
+
+<div class="overlay" id="mini-game-overlay">
+  <div class="overlay-card mini-game-card">
+    <div class="mini-game-head">
+      <div class="mini-game-head-copy">
+        <span class="mini-game-kicker" id="mini-game-kicker">LEVEL 10 CHALLENGE</span>
+        <h2>Slide It Into Place</h2>
+      </div>
+    </div>
+    <div class="mini-game-meta">
+      <div><b id="mini-game-moves">0</b><span>Moves</span></div>
+      <div><b id="mini-game-size">3 × 3</b><span>Puzzle</span></div>
+    </div>
+    <div class="slide-puzzle-wrap">
+      <div class="slide-puzzle" id="slide-puzzle" role="group" aria-label="Sliding tile puzzle"></div>
+    </div>
+    <p class="mini-game-note">Tap a tile or drag it into the empty space until the square artwork is back in order. Complete it to turn the finished artwork into a collectible stamp.</p>
+    <div class="mini-game-actions">
+      <button class="secondary" id="mini-game-debug-solve-btn" hidden>DEBUG: SOLVE</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay popup-overlay" id="mini-game-reward-overlay">
+  <div class="overlay-card mini-reward-card">
+    <span class="collection-kicker">CHALLENGE COMPLETE</span>
+    <h2>New Stamp!</h2>
+    <div class="mini-reward-stamp"><div class="mini-reward-stamp-art" id="mini-reward-art"></div></div>
+    <p class="mini-reward-copy" id="mini-reward-copy">You restored the artwork and earned its stamp.</p>
+    <div class="mini-bonus-placeholder">SECOND REWARD · TBD</div>
+    <button class="primary" id="mini-reward-continue-btn">CONTINUE</button>
+  </div>
+</div>
+
+<div class="overlay" id="debug-overlay">
+  <div class="overlay-card debug-card has-corner-close">
+    <button class="modal-corner-close" id="debug-close-btn" aria-label="Close Debug"><span class="material-symbols-outlined">close</span></button>
+    <span class="debug-kicker">TEST TOOLS</span>
+    <h2>Debug Lab</h2>
+    <div class="debug-state"><span>Current level</span><span id="debug-level-readout">1</span></div>
+    <div class="debug-state"><span>Coins</span><span id="debug-coin-readout">0</span></div>
+
+    <section class="debug-section">
+      <h3>Level state</h3>
+      <div class="debug-grid">
+        <button class="secondary" data-debug-action="jump10">JUMP TO 10</button>
+        <button class="secondary" data-debug-action="jump20">JUMP TO 20</button>
+        <button class="secondary" data-debug-action="jump50">JUMP TO 50</button>
+        <button class="secondary" data-debug-action="coins">+500 COINS</button>
+        <button class="secondary" data-debug-action="powerups">+5 ALL POWER-UPS</button>
+        <button class="secondary" data-debug-action="clear-save">CLEAR LEVEL SAVE</button>
+      </div>
+    </section>
+
+    <section class="debug-section">
+      <h3>Screens</h3>
+      <div class="debug-grid">
+        <button class="secondary" data-debug-action="win">LEVEL CLEAR</button>
+        <button class="secondary" data-debug-action="fail">LEVEL FAIL</button>
+        <button class="secondary" data-debug-action="reward">FREE POWER-UP</button>
+        <button class="secondary" data-debug-action="achievement">STAMP POPUP</button>
+      </div>
+    </section>
+
+    <section class="debug-section">
+      <h3>Sliding challenge</h3>
+      <div class="debug-grid">
+        <button class="secondary" data-debug-action="mini10">LEVEL 10 · 3 × 3</button>
+        <button class="secondary" data-debug-action="mini30">LEVEL 30 · 4 × 4</button>
+        <button class="secondary" data-debug-action="mini60">LEVEL 60 · 5 × 5</button>
+        <button class="secondary" data-debug-action="miniReward">REWARD SCREEN</button>
+      </div>
+    </section>
+  </div>
+</div>
+
 <div class="level-wipe" id="levelWipe"></div>
 
 <script src="lib/lottie-light.min.js"></script>
@@ -3520,7 +3935,7 @@ const POWER_UPS = {
     swap: { pieceIcon: 'pu-swap-new', iconViewBox: '0 0 256 256', exactIcon: true, iconScale: 1.18, name: 'Swap', desc: 'Swap any two tiles on the board.', colorId: 6, cost: 20 },
     shuffle: { pieceIcon: 'pu-shuffle-new', iconViewBox: '0 0 256 256', exactIcon: true, iconScale: 1.14, name: 'Shuffle', desc: 'Reshuffle the whole board.', colorId: 3, cost: 25 },
     extraMoves: { pieceIcon: 'pu-five-new', iconViewBox: '0 0 256 256', exactIcon: true, iconScale: 1.08, name: '+5 Moves', desc: 'Adds 5 extra moves to spend.', colorId: 4, cost: 20 },
-    colorBomb: { pieceIcon: 'pu-bomb-new', iconViewBox: '0 0 256 256', exactIcon: true, iconScale: 1.06, name: 'Color Bomb', desc: 'Drops a color bomb onto the board.', colorId: 1, cost: 35 },
+    colorBomb: { pieceIcon: 'pu-bomb-new', iconViewBox: '0 0 256 256', exactIcon: true, iconScale: 1.06, name: 'Colour Bomb', desc: 'Drops a colour bomb onto the board.', colorId: 1, cost: 35 },
     rowRocket: { pieceIcon: 'pu-row-new', iconViewBox: '0 0 256 256', exactIcon: true, iconScale: 1.16, name: 'Horizontal Clear', desc: 'Drops a special tile that clears a whole row when matched.', colorId: 1, cost: 25 },
     colRocket: { pieceIcon: 'pu-col-new', iconViewBox: '0 0 256 256', exactIcon: true, iconScale: 1.16, name: 'Vertical Clear', desc: 'Drops a special tile that clears a whole column when matched.', colorId: 2, cost: 25 }
 };
@@ -3528,7 +3943,7 @@ const POWER_UPS = {
 const BOARD_SPECIAL_INFO = {
     [SPECIALS.H_STRIPE]: { pieceIcon: 'pu-row-new', iconViewBox: '0 0 256 256', exactIcon: true, iconScale: 1.16, name: 'Horizontal Clear', desc: 'Clears the whole row when this tile becomes part of a match.', colorId: 1 },
     [SPECIALS.V_STRIPE]: { pieceIcon: 'pu-col-new', iconViewBox: '0 0 256 256', exactIcon: true, iconScale: 1.16, name: 'Vertical Clear', desc: 'Clears the whole column when this tile becomes part of a match.', colorId: 2 },
-    [SPECIALS.BOMB]: { pieceIcon: 'pu-bomb-new', iconViewBox: '0 0 256 256', exactIcon: true, iconScale: 1.06, name: 'Color Bomb', desc: 'Pops itself and clears a random colour from the board.', colorId: 1 }
+    [SPECIALS.BOMB]: { pieceIcon: 'pu-bomb-new', iconViewBox: '0 0 256 256', exactIcon: true, iconScale: 1.06, name: 'Colour Bomb', desc: 'Pops itself and clears a random colour from the board.', colorId: 1 }
 };
 
 const PREMIUM_POWER_UPS = {};
@@ -3655,26 +4070,26 @@ const ACHIEVEMENTS = [
     { id:'side-swipe', name:'Side Swipe', desc:'Make 25 Horizontal Clear tiles.', icon:'swap_horiz', colorId:1, rot:1, test:s => s.horizontalMade >= 25 },
     { id:'vertical-vision', name:'Vertical Vision', desc:'Make 25 Vertical Clear tiles.', icon:'swap_vert', colorId:2, rot:-1, test:s => s.verticalMade >= 25 },
     { id:'burst-mode', name:'Burst Mode', desc:'Make 25 Burst Tiles.', icon:'blur_on', colorId:5, rot:2, test:s => s.burstMade >= 25 },
-    { id:'bomb-builder', name:'Bomb Builder', desc:'Make 10 Color Bombs.', icon:'brightness_7', colorId:1, rot:-2, test:s => s.bombMade >= 10 },
+    { id:'bomb-builder', name:'Bomb Builder', desc:'Make 10 Colour Bombs.', icon:'brightness_7', colorId:1, rot:-2, test:s => s.bombMade >= 10 },
     { id:'full-set', name:'Full Set', desc:'Make all four kinds of special tile during one level.', icon:'category', colorId:4, rot:1, test:s => s.fullSetLevels >= 1 },
     { id:'special-delivery', name:'Special Delivery', desc:'Activate 100 special tiles.', icon:'bolt', colorId:3, rot:-1, test:s => s.specialsActivated >= 100 },
     { id:'clear-across', name:'Clear Across', desc:'Activate 50 Horizontal Clears.', icon:'east', colorId:1, rot:2, test:s => s.horizontalActivated >= 50 },
     { id:'clear-down', name:'Clear Down', desc:'Activate 50 Vertical Clears.', icon:'south', colorId:2, rot:-2, test:s => s.verticalActivated >= 50 },
     { id:'burst-streak', name:'Burst Streak', desc:'Activate 50 Burst Tiles.', icon:'blur_circular', colorId:5, rot:1, test:s => s.burstActivated >= 50 },
-    { id:'bomb-squad', name:'Bomb Squad', desc:'Activate 25 Color Bombs.', icon:'radio_button_checked', colorId:1, rot:-1, test:s => s.bombActivated >= 25 },
+    { id:'bomb-squad', name:'Bomb Squad', desc:'Activate 25 Colour Bombs.', icon:'radio_button_checked', colorId:1, rot:-1, test:s => s.bombActivated >= 25 },
     { id:'cross-clear', name:'Cross Clear', desc:'Combine a Horizontal Clear with a Vertical Clear.', icon:'compare_arrows', colorId:4, rot:2, test:s => s.comboCrossClear >= 1 },
     { id:'side-by-side', name:'Side by Side', desc:'Combine two Horizontal Clears.', icon:'horizontal_rule', colorId:1, rot:-2, test:s => s.comboHorizontalPair >= 1 },
     { id:'double-down', name:'Double Down', desc:'Combine two Vertical Clears.', icon:'height', colorId:2, rot:1, test:s => s.comboVerticalPair >= 1 },
     { id:'burst-pair', name:'Burst Pair', desc:'Combine two Burst Tiles.', icon:'join_inner', colorId:5, rot:-1, test:s => s.comboBurstPair >= 1 },
-    { id:'color-pop', name:'Color Pop', desc:'Combine a Color Bomb with a normal tile.', icon:'palette', colorId:1, rot:2, test:s => s.comboColorPop >= 1 },
-    { id:'loaded-bomb', name:'Loaded Bomb', desc:'Combine a Color Bomb with another special tile.', icon:'extension', colorId:3, rot:-2, test:s => s.comboLoadedBomb >= 1 },
-    { id:'clean-slate', name:'Clean Slate', desc:'Combine two Color Bombs.', icon:'done_all', colorId:4, rot:1, test:s => s.comboCleanSlate >= 1 },
+    { id:'color-pop', name:'Colour Pop', desc:'Combine a Colour Bomb with a normal tile.', icon:'palette', colorId:1, rot:2, test:s => s.comboColorPop >= 1 },
+    { id:'loaded-bomb', name:'Loaded Bomb', desc:'Combine a Colour Bomb with another special tile.', icon:'extension', colorId:3, rot:-2, test:s => s.comboLoadedBomb >= 1 },
+    { id:'clean-slate', name:'Clean Slate', desc:'Combine two Colour Bombs.', icon:'done_all', colorId:4, rot:1, test:s => s.comboCleanSlate >= 1 },
     { id:'combo-collector', name:'Combo Collector', desc:'Perform every type of special tile combination at least once.', icon:'all_inclusive', colorId:5, rot:-1, test:s => ['comboCrossClear','comboHorizontalPair','comboVerticalPair','comboBurstPair','comboColorPop','comboLoadedBomb','comboCleanSlate','comboStripeBurst'].every(k => s[k] >= 1) },
     { id:'helping-hand', name:'Helping Hand', desc:'Use your first power-up.', icon:'volunteer_activism', colorId:2, rot:2, test:s => s.powerupsUsed >= 1 },
     { id:'swap-meet', name:'Swap Meet', desc:'Use Swap 10 times.', icon:'sync', colorId:6, rot:-2, test:s => s.swapUsed >= 10 },
     { id:'mix-it-up', name:'Mix It Up', desc:'Use Shuffle 10 times.', icon:'shuffle', colorId:3, rot:1, test:s => s.shuffleUsed >= 10 },
     { id:'five-more', name:'Five More', desc:'Use +5 Moves 10 times.', icon:'add_circle', colorId:4, rot:-1, test:s => s.extraMovesUsed >= 10 },
-    { id:'bomb-drop', name:'Bomb Drop', desc:'Use the Color Bomb power-up 10 times.', icon:'circle', colorId:1, rot:2, test:s => s.colorBombPowerupUsed >= 10 },
+    { id:'bomb-drop', name:'Bomb Drop', desc:'Use the Colour Bomb power-up 10 times.', icon:'circle', colorId:1, rot:2, test:s => s.colorBombPowerupUsed >= 10 },
     { id:'horizontal-help', name:'Horizontal Help', desc:'Use the Horizontal Clear power-up 10 times.', icon:'view_week', colorId:1, rot:-2, test:s => s.horizontalPowerupUsed >= 10 },
     { id:'vertical-help', name:'Vertical Help', desc:'Use the Vertical Clear power-up 10 times.', icon:'view_column', colorId:2, rot:1, test:s => s.verticalPowerupUsed >= 10 },
     { id:'power-player', name:'Power Player', desc:'Use 100 power-ups in total.', icon:'electric_bolt', colorId:3, rot:-1, test:s => s.powerupsUsed >= 100 },
@@ -3992,7 +4407,8 @@ const COIN_REWARD_LOTTIE = {"v":"5.5.7","meta":{"g":"LottieFiles AE 0.1.9","a":"
 
 class SFX {
     constructor() {
-        this.muted = false;
+        this.sfxMuted = false;
+        this.musicMuted = false;
         this.masterVolume = 0.82;
         this.musicVolume = 0.24;
 
@@ -4007,16 +4423,12 @@ class SFX {
 
         this.musicFiles = {
             puzzler: 'audio/8-Bit-Puzzler.ogg',
-            mindBenderLoFi: 'audio/Mind-Bender_LoFi.ogg',
-            mindBender: 'audio/Mind-Bender.ogg',
-            chillhop: 'audio/Chillhop.mp3'
+            mindBender: 'audio/Mind-Bender.ogg'
         };
 
         this.musicLabels = {
             puzzler: '8-Bit Puzzler',
-            mindBenderLoFi: 'Mind-Bender Lo-Fi',
-            mindBender: 'Mind-Bender',
-            chillhop: 'Chillhop'
+            mindBender: 'Mind-Bender'
         };
 
         this.files = Object.assign({}, this.sfxFiles, this.musicFiles);
@@ -4076,9 +4488,9 @@ class SFX {
             this.sfxGain = this.ctx.createGain();
             this.musicGain = this.ctx.createGain();
 
-            this.masterGain.gain.value = this.muted ? 0 : 1;
-            this.sfxGain.gain.value = this.masterVolume;
-            this.musicGain.gain.value = this.musicVolume;
+            this.masterGain.gain.value = 1;
+            this.sfxGain.gain.value = this.sfxMuted ? 0 : this.masterVolume;
+            this.musicGain.gain.value = this.musicMuted ? 0 : this.musicVolume;
 
             this.sfxGain.connect(this.masterGain);
             this.musicGain.connect(this.masterGain);
@@ -4168,30 +4580,43 @@ class SFX {
         });
     }
 
-    setMuted(value) {
-        this.muted = !!value;
-        if (this.masterGain && this.ctx) {
-            const now = this.ctx.currentTime;
-            this.masterGain.gain.cancelScheduledValues(now);
-            this.masterGain.gain.setTargetAtTime(this.muted ? 0 : 1, now, 0.012);
+    setSfxMuted(value) {
+        this.sfxMuted = !!value;
+        if (this.sfxGain && this.ctx) {
+            this.sfxGain.gain.setTargetAtTime(this.sfxMuted ? 0 : this.masterVolume, this.ctx.currentTime, 0.012);
         }
-        if (!this.muted) this.unlock();
+        if (!this.sfxMuted) this.unlock();
+    }
+
+    setMusicMuted(value) {
+        this.musicMuted = !!value;
+        if (this.musicGain && this.ctx) {
+            this.musicGain.gain.setTargetAtTime(this.musicMuted ? 0 : this.musicVolume, this.ctx.currentTime, 0.02);
+        }
+        if (!this.musicMuted) this.unlock();
+    }
+
+    setSfxVolume(value) {
+        this.masterVolume = Math.max(0, Math.min(1, Number(value) || 0));
+        if (this.sfxGain && this.ctx && !this.sfxMuted) {
+            this.sfxGain.gain.setTargetAtTime(this.masterVolume, this.ctx.currentTime, 0.02);
+        }
     }
 
     setMusicVolume(value) {
         this.musicVolume = Math.max(0, Math.min(1, Number(value) || 0));
-        if (this.musicGain && this.ctx) {
+        if (this.musicGain && this.ctx && !this.musicMuted) {
             this.musicGain.gain.setTargetAtTime(this.musicVolume, this.ctx.currentTime, 0.02);
         }
     }
 
     async play(key, volume = 1, rate = 1) {
-        if (this.muted) return false;
+        if (this.sfxMuted) return false;
         const ready = await this.unlock();
         if (!ready) return false;
 
         const buffer = await this.load(key);
-        if (!buffer || this.muted || !this.ctx || !this.sfxGain) return false;
+        if (!buffer || this.sfxMuted || !this.ctx || !this.sfxGain) return false;
 
         try {
             const source = this.ctx.createBufferSource();
@@ -4406,9 +4831,16 @@ this.progressTrack = document.getElementById('progressTrack');
         this.dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
 
         this.sfx = new SFX();
+        this.audioSettingsKey = 'mellowMatch.audio.v1';
+        this.defaultMusicKey = 'mindBender';
+        this.puzzleMusicKey = 'puzzler';
+        this.musicContext = 'main';
+        this.initAudioSettings();
 
         this.bindEvents();
         this.initColorScheme();
+        document.addEventListener('pointerdown', () => this.ensureAmbientMusic(), { once:true, capture:true });
+        document.addEventListener('keydown', () => this.ensureAmbientMusic(), { once:true, capture:true });
         this.startIdleWatcher();
         this.startWatchdog();
         this.updatePowerUpTray();
@@ -5226,6 +5658,22 @@ this.progressTrack = document.getElementById('progressTrack');
             slot.innerHTML = has ? this.buildStickerFace(entry.sticker) : this.buildStickerPlaceholder(entry.sticker);
             grid.appendChild(slot);
         });
+
+        const challengeStamps = this.collection.miniGameStamps || [];
+        if (challengeStamps.length) {
+            const heading = document.createElement('div');
+            heading.className = 'mini-album-heading';
+            heading.innerText = 'Sliding challenge stamps';
+            grid.appendChild(heading);
+            challengeStamps.forEach(key => {
+                const level = Number(String(key).replace('sliding-','')) || 10;
+                const challenge = Math.max(1, Math.floor(level / 10));
+                const slot = document.createElement('div');
+                slot.className = 'sticker-slot mini-game-stamp';
+                slot.innerHTML = `<div class="mini-reward-stamp" aria-label="Level ${level} sliding challenge stamp"><div class="mini-reward-stamp-art" style="background-image:${this.makeMiniGameArtwork(challenge)}"></div></div>`;
+                grid.appendChild(slot);
+            });
+        }
     }
 
     updateCollectionMenuButtons() {
@@ -5488,21 +5936,21 @@ this.progressTrack = document.getElementById('progressTrack');
             ${row('Horizontal Clears', s.horizontalMade)}
             ${row('Vertical Clears', s.verticalMade)}
             ${row('Burst Tiles', s.burstMade)}
-            ${row('Color Bombs', s.bombMade)}
+            ${row('Colour Bombs', s.bombMade)}
           </section>
           <section class="stats-section"><h3>Special tiles activated</h3>
             ${row('Special activations', s.specialsActivated)}
             ${row('Horizontal Clears', s.horizontalActivated)}
             ${row('Vertical Clears', s.verticalActivated)}
             ${row('Burst Tiles', s.burstActivated)}
-            ${row('Color Bombs', s.bombActivated)}
+            ${row('Colour Bombs', s.bombActivated)}
           </section>
           <section class="stats-section"><h3>Power-ups used</h3>
             ${row('All power-ups', s.powerupsUsed)}
             ${row('Swap', s.swapUsed)}
             ${row('Shuffle', s.shuffleUsed)}
             ${row('+5 Moves', s.extraMovesUsed)}
-            ${row('Color Bomb', s.colorBombPowerupUsed)}
+            ${row('Colour Bomb', s.colorBombPowerupUsed)}
             ${row('Horizontal Clear', s.horizontalPowerupUsed)}
             ${row('Vertical Clear', s.verticalPowerupUsed)}
           </section>
@@ -5567,8 +6015,6 @@ this.progressTrack = document.getElementById('progressTrack');
         this.enablePunchCategorySwipe(document.getElementById('punch-category-track'));
         document.addEventListener('gesturestart', e => e.preventDefault());
         document.addEventListener('dblclick', e => e.preventDefault());
-document.getElementById('mute-btn').addEventListener('click', () => this.toggleMute());
-document.querySelectorAll('[data-music-track]').forEach(btn => btn.addEventListener('click', () => this.selectMusicTrack(btn.dataset.musicTrack, btn)));
 document.getElementById('shop-close-btn').addEventListener('click', () => this.closeShop());
 document.getElementById('screen-btn').addEventListener('click', () => this.onScreenButton());
 document.getElementById('screen-shop-btn').addEventListener('click', () => this.openShop());
@@ -5591,7 +6037,13 @@ document.getElementById('menu-howto-btn').addEventListener('click', () => this.o
 document.getElementById('howto-close-btn').addEventListener('click', () => this.onHowToClose());
 document.getElementById('confirm-yes-btn').addEventListener('click', () => this.onConfirmYes());
 document.getElementById('confirm-no-btn').addEventListener('click', () => this.onConfirmNo());
-document.getElementById('theme-btn').addEventListener('click', () => this.toggleColorScheme());
+document.getElementById('menu-settings-btn')?.addEventListener('click', () => this.openSettings());
+document.getElementById('settings-close-btn')?.addEventListener('click', () => this.closeSettings());
+document.querySelectorAll('[data-setting-theme]').forEach(btn => btn.addEventListener('click', () => this.setColorScheme(btn.dataset.settingTheme)));
+document.getElementById('music-mute-btn')?.addEventListener('click', () => this.toggleMusicMute());
+document.getElementById('sfx-mute-btn')?.addEventListener('click', () => this.toggleSfxMute());
+document.getElementById('music-volume-slider')?.addEventListener('input', e => this.setMusicVolumeFromUI(e.target.value));
+document.getElementById('sfx-volume-slider')?.addEventListener('input', e => this.setSfxVolumeFromUI(e.target.value));
     }
 
     /* Lets a mouse pointer drag the shop row horizontally; touch/pen use the
@@ -5646,57 +6098,135 @@ document.getElementById('theme-btn').addEventListener('click', () => this.toggle
         this.applyColorSchemeMeta(this.currentColorScheme());
     }
 
-    toggleColorScheme() {
-        const next = this.currentColorScheme() === 'dark' ? 'light' : 'dark';
+    setColorScheme(scheme) {
+        const next = scheme === 'dark' ? 'dark' : 'light';
         document.documentElement.setAttribute('data-theme', next);
         try { localStorage.setItem('mellowMatch.theme', next); } catch (e) { /* ignore */ }
         this.applyColorSchemeMeta(next);
+        this.syncSettingsUI();
     }
 
-    toggleMute() {
-        const nextMuted = !this.sfx.muted;
-        this.sfx.setMuted(nextMuted);
-        document.getElementById('mute-icon').innerText = nextMuted ? 'volume_off' : 'volume_up';
-        const status = document.getElementById('music-preview-status');
-        if (status && this.sfx.currentMusicKey) {
-            const label = this.sfx.musicLabels[this.sfx.currentMusicKey] || 'Music';
-            status.innerText = nextMuted ? `SOUND OFF · ${label}` : `PLAYING · ${label}`;
-        }
+    toggleColorScheme() {
+        this.setColorScheme(this.currentColorScheme() === 'dark' ? 'light' : 'dark');
     }
 
-    async selectMusicTrack(key, button = null) {
-        const def = this.sfx.musicFiles[key];
-        if (!def) return;
+    initAudioSettings() {
+        let saved = null;
+        try { saved = JSON.parse(localStorage.getItem(this.audioSettingsKey) || 'null'); } catch (e) { saved = null; }
+        const musicVolume = Number.isFinite(saved?.musicVolume) ? saved.musicVolume : 0.24;
+        const sfxVolume = Number.isFinite(saved?.sfxVolume) ? saved.sfxVolume : 0.82;
+        this.sfx.setMusicVolume(musicVolume);
+        this.sfx.setSfxVolume(sfxVolume);
+        this.sfx.setMusicMuted(!!saved?.musicMuted);
+        this.sfx.setSfxMuted(!!saved?.sfxMuted);
+        this.syncSettingsUI();
+    }
 
-        /* A music-preview tap is an explicit request to hear audio, so turn
-           sound back on if the global sound toggle was muted. */
-        if (this.sfx.muted) {
-            this.sfx.setMuted(false);
-            document.getElementById('mute-icon').innerText = 'volume_up';
-        }
+    persistAudioSettings() {
+        try {
+            localStorage.setItem(this.audioSettingsKey, JSON.stringify({
+                musicVolume:this.sfx.musicVolume,
+                sfxVolume:this.sfx.masterVolume,
+                musicMuted:this.sfx.musicMuted,
+                sfxMuted:this.sfx.sfxMuted
+            }));
+        } catch (e) { /* ignore */ }
+    }
 
-        const buttons = Array.from(document.querySelectorAll('[data-music-track]'));
-        const status = document.getElementById('music-preview-status');
-        buttons.forEach(btn => btn.classList.remove('loading'));
-        if (button) button.classList.add('loading');
-        if (status) status.innerText = 'LOADING PREVIEW…';
+    desiredMusicKey() {
+        return this.musicContext === 'puzzle' ? this.puzzleMusicKey : this.defaultMusicKey;
+    }
 
-        const played = await this.sfx.playMusic(key);
-        if (button) button.classList.remove('loading');
+    ensureAmbientMusic() {
+        if (this.sfx.musicMuted) return;
+        this.sfx.playMusic(this.desiredMusicKey()).catch(() => {});
+    }
 
-        if (!played) {
-            if (status) status.innerText = 'COULD NOT PLAY THIS FILE';
-            return;
-        }
+    setMusicContext(context) {
+        this.musicContext = context === 'puzzle' ? 'puzzle' : 'main';
+        if (!this.sfx.musicMuted) this.sfx.playMusic(this.desiredMusicKey()).catch(() => {});
+    }
 
-        buttons.forEach(btn => {
-            const active = btn.dataset.musicTrack === key;
+    syncSettingsUI() {
+        document.querySelectorAll('[data-setting-theme]').forEach(btn => {
+            const active = btn.dataset.settingTheme === this.currentColorScheme();
             btn.classList.toggle('active', active);
             btn.setAttribute('aria-pressed', active ? 'true' : 'false');
         });
 
-        const label = this.sfx.musicLabels[key] || button?.innerText || 'Music';
-        if (status) status.innerText = `PLAYING · ${label}`;
+        const musicPct = Math.round(this.sfx.musicVolume * 100);
+        const sfxPct = Math.round(this.sfx.masterVolume * 100);
+        const musicSlider = document.getElementById('music-volume-slider');
+        const sfxSlider = document.getElementById('sfx-volume-slider');
+        const musicOutput = document.getElementById('music-volume-output');
+        const sfxOutput = document.getElementById('sfx-volume-output');
+        if (musicSlider) musicSlider.value = String(musicPct);
+        if (sfxSlider) sfxSlider.value = String(sfxPct);
+        if (musicOutput) musicOutput.value = `${musicPct}%`;
+        if (sfxOutput) sfxOutput.value = `${sfxPct}%`;
+
+        const musicBtn = document.getElementById('music-mute-btn');
+        const sfxBtn = document.getElementById('sfx-mute-btn');
+        const musicIcon = document.getElementById('music-mute-icon');
+        const sfxIcon = document.getElementById('sfx-mute-icon');
+        const musicLabel = document.getElementById('music-mute-label');
+        const sfxLabel = document.getElementById('sfx-mute-label');
+        if (musicBtn) {
+            musicBtn.classList.toggle('muted', this.sfx.musicMuted);
+            musicBtn.setAttribute('aria-pressed', this.sfx.musicMuted ? 'true' : 'false');
+        }
+        if (sfxBtn) {
+            sfxBtn.classList.toggle('muted', this.sfx.sfxMuted);
+            sfxBtn.setAttribute('aria-pressed', this.sfx.sfxMuted ? 'true' : 'false');
+        }
+        if (musicIcon) musicIcon.innerText = this.sfx.musicMuted ? 'volume_off' : 'volume_up';
+        if (sfxIcon) sfxIcon.innerText = this.sfx.sfxMuted ? 'volume_off' : 'volume_up';
+        if (musicLabel) musicLabel.innerText = this.sfx.musicMuted ? 'UNMUTE' : 'MUTE';
+        if (sfxLabel) sfxLabel.innerText = this.sfx.sfxMuted ? 'UNMUTE' : 'MUTE';
+    }
+
+    openSettings() {
+        this.syncSettingsUI();
+        this.swipeModalSwap(
+            document.getElementById('menu-overlay'),
+            document.getElementById('settings-overlay'),
+            true
+        );
+    }
+
+    closeSettings() {
+        this.swipeModalSwap(
+            document.getElementById('settings-overlay'),
+            document.getElementById('menu-overlay'),
+            false
+        );
+    }
+
+    toggleMusicMute() {
+        this.sfx.setMusicMuted(!this.sfx.musicMuted);
+        this.persistAudioSettings();
+        this.syncSettingsUI();
+        if (!this.sfx.musicMuted) this.ensureAmbientMusic();
+    }
+
+    toggleSfxMute() {
+        this.sfx.setSfxMuted(!this.sfx.sfxMuted);
+        this.persistAudioSettings();
+        this.syncSettingsUI();
+        if (!this.sfx.sfxMuted) this.sfx.reward();
+    }
+
+    setMusicVolumeFromUI(value) {
+        this.sfx.setMusicVolume((Number(value) || 0) / 100);
+        this.persistAudioSettings();
+        this.syncSettingsUI();
+        if (!this.sfx.musicMuted) this.ensureAmbientMusic();
+    }
+
+    setSfxVolumeFromUI(value) {
+        this.sfx.setSfxVolume((Number(value) || 0) / 100);
+        this.persistAudioSettings();
+        this.syncSettingsUI();
     }
 
     showScreen(title, btnText, stars, action, showShop = false, result = {}) {
@@ -5749,8 +6279,16 @@ document.getElementById('theme-btn').addEventListener('click', () => this.toggle
 
     onScreenButton() {
         this.hideScreen();
+        if (this.screenAction === 'minigame') {
+            this.startMiniGame(this.currentLevelIdx, false);
+            return;
+        }
         if (this.screenAction === 'reward') {
             this.showRewardPicker();
+            return;
+        }
+        if (this.screenAction === 'debugReturn') {
+            this.openDebugPanel(true);
             return;
         }
         this.startLevel();
@@ -7118,8 +7656,10 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
             this.bumpCollectionStat('levelsCleared', 1);
             this.currentLevelIdx++;
             const rewardMilestone = this.currentLevelIdx % 5 === 0;
-            const title = rewardMilestone ? `${this.currentLevelIdx} LEVELS CLEARED!` : 'Level Clear!';
-            this.showScreen(title, 'CONTINUE', stars, rewardMilestone ? 'reward' : 'play', true, {
+            const miniGameMilestone = this.currentLevelIdx % 10 === 0;
+            this.pendingPostMiniReward = miniGameMilestone && rewardMilestone;
+            const title = (rewardMilestone || miniGameMilestone) ? `${this.currentLevelIdx} LEVELS CLEARED!` : 'Level Clear!';
+            this.showScreen(title, 'CONTINUE', stars, miniGameMilestone ? 'minigame' : (rewardMilestone ? 'reward' : 'play'), true, {
                 coinsEarned,
                 elapsedMs,
                 score:this.score,
@@ -7460,11 +8000,520 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
     }
 }
 
+
+
+/* ---------- Sliding challenge + debug tooling ---------- */
+const __originalOnRewardContinue = Game.prototype.onRewardContinue;
+const __originalCloseAchievementPopup = Game.prototype.closeAchievementPopup;
+
+Object.assign(Game.prototype, {
+    initMiniGameDebug() {
+        if (!this.collection.miniGameStamps) this.collection.miniGameStamps = [];
+        this.pendingPostMiniReward = false;
+        this.miniGameState = null;
+        this.debugMiniGame = false;
+        this.debugReturnAfterReward = false;
+        this.debugReturnAfterAchievement = false;
+
+        document.getElementById('menu-debug-btn')?.addEventListener('click', () => this.openDebugPanel(false));
+        document.getElementById('debug-close-btn')?.addEventListener('click', () => this.closeDebugPanel());
+        document.getElementById('mini-reward-continue-btn')?.addEventListener('click', () => this.continueAfterMiniGame());
+        document.getElementById('mini-game-debug-solve-btn')?.addEventListener('click', () => this.debugSolveMiniGame());
+
+        document.querySelectorAll('[data-debug-action]').forEach(btn => {
+            btn.addEventListener('click', () => this.runDebugAction(btn.dataset.debugAction));
+        });
+
+        this.updateDebugReadout();
+    },
+
+    async onRewardContinue() {
+        if (this.debugReturnAfterReward) {
+            this.debugReturnAfterReward = false;
+            document.getElementById('reward-overlay').classList.remove('active');
+            this.openDebugPanel(true);
+            return;
+        }
+        return __originalOnRewardContinue.call(this);
+    },
+
+    closeAchievementPopup() {
+        if (this.debugReturnAfterAchievement) {
+            this.debugReturnAfterAchievement = false;
+            document.getElementById('achievement-overlay')?.classList.remove('active');
+            this.activeAchievement = null;
+            this.openDebugPanel(true);
+            return;
+        }
+        return __originalCloseAchievementPopup.call(this);
+    },
+
+    updateDebugReadout() {
+        const level = document.getElementById('debug-level-readout');
+        const coins = document.getElementById('debug-coin-readout');
+        if (level) level.innerText = String((this.currentLevelIdx || 0) + 1);
+        if (coins) coins.innerText = this.formatStat(this.coins || 0);
+    },
+
+    openDebugPanel(fromGame = false) {
+        this.setMusicContext('main');
+        this.updateDebugReadout();
+        const debug = document.getElementById('debug-overlay');
+        const active = this.activePaperOverlay();
+        if (active && active !== debug) this.swipeModalSwap(active, debug, true);
+        else if (fromGame) this.panGameToSheet(debug);
+        else this.swipeModalSwap(document.getElementById('menu-overlay'), debug, true);
+    },
+
+    closeDebugPanel() {
+        this.swipeModalSwap(
+            document.getElementById('debug-overlay'),
+            document.getElementById('menu-overlay'),
+            false
+        );
+    },
+
+    runDebugAction(action) {
+        if (!action) return;
+        if (action === 'coins') {
+            this.addCoins(500);
+            this.updateDebugReadout();
+            return;
+        }
+        if (action === 'powerups') {
+            Object.keys(POWER_UPS).forEach(key => this.inventory[key] = (this.inventory[key] || 0) + 5);
+            this.updatePowerUpTray();
+            this.persist();
+            return;
+        }
+        if (action === 'clear-save') {
+            this.clearSave();
+            this.updateDebugReadout();
+            return;
+        }
+        if (action.startsWith('jump')) {
+            const target = Number(action.replace('jump','')) || 1;
+            this.currentLevelIdx = Math.max(0, target - 1);
+            this.persist();
+            this.updateDebugReadout();
+            return;
+        }
+        if (action === 'win' || action === 'fail') {
+            const success = action === 'win';
+            this.swipeModalSwap(document.getElementById('debug-overlay'), document.getElementById('screen-overlay'), true);
+            setTimeout(() => this.showScreen(
+                success ? 'Level Clear!' : 'Out of Moves',
+                'BACK TO DEBUG',
+                success ? 3 : null,
+                'debugReturn',
+                true,
+                { coinsEarned:success ? 45 : 0, elapsedMs:61000, score:success ? 1100 : 640, movesUsed:18, movesAllotted:20 }
+            ), 30);
+            return;
+        }
+        if (action === 'reward') {
+            this.debugReturnAfterReward = true;
+            this.swipeModalSwap(document.getElementById('debug-overlay'), document.getElementById('reward-overlay'), true);
+            const def = POWER_UPS.swap;
+            document.getElementById('reward-earned-art').innerHTML = this.buildCardIcon(def);
+            document.getElementById('reward-earned-name').innerText = def.name;
+            document.getElementById('reward-message').innerText = `Test reward: ${def.name}.`;
+            return;
+        }
+        if (action === 'achievement') {
+            this.debugReturnAfterAchievement = true;
+            const first = ACHIEVEMENTS[0];
+            const sheet = STICKER_SHEETS.find(s => s.id === first.id);
+            const sticker = sheet?.stickers?.[0];
+            if (sticker) {
+                document.getElementById('achievement-stamp-art').innerHTML = this.buildStickerFace(sticker);
+                document.getElementById('achievement-name').innerText = first.name;
+                document.getElementById('achievement-desc').innerText = first.desc;
+                this.swipeModalSwap(document.getElementById('debug-overlay'), document.getElementById('achievement-overlay'), true);
+            }
+            return;
+        }
+        if (action === 'mini10') return this.startMiniGame(10, true);
+        if (action === 'mini30') return this.startMiniGame(30, true);
+        if (action === 'mini60') return this.startMiniGame(60, true);
+        if (action === 'miniReward') {
+            this.debugMiniGame = true;
+            this.miniGameState = { level:10, artwork:this.makeMiniGameArtwork(1), moves:14 };
+            this.showMiniGameReward(true);
+        }
+    },
+
+    miniGameConfig(levelNumber) {
+        const challenge = Math.max(1, Math.floor(Math.max(10, levelNumber) / 10));
+
+        // Square sliding puzzles. Difficulty rises first through a deeper legal
+        // scramble, then by increasing the NxN board size. Every starting board
+        // is created from the solved state using legal blank-space moves, so it
+        // is guaranteed to be solvable.
+        if (challenge === 1) return { challenge, cols:3, rows:3, scramble:18, minDistance:6 };
+        if (challenge === 2) return { challenge, cols:3, rows:3, scramble:34, minDistance:9 };
+        if (challenge === 3) return { challenge, cols:4, rows:4, scramble:42, minDistance:12 };
+        if (challenge === 4) return { challenge, cols:4, rows:4, scramble:62, minDistance:17 };
+        if (challenge === 5) return { challenge, cols:4, rows:4, scramble:82, minDistance:21 };
+
+        // 5 x 5 is deliberately held until Level 60. From there the board size
+        // stays readable on mobile while the scramble keeps getting tougher.
+        return {
+            challenge,
+            cols:5,
+            rows:5,
+            scramble:96 + (challenge - 6) * 18,
+            minDistance:26 + Math.min(14, (challenge - 6) * 2)
+        };
+    },
+
+    makeMiniGameArtwork(challenge) {
+        const sets = [
+            ['#FFC567','#FB7DA8','#058CD7','#0D9488','#552C87','#FD5A46'],
+            ['#63C5FB','#FDB5CD','#FAD970','#4FF0E1','#9F76D2','#FEA499'],
+            ['#FD5A46','#FFC567','#552C87','#058CD7','#0D9488','#FB7DA8']
+        ];
+        const c = sets[(challenge - 1) % sets.length];
+        const n = challenge % 6;
+        const tilt = 7 + n * 2;
+        const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1200">
+          <rect width="1200" height="1200" fill="${c[0]}"/>
+          <circle cx="${230 + n*14}" cy="235" r="170" fill="${c[1]}" stroke="#17161A" stroke-width="26"/>
+          <rect x="650" y="105" width="330" height="330" rx="32" fill="${c[2]}" stroke="#17161A" stroke-width="26" transform="rotate(${tilt} 815 270)"/>
+          <path d="M95 610 L365 430 L520 705 L235 825 Z" fill="${c[3]}" stroke="#17161A" stroke-width="26"/>
+          <circle cx="845" cy="645" r="205" fill="${c[4]}" stroke="#17161A" stroke-width="26"/>
+          <path d="M690 520 L1050 520 L1050 795 L690 795 Z" fill="none" stroke="#17161A" stroke-width="26"/>
+          <path d="M85 1010 H535 V1115 H85 Z" fill="${c[5]}" stroke="#17161A" stroke-width="26"/>
+          <path d="M700 1035 L860 875 L1020 1035 L860 1160 Z" fill="${c[2]}" stroke="#17161A" stroke-width="26"/>
+          <circle cx="585" cy="905" r="68" fill="#F7F5F0" stroke="#17161A" stroke-width="26"/>
+          <path d="M530 230 L585 120 L640 230 L750 285 L640 340 L585 450 L530 340 L420 285 Z" fill="${c[5]}" stroke="#17161A" stroke-width="26"/>
+        </svg>`;
+        return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
+    },
+
+    miniGameDistanceScore(tiles, cols, blankValue) {
+        let score = 0;
+        tiles.forEach((value, index) => {
+            if (value === blankValue) return;
+            const currentRow = Math.floor(index / cols);
+            const currentCol = index % cols;
+            const solvedRow = Math.floor(value / cols);
+            const solvedCol = value % cols;
+            score += Math.abs(currentRow - solvedRow) + Math.abs(currentCol - solvedCol);
+        });
+        return score;
+    },
+
+    scrambleMiniGame(config) {
+        const total = config.cols * config.rows;
+        const solved = Array.from({length:total}, (_,i) => i);
+        const tiles = solved.slice();
+        const blankValue = total - 1;
+        let blank = total - 1;
+        let previousBlank = -1;
+        let movesMade = 0;
+        const maxMoves = config.scramble + 180;
+
+        // Scrambling from the solved board using only legal moves guarantees a
+        // solvable puzzle. We also avoid immediately undoing the previous move
+        // and require a minimum Manhattan-distance score so later challenges do
+        // not accidentally spawn almost solved.
+        while (movesMade < config.scramble || this.miniGameDistanceScore(tiles, config.cols, blankValue) < config.minDistance) {
+            const neighbours = [];
+            const r = Math.floor(blank / config.cols);
+            const c = blank % config.cols;
+            if (r > 0) neighbours.push(blank - config.cols);
+            if (r < config.rows - 1) neighbours.push(blank + config.cols);
+            if (c > 0) neighbours.push(blank - 1);
+            if (c < config.cols - 1) neighbours.push(blank + 1);
+
+            const options = neighbours.filter(index => index !== previousBlank);
+            const choices = options.length ? options : neighbours;
+            const next = choices[Math.floor(Math.random() * choices.length)];
+            [tiles[blank], tiles[next]] = [tiles[next], tiles[blank]];
+            previousBlank = blank;
+            blank = next;
+            movesMade++;
+
+            if (movesMade >= maxMoves) break;
+        }
+
+        // A long legal walk can theoretically loop back to solved. One extra
+        // legal move is enough to prevent ever presenting a completed board.
+        if (tiles.every((value, index) => value === index)) {
+            const r = Math.floor(blank / config.cols);
+            const c = blank % config.cols;
+            const next = c > 0 ? blank - 1 : (r > 0 ? blank - config.cols : blank + 1);
+            [tiles[blank], tiles[next]] = [tiles[next], tiles[blank]];
+        }
+
+        return { tiles, blankValue };
+    },
+
+    startMiniGame(levelNumber, debug = false) {
+        this.setMusicContext('puzzle');
+        const config = this.miniGameConfig(levelNumber);
+        const scrambled = this.scrambleMiniGame(config);
+        const tiles = scrambled.tiles;
+
+        this.debugMiniGame = !!debug;
+        this.miniGameDrag = null;
+        this.miniGameSuppressClickUntil = 0;
+        this.miniGameState = {
+            level:levelNumber,
+            challenge:config.challenge,
+            cols:config.cols,
+            rows:config.rows,
+            tiles,
+            blankValue:scrambled.blankValue,
+            moves:0,
+            artwork:this.makeMiniGameArtwork(config.challenge)
+        };
+
+        const kicker = document.getElementById('mini-game-kicker');
+        if (kicker) kicker.innerText = debug ? `DEBUG · LEVEL ${levelNumber} CHALLENGE` : `LEVEL ${levelNumber} CHALLENGE`;
+        document.getElementById('mini-game-debug-solve-btn').hidden = !debug;
+        this.renderMiniGame();
+
+        const from = this.activePaperOverlay();
+        const overlay = document.getElementById('mini-game-overlay');
+        if (from && from !== overlay) this.swipeModalSwap(from, overlay, true);
+        else this.panGameToSheet(overlay);
+    },
+
+    renderMiniGame() {
+        const state = this.miniGameState;
+        const host = document.getElementById('slide-puzzle');
+        if (!state || !host) return;
+        host.style.setProperty('--puzzle-cols', state.cols);
+        host.style.setProperty('--puzzle-rows', state.rows);
+        document.getElementById('mini-game-moves').innerText = String(state.moves);
+        document.getElementById('mini-game-size').innerText = `${state.cols} × ${state.rows}`;
+        host.innerHTML = '';
+
+        state.tiles.forEach((value, index) => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'slide-tile' + (value === state.blankValue ? ' blank' : '');
+            btn.dataset.index = String(index);
+            if (value !== state.blankValue) {
+                const solvedRow = Math.floor(value / state.cols);
+                const solvedCol = value % state.cols;
+                const x = state.cols === 1 ? 0 : solvedCol / (state.cols - 1) * 100;
+                const y = state.rows === 1 ? 0 : solvedRow / (state.rows - 1) * 100;
+                btn.style.backgroundImage = state.artwork;
+                btn.style.backgroundSize = `${state.cols * 100}% ${state.rows * 100}%`;
+                btn.style.backgroundPosition = `${x}% ${y}%`;
+                btn.setAttribute('aria-label', `Puzzle tile ${value + 1}`);
+                btn.addEventListener('click', e => {
+                    if (performance.now() < (this.miniGameSuppressClickUntil || 0)) {
+                        e.preventDefault();
+                        return;
+                    }
+                    this.moveMiniGameTile(index, btn);
+                });
+                btn.addEventListener('pointerdown', e => this.beginMiniGameDrag(e, index, btn));
+            } else {
+                btn.setAttribute('aria-label', 'Empty puzzle space');
+            }
+            host.appendChild(btn);
+        });
+    },
+
+    miniGameMoveInfo(index) {
+        const s = this.miniGameState;
+        if (!s || s.animating) return null;
+        const blank = s.tiles.indexOf(s.blankValue);
+        const br = Math.floor(blank / s.cols), bc = blank % s.cols;
+        const tr = Math.floor(index / s.cols), tc = index % s.cols;
+        if (Math.abs(br - tr) + Math.abs(bc - tc) !== 1) return null;
+        return { blank, br, bc, tr, tc };
+    },
+
+    beginMiniGameDrag(e, index, tileEl) {
+        const info = this.miniGameMoveInfo(index);
+        const host = document.getElementById('slide-puzzle');
+        if (!info || !host || !tileEl || e.button > 0) return;
+
+        const blankEl = host.children[info.blank];
+        if (!blankEl) return;
+        const tileRect = tileEl.getBoundingClientRect();
+        const blankRect = blankEl.getBoundingClientRect();
+        const targetX = blankRect.left - tileRect.left;
+        const targetY = blankRect.top - tileRect.top;
+        const horizontal = Math.abs(targetX) > Math.abs(targetY);
+        const distance = Math.abs(horizontal ? targetX : targetY);
+        if (!distance) return;
+
+        this.miniGameDrag = {
+            pointerId:e.pointerId,
+            index,
+            tileEl,
+            startX:e.clientX,
+            startY:e.clientY,
+            targetX,
+            targetY,
+            horizontal,
+            distance,
+            progress:0,
+            moved:false
+        };
+
+        tileEl.classList.add('dragging');
+        try { tileEl.setPointerCapture(e.pointerId); } catch (err) {}
+
+        const move = ev => this.updateMiniGameDrag(ev);
+        const finish = ev => this.finishMiniGameDrag(ev, move, finish);
+        tileEl.addEventListener('pointermove', move);
+        tileEl.addEventListener('pointerup', finish);
+        tileEl.addEventListener('pointercancel', finish);
+    },
+
+    updateMiniGameDrag(e) {
+        const d = this.miniGameDrag;
+        if (!d || e.pointerId !== d.pointerId) return;
+        e.preventDefault();
+        const raw = d.horizontal ? (e.clientX - d.startX) : (e.clientY - d.startY);
+        const sign = Math.sign(d.horizontal ? d.targetX : d.targetY) || 1;
+        const towardBlank = Math.max(0, raw * sign);
+        d.progress = Math.max(0, Math.min(1, towardBlank / d.distance));
+        if (towardBlank > 4) d.moved = true;
+        d.tileEl.style.transform = `translate3d(${d.targetX * d.progress}px,${d.targetY * d.progress}px,0)`;
+    },
+
+    finishMiniGameDrag(e, moveHandler, finishHandler) {
+        const d = this.miniGameDrag;
+        if (!d || e.pointerId !== d.pointerId) return;
+        d.tileEl.removeEventListener('pointermove', moveHandler);
+        d.tileEl.removeEventListener('pointerup', finishHandler);
+        d.tileEl.removeEventListener('pointercancel', finishHandler);
+        try { d.tileEl.releasePointerCapture(e.pointerId); } catch (err) {}
+
+        this.miniGameDrag = null;
+        if (!d.moved) {
+            d.tileEl.classList.remove('dragging');
+            d.tileEl.style.transform = '';
+            return;
+        }
+
+        e.preventDefault();
+        this.miniGameSuppressClickUntil = performance.now() + 420;
+        if (d.progress >= 0.32) {
+            this.moveMiniGameTile(d.index, d.tileEl, d.progress);
+        } else {
+            d.tileEl.classList.remove('dragging');
+            d.tileEl.classList.add('sliding');
+            d.tileEl.style.transform = 'translate3d(0,0,0)';
+            setTimeout(() => {
+                if (d.tileEl?.isConnected) {
+                    d.tileEl.classList.remove('sliding');
+                    d.tileEl.style.transform = '';
+                }
+            }, 150);
+        }
+    },
+
+    moveMiniGameTile(index, tileEl = null, dragProgress = 0) {
+        const s = this.miniGameState;
+        const info = this.miniGameMoveInfo(index);
+        if (!s || !info) return;
+        const host = document.getElementById('slide-puzzle');
+        const blankEl = host?.children?.[info.blank];
+        const liveTile = tileEl || host?.children?.[index];
+        s.animating = true;
+
+        const finish = () => {
+            [s.tiles[info.blank], s.tiles[index]] = [s.tiles[index], s.tiles[info.blank]];
+            s.moves++;
+            s.animating = false;
+            this.sfx.swap();
+            this.renderMiniGame();
+            if (s.tiles.every((v,i) => v === i)) setTimeout(() => this.completeMiniGame(), 180);
+        };
+
+        if (!liveTile || !blankEl) {
+            finish();
+            return;
+        }
+
+        const tileRect = liveTile.getBoundingClientRect();
+        const blankRect = blankEl.getBoundingClientRect();
+        const remainingX = blankRect.left - tileRect.left;
+        const remainingY = blankRect.top - tileRect.top;
+        const remainingFraction = Math.max(0.001, 1 - Math.max(0, Math.min(0.999, dragProgress)));
+        const dx = dragProgress ? remainingX / remainingFraction : remainingX;
+        const dy = dragProgress ? remainingY / remainingFraction : remainingY;
+        liveTile.classList.remove('dragging');
+        liveTile.classList.add('sliding');
+        if (!dragProgress) liveTile.style.transform = 'translate3d(0,0,0)';
+        requestAnimationFrame(() => {
+            liveTile.style.transform = `translate3d(${dx}px,${dy}px,0)`;
+        });
+        setTimeout(finish, 145);
+    },
+
+    debugSolveMiniGame() {
+        const s = this.miniGameState;
+        if (!s) return;
+        s.tiles = Array.from({length:s.cols*s.rows}, (_,i) => i);
+        this.renderMiniGame();
+        setTimeout(() => this.completeMiniGame(), 120);
+    },
+
+    completeMiniGame() {
+        if (!this.miniGameState) return;
+        this.setMusicContext('main');
+        this.sfx.win();
+        const overlay = document.getElementById('mini-game-overlay');
+        overlay.classList.remove('active');
+        this.showMiniGameReward(this.debugMiniGame);
+    },
+
+    showMiniGameReward(debug = false) {
+        const s = this.miniGameState || {level:10,challenge:1,moves:0,artwork:this.makeMiniGameArtwork(1)};
+        const art = document.getElementById('mini-reward-art');
+        if (art) art.style.backgroundImage = s.artwork;
+        const copy = document.getElementById('mini-reward-copy');
+        if (copy) copy.innerText = debug
+            ? `Debug preview. This would award the Level ${s.level} puzzle stamp.`
+            : `You restored the artwork in ${s.moves} moves. The finished artwork is now part of your stamp collection.`;
+
+        if (!debug) {
+            if (!this.collection.miniGameStamps) this.collection.miniGameStamps = [];
+            const key = `sliding-${s.level}`;
+            if (!this.collection.miniGameStamps.includes(key)) this.collection.miniGameStamps.push(key);
+            this.saveCollection();
+        }
+
+        document.getElementById('mini-game-reward-overlay').classList.add('active');
+        this.setPaperUnderlay(true);
+    },
+
+    continueAfterMiniGame() {
+        this.setMusicContext('main');
+        document.getElementById('mini-game-reward-overlay').classList.remove('active');
+        if (this.debugMiniGame) {
+            this.debugMiniGame = false;
+            this.miniGameState = null;
+            this.openDebugPanel(true);
+            return;
+        }
+        this.miniGameState = null;
+        if (this.pendingPostMiniReward) {
+            this.pendingPostMiniReward = false;
+            this.showRewardPicker();
+            return;
+        }
+        this.startLevel();
+    }
+});
+
 async function boot() {
     const minDisplay = wait(900);
     const fontsReady = (document.fonts && document.fonts.ready) ? document.fonts.ready.catch(() => {}) : Promise.resolve();
     await Promise.race([DurableSave.restore(), wait(1200)]);
     window.game = new Game();
+    window.game.initMiniGameDebug();
     await Promise.all([minDisplay, Promise.race([fontsReady, wait(2000)])]);
     document.getElementById('splash')?.classList.add('hidden');
 }
@@ -7475,7 +8524,7 @@ document.addEventListener('visibilitychange', () => {
         DurableSave.mirror(true).catch(() => {});
     } else if (!document.hidden && window.game) {
         window.game.perf.last = performance.now();
-        window.game.sfx.resume().catch(() => {});
+        window.game.sfx.resume().then(() => window.game.ensureAmbientMusic()).catch(() => {});
     }
 });
 window.addEventListener('pagehide', () => {
