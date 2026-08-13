@@ -26,6 +26,13 @@
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 
+<!-- Start fetching the first puzzle art and both long music loops as early as
+     possible. The persistent <audio> elements below can stream these files
+     instead of waiting for an entire loop to download and decode first. -->
+<link rel="preload" href="art/slide/slide_art_01.png" as="image">
+<link rel="preload" href="audio/Mind-Bender.ogg" as="audio" type="audio/ogg">
+<link rel="preload" href="audio/8-Bit-Puzzler.ogg" as="audio" type="audio/ogg">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
@@ -3334,6 +3341,8 @@ symbol{
 </head>
 
 <body>
+<audio id="bgm-mind-bender" preload="auto" loop playsinline src="audio/Mind-Bender.ogg" aria-hidden="true"></audio>
+<audio id="bgm-puzzler" preload="auto" loop playsinline src="audio/8-Bit-Puzzler.ogg" aria-hidden="true"></audio>
 <div class="splash" id="splash" role="status" aria-live="polite">
   <div class="splash-mark">
     <svg class="splash-mark-shadow" viewBox="0 0 480 480" aria-hidden="true"><use href="#piece-8tip-star" xlink:href="#piece-8tip-star"></use></svg>
@@ -4452,29 +4461,48 @@ class SFX {
             mindBender: 'Mind-Bender'
         };
 
-        this.files = Object.assign({}, this.sfxFiles, this.musicFiles);
+        /* Short effects stay on Web Audio. Background music intentionally uses
+           two persistent HTMLAudioElements instead. A long music loop can begin
+           streaming once enough data is buffered, rather than making iPhone
+           download and decode the entire OGG before the first note can play. */
+        this.files = Object.assign({}, this.sfxFiles);
         this.ctx = null;
         this.masterGain = null;
         this.sfxGain = null;
-        this.musicGain = null;
         this.buffers = {};
         this.loading = {};
         this.preloadData = {};
         this.activeSources = new Set();
-        this.musicSource = null;
-        this.musicTrackGain = null;
         this.currentMusicKey = null;
         this.musicRequestId = 0;
 
-        /* Begin fetching both SFX and the two music loops during the splash
-           screen. iOS may still require a gesture before playback, but the
-           network/decode work can be completed before that gesture happens. */
+        this.musicEls = {
+            mindBender: document.getElementById('bgm-mind-bender'),
+            puzzler: document.getElementById('bgm-puzzler')
+        };
+
+        Object.entries(this.musicEls).forEach(([key, audio]) => {
+            if (!audio) {
+                audio = new Audio(this.musicFiles[key]);
+                audio.preload = 'auto';
+                audio.loop = true;
+                audio.playsInline = true;
+                this.musicEls[key] = audio;
+            }
+            audio.preload = 'auto';
+            audio.loop = true;
+            audio.playsInline = true;
+            audio.volume = this.musicMuted ? 0 : this.musicVolume;
+            try { audio.load(); } catch (e) {}
+        });
+
+        /* SFX are tiny, so fetching them into buffers up front is still useful. */
         Object.entries(this.files).forEach(([key, src]) => {
             this.preloadData[key] = this.fetchAudio(src, key);
         });
 
-        /* iOS/Safari can suspend an AudioContext after backgrounding. Any real
-           user interaction gets another chance to resume the same engine. */
+        /* iOS/Safari may suspend Web Audio after backgrounding. Any real user
+           interaction gets another chance to resume the SFX engine. */
         this.unlockHandler = () => {
             this.unlock().catch(err => console.warn('[audio] unlock failed:', err));
         };
@@ -4504,17 +4532,11 @@ class SFX {
 
         try {
             this.ctx = new AudioContextClass();
-
             this.masterGain = this.ctx.createGain();
             this.sfxGain = this.ctx.createGain();
-            this.musicGain = this.ctx.createGain();
-
             this.masterGain.gain.value = 1;
             this.sfxGain.gain.value = this.sfxMuted ? 0 : this.masterVolume;
-            this.musicGain.gain.value = this.musicMuted ? 0 : this.musicVolume;
-
             this.sfxGain.connect(this.masterGain);
-            this.musicGain.connect(this.masterGain);
             this.masterGain.connect(this.ctx.destination);
             return this.ctx;
         } catch (err) {
@@ -4526,7 +4548,6 @@ class SFX {
     async unlock() {
         const ctx = this.createContext();
         if (!ctx) return false;
-
         if (ctx.state !== 'running') {
             try {
                 await ctx.resume();
@@ -4535,17 +4556,14 @@ class SFX {
                 return false;
             }
         }
-
         this.loadAllSfx();
         return ctx.state === 'running';
     }
 
-    ensure() {
-        return this.unlock();
-    }
+    ensure() { return this.unlock(); }
 
     async resume() {
-        if (!this.ctx) return false;
+        if (!this.ctx) return true;
         if (this.ctx.state !== 'running') {
             try {
                 await this.ctx.resume();
@@ -4570,7 +4588,6 @@ class SFX {
     async load(key) {
         if (this.buffers[key]) return this.buffers[key];
         if (this.loading[key]) return this.loading[key];
-
         const src = this.files[key];
         if (!src) {
             console.warn(`[audio] unknown sound key: ${key}`);
@@ -4580,17 +4597,13 @@ class SFX {
         this.loading[key] = (async () => {
             const ctx = this.createContext();
             if (!ctx) return null;
-
             if (!this.preloadData[key]) this.preloadData[key] = this.fetchAudio(src, key);
             const data = await this.preloadData[key];
             if (!data) return null;
-
             const buffer = await this.decodeAudio(data, key);
             if (buffer) this.buffers[key] = buffer;
             return buffer;
-        })().finally(() => {
-            delete this.loading[key];
-        });
+        })().finally(() => { delete this.loading[key]; });
 
         return this.loading[key];
     }
@@ -4601,17 +4614,36 @@ class SFX {
         });
     }
 
+    async waitForMusicReady(key = 'mindBender', timeoutMs = 5000) {
+        const audio = this.musicEls[key];
+        if (!audio) return false;
+        if (audio.readyState >= HTMLMediaElement.HAVE_FUTURE_DATA) return true;
+        try { audio.load(); } catch (e) {}
+
+        return await new Promise(resolve => {
+            let settled = false;
+            const finish = value => {
+                if (settled) return;
+                settled = true;
+                clearTimeout(timer);
+                audio.removeEventListener('canplay', onReady);
+                audio.removeEventListener('loadeddata', onReady);
+                audio.removeEventListener('error', onError);
+                resolve(value);
+            };
+            const onReady = () => finish(true);
+            const onError = () => finish(false);
+            const timer = setTimeout(() => finish(audio.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA), timeoutMs);
+            audio.addEventListener('canplay', onReady, { once:true });
+            audio.addEventListener('loadeddata', onReady, { once:true });
+            audio.addEventListener('error', onError, { once:true });
+        });
+    }
 
     async warmMusic() {
-        /* AudioContext may remain suspended until the first real gesture on
-           iOS, but decodeAudioData can still prepare the buffers in advance. */
-        this.createContext();
-        const keys = Object.keys(this.musicFiles);
-        await Promise.all(keys.map(key => this.load(key).catch(err => {
-            console.warn(`[audio] failed warming ${key}:`, err);
-            return null;
-        })));
-        return keys.every(key => !!this.buffers[key]);
+        /* Prioritise the menu/gameplay track. The puzzle track continues
+           buffering independently in its persistent audio element. */
+        return this.waitForMusicReady('mindBender', 5000);
     }
 
     setSfxMuted(value) {
@@ -4624,10 +4656,9 @@ class SFX {
 
     setMusicMuted(value) {
         this.musicMuted = !!value;
-        if (this.musicGain && this.ctx) {
-            this.musicGain.gain.setTargetAtTime(this.musicMuted ? 0 : this.musicVolume, this.ctx.currentTime, 0.02);
-        }
-        if (!this.musicMuted) this.unlock();
+        Object.values(this.musicEls).forEach(audio => {
+            if (audio) audio.volume = this.musicMuted ? 0 : this.musicVolume;
+        });
     }
 
     setSfxVolume(value) {
@@ -4639,16 +4670,15 @@ class SFX {
 
     setMusicVolume(value) {
         this.musicVolume = Math.max(0, Math.min(1, Number(value) || 0));
-        if (this.musicGain && this.ctx && !this.musicMuted) {
-            this.musicGain.gain.setTargetAtTime(this.musicVolume, this.ctx.currentTime, 0.02);
-        }
+        Object.values(this.musicEls).forEach(audio => {
+            if (audio) audio.volume = this.musicMuted ? 0 : this.musicVolume;
+        });
     }
 
     async play(key, volume = 1, rate = 1) {
         if (this.sfxMuted) return false;
         const ready = await this.unlock();
         if (!ready) return false;
-
         const buffer = await this.load(key);
         if (!buffer || this.sfxMuted || !this.ctx || !this.sfxGain) return false;
 
@@ -4661,13 +4691,11 @@ class SFX {
             source.connect(gain);
             gain.connect(this.sfxGain);
             this.activeSources.add(source);
-
             source.onended = () => {
                 this.activeSources.delete(source);
                 try { source.disconnect(); } catch (e) {}
                 try { gain.disconnect(); } catch (e) {}
             };
-
             source.start(0);
             return true;
         } catch (err) {
@@ -4677,94 +4705,47 @@ class SFX {
     }
 
     async playMusic(key) {
-        if (!this.musicFiles[key]) return false;
+        const next = this.musicEls[key];
+        if (!next || this.musicMuted) return false;
         const requestId = ++this.musicRequestId;
-        const ready = await this.unlock();
-        if (!ready) return false;
 
-        const buffer = await this.load(key);
-        if (requestId !== this.musicRequestId) return false;
-        if (!buffer || !this.ctx || !this.musicGain) return false;
-
-        /* Tapping the already-active track simply keeps it running. */
-        if (this.currentMusicKey === key && this.musicSource) return true;
-
-        try {
-            const now = this.ctx.currentTime;
-            const nextSource = this.ctx.createBufferSource();
-            const nextGain = this.ctx.createGain();
-            nextSource.buffer = buffer;
-            nextSource.loop = true;
-            nextGain.gain.setValueAtTime(0, now);
-            nextGain.gain.linearRampToValueAtTime(1, now + 0.14);
-            nextSource.connect(nextGain);
-            nextGain.connect(this.musicGain);
-
-            const oldSource = this.musicSource;
-            const oldGain = this.musicTrackGain;
-            if (oldSource && oldGain) {
-                try {
-                    oldGain.gain.cancelScheduledValues(now);
-                    oldGain.gain.setValueAtTime(oldGain.gain.value, now);
-                    oldGain.gain.linearRampToValueAtTime(0, now + 0.12);
-                    setTimeout(() => {
-                        try { oldSource.stop(); } catch (e) {}
-                        try { oldSource.disconnect(); } catch (e) {}
-                        try { oldGain.disconnect(); } catch (e) {}
-                    }, 170);
-                } catch (e) {
-                    try { oldSource.stop(); } catch (err) {}
-                }
-            }
-
-            this.musicSource = nextSource;
-            this.musicTrackGain = nextGain;
-            this.currentMusicKey = key;
-            nextSource.start(0);
-
-            nextSource.onended = () => {
-                if (this.musicSource === nextSource) {
-                    this.musicSource = null;
-                    this.musicTrackGain = null;
-                }
-                try { nextSource.disconnect(); } catch (e) {}
-                try { nextGain.disconnect(); } catch (e) {}
-            };
-
+        if (this.currentMusicKey === key && !next.paused) {
+            next.volume = this.musicVolume;
             return true;
+        }
+
+        /* Start the new stream first. On iPhone this must happen in response to
+           a real user gesture the first time audio is used. Because the element
+           has already been buffering, playback should begin as soon as Safari
+           permits it instead of waiting for a full OGG decode. */
+        try {
+            next.volume = this.musicVolume;
+            await next.play();
         } catch (err) {
-            console.warn(`[audio] failed starting music ${key}:`, err);
+            console.warn(`[audio] music ${key} could not start yet:`, err);
             return false;
         }
+
+        if (requestId !== this.musicRequestId) {
+            try { next.pause(); } catch (e) {}
+            return false;
+        }
+
+        Object.entries(this.musicEls).forEach(([otherKey, audio]) => {
+            if (!audio || otherKey === key) return;
+            try { audio.pause(); } catch (e) {}
+        });
+        this.currentMusicKey = key;
+        return true;
     }
 
-    stopMusic(fadeMs = 120) {
+    stopMusic() {
         this.musicRequestId++;
-        const source = this.musicSource;
-        const gain = this.musicTrackGain;
-        this.musicSource = null;
-        this.musicTrackGain = null;
+        Object.values(this.musicEls).forEach(audio => {
+            if (!audio) return;
+            try { audio.pause(); } catch (e) {}
+        });
         this.currentMusicKey = null;
-        if (!source) return;
-
-        if (!this.ctx || !gain || fadeMs <= 0) {
-            try { source.stop(); } catch (e) {}
-            return;
-        }
-
-        const now = this.ctx.currentTime;
-        try {
-            gain.gain.cancelScheduledValues(now);
-            gain.gain.setValueAtTime(gain.gain.value, now);
-            gain.gain.linearRampToValueAtTime(0, now + fadeMs / 1000);
-            setTimeout(() => {
-                try { source.stop(); } catch (e) {}
-                try { source.disconnect(); } catch (e) {}
-                try { gain.disconnect(); } catch (e) {}
-            }, fadeMs + 40);
-        } catch (e) {
-            try { source.stop(); } catch (err) {}
-        }
     }
 
     stopAll() {
@@ -4783,12 +4764,12 @@ class SFX {
     special() { this.play('tileSpecial', 0.82, 1); }
     milestoneHit() { this.play('milestoneHit', 0.88, 1); }
     slide() { this.play('slide', 0.82, 1); }
+    shuffle() { this.play('powerUp', 0.78, 0.96); }
     powerUp() { this.play('powerUp', 0.82, 1); }
     reward() { this.play('reward', 0.84, 1); }
     win() { this.play('levelSuccess', 0.92, 1); }
     lose() { this.play('invalid', 0.58, 0.82); }
 }
-
 class Game {
     constructor() {
         this.grid = document.getElementById('grid');
@@ -8155,6 +8136,9 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
 
 
 /* ---------- Sliding challenge + debug tooling ---------- */
+const MINI_GAME_CUSTOM_ART = {
+    1: 'art/slide/slide_art_01.png'
+};
 const __originalOnRewardContinue = Game.prototype.onRewardContinue;
 const __originalCloseAchievementPopup = Game.prototype.closeAchievementPopup;
 
@@ -8166,6 +8150,7 @@ Object.assign(Game.prototype, {
         this.debugMiniGame = false;
         this.debugReturnAfterReward = false;
         this.debugReturnAfterAchievement = false;
+        this.miniGameArtLoadFailed = new Set();
 
         document.getElementById('menu-debug-btn')?.addEventListener('click', () => this.openDebugPanel(false));
         document.getElementById('debug-close-btn')?.addEventListener('click', () => this.closeDebugPanel());
@@ -8325,13 +8310,13 @@ Object.assign(Game.prototype, {
     },
 
     makeMiniGameArtwork(challenge) {
-        /* Supplied square artwork for the first sliding challenge. Keep this
-           mapping explicit so later challenge art can be dropped into
-           art/slide/ without changing the puzzle renderer. */
-        const customArtwork = {
-            1: 'art/slide/slide_art_01.png'
-        };
-        if (customArtwork[challenge]) return `url("${customArtwork[challenge]}")`;
+        /* One square source image is intentionally sliced by CSS across every
+           movable tile. The player does NOT need nine separate files. */
+        const customSrc = MINI_GAME_CUSTOM_ART[challenge];
+        if (customSrc && !this.miniGameArtLoadFailed?.has(challenge)) {
+            const resolved = new URL(customSrc, document.baseURI).href;
+            return `url("${resolved}")`;
+        }
 
         const sets = [
             ['#FFC567','#FB7DA8','#058CD7','#0D9488','#552C87','#FD5A46'],
@@ -8354,6 +8339,26 @@ Object.assign(Game.prototype, {
           <path d="M530 230 L585 120 L640 230 L750 285 L640 340 L585 450 L530 340 L420 285 Z" fill="${c[5]}" stroke="#17161A" stroke-width="26"/>
         </svg>`;
         return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
+    },
+
+    async preloadMiniGameArtwork(challenge) {
+        const src = MINI_GAME_CUSTOM_ART[challenge];
+        if (!src) return true;
+        if (this.miniGameArtLoadFailed?.has(challenge)) return false;
+        const url = new URL(src, document.baseURI).href;
+
+        return await new Promise(resolve => {
+            const image = new Image();
+            image.decoding = 'async';
+            image.onload = () => resolve(true);
+            image.onerror = () => {
+                this.miniGameArtLoadFailed?.add(challenge);
+                console.warn(`[slide puzzle] Could not load artwork: ${url}. Check the path, filename case, and that the PNG is deployed.`);
+                resolve(false);
+            };
+            image.src = url;
+            if (image.complete && image.naturalWidth > 0) resolve(true);
+        });
     },
 
     miniGameDistanceScore(tiles, cols, blankValue) {
@@ -8415,9 +8420,10 @@ Object.assign(Game.prototype, {
         return { tiles, blankValue };
     },
 
-    startMiniGame(levelNumber, debug = false) {
+    async startMiniGame(levelNumber, debug = false) {
         this.setMusicContext('puzzle');
         const config = this.miniGameConfig(levelNumber);
+        await this.preloadMiniGameArtwork(config.challenge);
         const scrambled = this.scrambleMiniGame(config);
         const tiles = scrambled.tiles;
 
@@ -8679,15 +8685,23 @@ async function boot() {
     await Promise.race([DurableSave.restore(), wait(1200)]);
     window.game = new Game();
     window.game.initMiniGameDebug();
+
+    /* The persistent music element has already been buffering during parsing.
+       Give the primary loop a chance to reach canplay before removing splash. */
     const musicWarm = window.game.sfx.warmMusic().catch(() => false);
     await Promise.all([
         minDisplay,
         Promise.race([fontsReady, wait(2000)]),
-        Promise.race([musicWarm, wait(1800)])
+        Promise.race([musicWarm, wait(5000)])
     ]);
     document.getElementById('splash')?.classList.add('hidden');
+
+    /* Browsers that permit playback without another gesture can start now.
+       iOS will harmlessly reject this attempt and the first tap will start it. */
+    window.game.ensureAmbientMusic();
 }
-window.addEventListener('load', boot);
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, { once:true });
+else boot();
 document.addEventListener('visibilitychange', () => {
     if (document.hidden && window.game) {
         window.game.flushSave();
