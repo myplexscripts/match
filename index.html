@@ -2953,6 +2953,61 @@ symbol{
 .shop-item-foot .rc-buy .material-symbols-outlined{font-size:1.15rem!important}
 .shop-item-foot .rc-buy:active:not(:disabled){transform:translate(2px,2px);box-shadow:0 0 0 var(--ink-fixed)}
 .shop-item-foot .rc-buy:disabled{cursor:not-allowed;opacity:.7}
+
+
+/* ---------- Main-menu background music preview ---------- */
+.music-preview{
+  width:100%;
+  display:flex;
+  flex-direction:column;
+  gap:9px;
+  margin-top:2px;
+}
+.music-preview-head{
+  min-height:18px;
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  gap:12px;
+  color:var(--muted);
+  font:800 .69rem/1.15 Manrope,sans-serif;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+.music-preview-head span:last-child{
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  text-align:right;
+  letter-spacing:.04em;
+}
+.music-preview-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:9px;
+}
+#menu-overlay .music-track-btn{
+  width:100%;
+  min-width:0;
+  min-height:48px;
+  margin:0;
+  padding:10px 9px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  font:800 .75rem/1.15 Manrope,sans-serif;
+  letter-spacing:.015em;
+}
+#menu-overlay .music-track-btn.active{
+  background:var(--color-blue-light);
+  color:var(--ink-fixed);
+}
+#menu-overlay .music-track-btn.loading{
+  opacity:.62;
+}
+
 </style>
 </head>
 
@@ -2963,7 +3018,7 @@ symbol{
     <svg class="splash-mark-spinner" viewBox="0 0 480 480" aria-hidden="true"><use href="#piece-8tip-star" xlink:href="#piece-8tip-star"></use></svg>
   </div>
   <h1 class="splash-title">Mellow Match</h1>
-  <p class="splash-tagline">Match, repeat.</p>
+  <p class="splash-tagline">match. cascade. repeat.</p>
   <div class="splash-dots" aria-hidden="true"><i></i><i></i><i></i></div>
 </div>
 
@@ -3150,7 +3205,7 @@ symbol{
       <svg viewBox="0 0 480 480" aria-hidden="true"><use href="#piece-8tip-star" xlink:href="#piece-8tip-star"></use></svg>
     </div>
     <h2>Mellow Match</h2>
-    <p>Match, repeat.</p>
+    <p>match, repeat.</p>
     <p class="menu-status" id="menu-status" hidden></p>
     <div class="menu-actions">
       <button class="primary" id="menu-continue-btn" hidden>CONTINUE</button>
@@ -3158,6 +3213,18 @@ symbol{
       <button class="secondary" id="menu-howto-btn">HOW TO PLAY</button>
       <button class="secondary" id="menu-stickers-btn">ALBUM</button>
       <button class="secondary" id="menu-stats-btn">STATS</button>
+    </div>
+    <div class="music-preview" aria-label="Background music preview">
+      <div class="music-preview-head">
+        <span>BACKGROUND MUSIC</span>
+        <span id="music-preview-status">TAP A TRACK TO PREVIEW</span>
+      </div>
+      <div class="music-preview-grid">
+        <button class="secondary music-track-btn" type="button" data-music-track="puzzler">8-BIT PUZZLER</button>
+        <button class="secondary music-track-btn" type="button" data-music-track="mindBenderLoFi">MIND-BENDER LO-FI</button>
+        <button class="secondary music-track-btn" type="button" data-music-track="mindBender">MIND-BENDER</button>
+        <button class="secondary music-track-btn" type="button" data-music-track="chillhop">CHILLHOP</button>
+      </div>
     </div>
     <div class="menu-tools">
       <button class="secondary menu-tool-btn" id="theme-btn" aria-label="Toggle Light or Dark Mode">
@@ -3231,6 +3298,7 @@ symbol{
             </div>
           </div>
         </div>
+        <p class="howto-note">Some boards have gaps. Tiles stop on blocked spaces, so the board will not always fill like a perfect rectangle.</p>
       </div>
 
       <div class="howto-section">
@@ -3266,6 +3334,20 @@ symbol{
         </div>
       </div>
 
+      <div class="howto-section">
+        <h3 class="howto-section-title">Special combos</h3>
+        <div class="howto-steps">
+          <div class="howto-step">
+            <div class="howto-icon-tile" style="--icon-base:var(--color-red-orange-base);--icon-light:var(--color-red-orange-light)">
+              <svg class="powerup-asset" viewBox="0 0 256 256" style="--icon-scale:1.16" aria-hidden="true"><use href="#pu-row-new"></use></svg>
+            </div>
+            <div class="howto-step-copy">
+              <b>Combine specials for bigger clears</b>
+              <span>Two special tiles together are stronger than one on its own. Try a horizontal clear with a vertical clear, two burst tiles, or a colour bomb with another special tile.</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -3912,7 +3994,9 @@ class SFX {
     constructor() {
         this.muted = false;
         this.masterVolume = 0.82;
-        this.files = {
+        this.musicVolume = 0.24;
+
+        this.sfxFiles = {
             invalid: 'audio/invalid.mp3',
             levelSuccess: 'audio/level_success.mp3',
             powerUp: 'audio/power_up.mp3',
@@ -3920,33 +4004,315 @@ class SFX {
             tilePop: 'audio/tile_swap_pop.mp3',
             tileSpecial: 'audio/tile_swap_special.mp3'
         };
-        this.base = {};
-        this.ensure();
+
+        this.musicFiles = {
+            puzzler: 'audio/8-Bit-Puzzler.ogg',
+            mindBenderLoFi: 'audio/Mind-Bender_LoFi.ogg',
+            mindBender: 'audio/Mind-Bender.ogg',
+            chillhop: 'audio/Chillhop.mp3'
+        };
+
+        this.musicLabels = {
+            puzzler: '8-Bit Puzzler',
+            mindBenderLoFi: 'Mind-Bender Lo-Fi',
+            mindBender: 'Mind-Bender',
+            chillhop: 'Chillhop'
+        };
+
+        this.files = Object.assign({}, this.sfxFiles, this.musicFiles);
+        this.ctx = null;
+        this.masterGain = null;
+        this.sfxGain = null;
+        this.musicGain = null;
+        this.buffers = {};
+        this.loading = {};
+        this.preloadData = {};
+        this.activeSources = new Set();
+        this.musicSource = null;
+        this.musicTrackGain = null;
+        this.currentMusicKey = null;
+        this.musicRequestId = 0;
+
+        /* Short SFX begin fetching immediately, but are decoded only after a
+           user gesture unlocks Web Audio. Full music loops are fetched on
+           demand when one of the preview buttons is tapped. */
+        Object.entries(this.sfxFiles).forEach(([key, src]) => {
+            this.preloadData[key] = this.fetchAudio(src, key);
+        });
+
+        /* iOS/Safari can suspend an AudioContext after backgrounding. Any real
+           user interaction gets another chance to resume the same engine. */
+        this.unlockHandler = () => {
+            this.unlock().catch(err => console.warn('[audio] unlock failed:', err));
+        };
+        document.addEventListener('pointerdown', this.unlockHandler, { passive:true });
+        document.addEventListener('touchstart', this.unlockHandler, { passive:true });
+        document.addEventListener('keydown', this.unlockHandler);
+    }
+
+    async fetchAudio(src, key) {
+        try {
+            const response = await fetch(src, { cache:'force-cache' });
+            if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
+            return await response.arrayBuffer();
+        } catch (err) {
+            console.warn(`[audio] failed to fetch ${key} (${src}):`, err);
+            return null;
+        }
+    }
+
+    createContext() {
+        if (this.ctx) return this.ctx;
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) {
+            console.warn('[audio] Web Audio API is not supported in this browser.');
+            return null;
+        }
+
+        try {
+            this.ctx = new AudioContextClass();
+
+            this.masterGain = this.ctx.createGain();
+            this.sfxGain = this.ctx.createGain();
+            this.musicGain = this.ctx.createGain();
+
+            this.masterGain.gain.value = this.muted ? 0 : 1;
+            this.sfxGain.gain.value = this.masterVolume;
+            this.musicGain.gain.value = this.musicVolume;
+
+            this.sfxGain.connect(this.masterGain);
+            this.musicGain.connect(this.masterGain);
+            this.masterGain.connect(this.ctx.destination);
+            return this.ctx;
+        } catch (err) {
+            console.warn('[audio] AudioContext creation failed:', err);
+            return null;
+        }
+    }
+
+    async unlock() {
+        const ctx = this.createContext();
+        if (!ctx) return false;
+
+        if (ctx.state !== 'running') {
+            try {
+                await ctx.resume();
+            } catch (err) {
+                console.warn('[audio] AudioContext resume failed:', err);
+                return false;
+            }
+        }
+
+        this.loadAllSfx();
+        return ctx.state === 'running';
     }
 
     ensure() {
-        Object.entries(this.files).forEach(([key, src]) => {
-            if (this.base[key]) return;
-            try {
-                const audio = new Audio(src);
-                audio.preload = 'auto';
-                this.base[key] = audio;
-            } catch (e) { /* audio unavailable */ }
-        });
-        return this;
+        return this.unlock();
     }
 
-    play(key, volume = 1, rate = 1) {
-        if (this.muted) return;
-        const source = this.base[key];
-        if (!source) return;
+    async resume() {
+        if (!this.ctx) return false;
+        if (this.ctx.state !== 'running') {
+            try {
+                await this.ctx.resume();
+            } catch (err) {
+                console.warn('[audio] resume failed:', err);
+                return false;
+            }
+        }
+        return this.ctx.state === 'running';
+    }
+
+    async decodeAudio(arrayBuffer, key) {
+        if (!arrayBuffer || !this.ctx) return null;
         try {
-            const audio = source.cloneNode(true);
-            audio.volume = Math.max(0, Math.min(1, this.masterVolume * volume));
-            audio.playbackRate = Math.max(0.5, Math.min(2, rate));
-            const result = audio.play();
-            if (result && typeof result.catch === 'function') result.catch(() => {});
-        } catch (e) { /* audio unavailable */ }
+            return await this.ctx.decodeAudioData(arrayBuffer.slice(0));
+        } catch (err) {
+            console.warn(`[audio] browser could not decode ${key}:`, err);
+            return null;
+        }
+    }
+
+    async load(key) {
+        if (this.buffers[key]) return this.buffers[key];
+        if (this.loading[key]) return this.loading[key];
+
+        const src = this.files[key];
+        if (!src) {
+            console.warn(`[audio] unknown sound key: ${key}`);
+            return null;
+        }
+
+        this.loading[key] = (async () => {
+            const ctx = this.createContext();
+            if (!ctx) return null;
+
+            if (!this.preloadData[key]) this.preloadData[key] = this.fetchAudio(src, key);
+            const data = await this.preloadData[key];
+            if (!data) return null;
+
+            const buffer = await this.decodeAudio(data, key);
+            if (buffer) this.buffers[key] = buffer;
+            return buffer;
+        })().finally(() => {
+            delete this.loading[key];
+        });
+
+        return this.loading[key];
+    }
+
+    loadAllSfx() {
+        Object.keys(this.sfxFiles).forEach(key => {
+            this.load(key).catch(err => console.warn(`[audio] failed loading ${key}:`, err));
+        });
+    }
+
+    setMuted(value) {
+        this.muted = !!value;
+        if (this.masterGain && this.ctx) {
+            const now = this.ctx.currentTime;
+            this.masterGain.gain.cancelScheduledValues(now);
+            this.masterGain.gain.setTargetAtTime(this.muted ? 0 : 1, now, 0.012);
+        }
+        if (!this.muted) this.unlock();
+    }
+
+    setMusicVolume(value) {
+        this.musicVolume = Math.max(0, Math.min(1, Number(value) || 0));
+        if (this.musicGain && this.ctx) {
+            this.musicGain.gain.setTargetAtTime(this.musicVolume, this.ctx.currentTime, 0.02);
+        }
+    }
+
+    async play(key, volume = 1, rate = 1) {
+        if (this.muted) return false;
+        const ready = await this.unlock();
+        if (!ready) return false;
+
+        const buffer = await this.load(key);
+        if (!buffer || this.muted || !this.ctx || !this.sfxGain) return false;
+
+        try {
+            const source = this.ctx.createBufferSource();
+            const gain = this.ctx.createGain();
+            source.buffer = buffer;
+            source.playbackRate.value = Math.max(0.5, Math.min(2, rate));
+            gain.gain.value = Math.max(0, Math.min(1, volume));
+            source.connect(gain);
+            gain.connect(this.sfxGain);
+            this.activeSources.add(source);
+
+            source.onended = () => {
+                this.activeSources.delete(source);
+                try { source.disconnect(); } catch (e) {}
+                try { gain.disconnect(); } catch (e) {}
+            };
+
+            source.start(0);
+            return true;
+        } catch (err) {
+            console.warn(`[audio] failed playing ${key}:`, err);
+            return false;
+        }
+    }
+
+    async playMusic(key) {
+        if (!this.musicFiles[key]) return false;
+        const requestId = ++this.musicRequestId;
+        const ready = await this.unlock();
+        if (!ready) return false;
+
+        const buffer = await this.load(key);
+        if (requestId !== this.musicRequestId) return false;
+        if (!buffer || !this.ctx || !this.musicGain) return false;
+
+        /* Tapping the already-active track simply keeps it running. */
+        if (this.currentMusicKey === key && this.musicSource) return true;
+
+        try {
+            const now = this.ctx.currentTime;
+            const nextSource = this.ctx.createBufferSource();
+            const nextGain = this.ctx.createGain();
+            nextSource.buffer = buffer;
+            nextSource.loop = true;
+            nextGain.gain.setValueAtTime(0, now);
+            nextGain.gain.linearRampToValueAtTime(1, now + 0.14);
+            nextSource.connect(nextGain);
+            nextGain.connect(this.musicGain);
+
+            const oldSource = this.musicSource;
+            const oldGain = this.musicTrackGain;
+            if (oldSource && oldGain) {
+                try {
+                    oldGain.gain.cancelScheduledValues(now);
+                    oldGain.gain.setValueAtTime(oldGain.gain.value, now);
+                    oldGain.gain.linearRampToValueAtTime(0, now + 0.12);
+                    setTimeout(() => {
+                        try { oldSource.stop(); } catch (e) {}
+                        try { oldSource.disconnect(); } catch (e) {}
+                        try { oldGain.disconnect(); } catch (e) {}
+                    }, 170);
+                } catch (e) {
+                    try { oldSource.stop(); } catch (err) {}
+                }
+            }
+
+            this.musicSource = nextSource;
+            this.musicTrackGain = nextGain;
+            this.currentMusicKey = key;
+            nextSource.start(0);
+
+            nextSource.onended = () => {
+                if (this.musicSource === nextSource) {
+                    this.musicSource = null;
+                    this.musicTrackGain = null;
+                }
+                try { nextSource.disconnect(); } catch (e) {}
+                try { nextGain.disconnect(); } catch (e) {}
+            };
+
+            return true;
+        } catch (err) {
+            console.warn(`[audio] failed starting music ${key}:`, err);
+            return false;
+        }
+    }
+
+    stopMusic(fadeMs = 120) {
+        this.musicRequestId++;
+        const source = this.musicSource;
+        const gain = this.musicTrackGain;
+        this.musicSource = null;
+        this.musicTrackGain = null;
+        this.currentMusicKey = null;
+        if (!source) return;
+
+        if (!this.ctx || !gain || fadeMs <= 0) {
+            try { source.stop(); } catch (e) {}
+            return;
+        }
+
+        const now = this.ctx.currentTime;
+        try {
+            gain.gain.cancelScheduledValues(now);
+            gain.gain.setValueAtTime(gain.gain.value, now);
+            gain.gain.linearRampToValueAtTime(0, now + fadeMs / 1000);
+            setTimeout(() => {
+                try { source.stop(); } catch (e) {}
+                try { source.disconnect(); } catch (e) {}
+                try { gain.disconnect(); } catch (e) {}
+            }, fadeMs + 40);
+        } catch (e) {
+            try { source.stop(); } catch (err) {}
+        }
+    }
+
+    stopAll() {
+        for (const source of this.activeSources) {
+            try { source.stop(); } catch (e) {}
+        }
+        this.activeSources.clear();
     }
 
     swap() { this.play('tilePop', 0.62, 1); }
@@ -5202,6 +5568,7 @@ this.progressTrack = document.getElementById('progressTrack');
         document.addEventListener('gesturestart', e => e.preventDefault());
         document.addEventListener('dblclick', e => e.preventDefault());
 document.getElementById('mute-btn').addEventListener('click', () => this.toggleMute());
+document.querySelectorAll('[data-music-track]').forEach(btn => btn.addEventListener('click', () => this.selectMusicTrack(btn.dataset.musicTrack, btn)));
 document.getElementById('shop-close-btn').addEventListener('click', () => this.closeShop());
 document.getElementById('screen-btn').addEventListener('click', () => this.onScreenButton());
 document.getElementById('screen-shop-btn').addEventListener('click', () => this.openShop());
@@ -5287,9 +5654,49 @@ document.getElementById('theme-btn').addEventListener('click', () => this.toggle
     }
 
     toggleMute() {
-        this.sfx.muted = !this.sfx.muted;
-        this.sfx.ensure();
-        document.getElementById('mute-icon').innerText = this.sfx.muted ? 'volume_off' : 'volume_up';
+        const nextMuted = !this.sfx.muted;
+        this.sfx.setMuted(nextMuted);
+        document.getElementById('mute-icon').innerText = nextMuted ? 'volume_off' : 'volume_up';
+        const status = document.getElementById('music-preview-status');
+        if (status && this.sfx.currentMusicKey) {
+            const label = this.sfx.musicLabels[this.sfx.currentMusicKey] || 'Music';
+            status.innerText = nextMuted ? `SOUND OFF · ${label}` : `PLAYING · ${label}`;
+        }
+    }
+
+    async selectMusicTrack(key, button = null) {
+        const def = this.sfx.musicFiles[key];
+        if (!def) return;
+
+        /* A music-preview tap is an explicit request to hear audio, so turn
+           sound back on if the global sound toggle was muted. */
+        if (this.sfx.muted) {
+            this.sfx.setMuted(false);
+            document.getElementById('mute-icon').innerText = 'volume_up';
+        }
+
+        const buttons = Array.from(document.querySelectorAll('[data-music-track]'));
+        const status = document.getElementById('music-preview-status');
+        buttons.forEach(btn => btn.classList.remove('loading'));
+        if (button) button.classList.add('loading');
+        if (status) status.innerText = 'LOADING PREVIEW…';
+
+        const played = await this.sfx.playMusic(key);
+        if (button) button.classList.remove('loading');
+
+        if (!played) {
+            if (status) status.innerText = 'COULD NOT PLAY THIS FILE';
+            return;
+        }
+
+        buttons.forEach(btn => {
+            const active = btn.dataset.musicTrack === key;
+            btn.classList.toggle('active', active);
+            btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+        });
+
+        const label = this.sfx.musicLabels[key] || button?.innerText || 'Music';
+        if (status) status.innerText = `PLAYING · ${label}`;
     }
 
     showScreen(title, btnText, stars, action, showShop = false, result = {}) {
@@ -7068,6 +7475,7 @@ document.addEventListener('visibilitychange', () => {
         DurableSave.mirror(true).catch(() => {});
     } else if (!document.hidden && window.game) {
         window.game.perf.last = performance.now();
+        window.game.sfx.resume().catch(() => {});
     }
 });
 window.addEventListener('pagehide', () => {
