@@ -527,6 +527,7 @@ button{touch-action:manipulation}
   pointer-events:none;
   position:relative;
   z-index:2;
+  transform-origin:center;
 }
 .tile-icon use{
   fill:var(--tile-shape);
@@ -550,16 +551,31 @@ symbol{
 
 .tile.special-bomb .gem{
   background:var(--color-yellow-orange-base);
-  animation:bombTileCycle 3.6s linear infinite;
+  animation:bombTileCycle 5.4s linear infinite;
 }
 
 .tile.special-bomb .tile-icon use{
   fill:var(--color-yellow-orange-light);
   stroke:var(--neutral-800);
-  stroke-width:19.2;
+  stroke-width:10;
   stroke-linejoin:round;
   stroke-linecap:round;
-  animation:bombDropCycle 3.6s linear infinite;
+  paint-order:stroke fill;
+  vector-effect:non-scaling-stroke;
+  animation:bombDropCycle 5.4s linear infinite;
+}
+
+/* New power-up artwork uses a 256 x 256 viewBox. Give those silhouettes the
+   same two-tone fill + dark outline treatment as every ordinary board piece. */
+.tile-icon.powerup-asset{
+  transform:translate(var(--icon-shift-x,0),var(--icon-shift-y,0)) scale(var(--icon-scale,1));
+}
+.tile-icon.powerup-asset use{
+  stroke-width:10;
+  stroke-linejoin:round;
+  stroke-linecap:round;
+  paint-order:stroke fill;
+  vector-effect:non-scaling-stroke;
 }
 
 .tile.has-special .gem{
@@ -573,21 +589,21 @@ symbol{
 }
 
 @keyframes bombTileCycle{
-  0%, 16.66%   { background:var(--color-yellow-orange-base); }
-  16.67%, 33.33% { background:var(--color-pink-base); }
-  33.34%, 50%  { background:var(--color-blue-base); }
-  50.01%, 66.66% { background:var(--color-teal-base); }
-  66.67%, 83.33% { background:var(--color-purple-base); }
-  83.34%, 100% { background:var(--color-red-orange-base); }
+  0%,100% { background-color:var(--color-yellow-orange-base); }
+  16.666% { background-color:var(--color-pink-base); }
+  33.333% { background-color:var(--color-blue-base); }
+  50% { background-color:var(--color-teal-base); }
+  66.666% { background-color:var(--color-purple-base); }
+  83.333% { background-color:var(--color-red-orange-base); }
 }
 
 @keyframes bombDropCycle{
-  0%, 16.66%   { fill:var(--color-yellow-orange-light); }
-  16.67%, 33.33% { fill:var(--color-pink-light); }
-  33.34%, 50%  { fill:var(--color-blue-light); }
-  50.01%, 66.66% { fill:var(--color-teal-light); }
-  66.67%, 83.33% { fill:var(--color-purple-light); }
-  83.34%, 100% { fill:var(--color-red-orange-light); }
+  0%,100% { fill:var(--color-yellow-orange-light); }
+  16.666% { fill:var(--color-pink-light); }
+  33.333% { fill:var(--color-blue-light); }
+  50% { fill:var(--color-teal-light); }
+  66.666% { fill:var(--color-purple-light); }
+  83.333% { fill:var(--color-red-orange-light); }
 }
 
 .tile.selected .tile-inner{
@@ -738,50 +754,61 @@ symbol{
 
 .bottom-bar{
   flex:0 0 auto;
-  padding:14px 0 max(14px, env(safe-area-inset-bottom));
+  padding:22px 0 max(14px, env(safe-area-inset-bottom));
   display:flex;
   justify-content:center;
 }
 .powerup-tray{
   display:flex;
   flex-direction:column;
-  gap:7px;
+  gap:var(--gap);
   align-items:center;
-  min-height:44px;
+  min-height:var(--powerup-cell,44px);
 }
 .pu-row{
   display:flex;
-  gap:5px;
+  gap:var(--gap);
   justify-content:center;
-  flex-wrap:wrap;
+  flex-wrap:nowrap;
 }
 .pu-btn{
   position:relative;
-  width:39px;
-  height:39px;
+  width:var(--powerup-cell,44px);
+  height:var(--powerup-cell,44px);
+  flex:0 0 var(--powerup-cell,44px);
   display:flex;
   align-items:center;
   justify-content:center;
-  border-radius:13px;
-  background:var(--neutral-0);
-  border:var(--border-thick) solid var(--neutral-900);
-  box-shadow:var(--shadow-small);
+  border-radius:24%;
+  background:var(--pu-base,var(--neutral-0));
+  border:3px solid var(--neutral-900);
+  box-shadow:4px 4px 0 var(--neutral-900);
   cursor:pointer;
-  transition:transform .1s ease, box-shadow .1s ease;
+  transition:transform .1s ease, box-shadow .1s ease, outline-color .15s ease;
 }
-.pu-btn:active{ transform:translate(3px,3px); box-shadow:0 0 0 var(--neutral-900); }
-.pu-btn .material-symbols-outlined{ font-size:1.15rem; color:var(--ink); font-variation-settings:'FILL' 1,'wght' 600; }
-.pu-btn .rc-piece{ width:60%; height:60%; overflow:visible; }
-.pu-btn .rc-piece use{
-  fill:var(--piece-color, var(--ink));
+.pu-btn:active{ transform:translate(4px,4px); box-shadow:0 0 0 var(--neutral-900); }
+.pu-btn .material-symbols-outlined{ font-size:1.15rem; color:var(--pu-light,var(--ink)); font-variation-settings:'FILL' 1,'wght' 600; }
+.pu-btn .rc-piece{ width:58%; height:58%; overflow:visible; transform-origin:center; }
+.pu-btn .rc-piece.powerup-asset{
+  transform:translate(var(--icon-shift-x,0),var(--icon-shift-y,0)) scale(var(--icon-scale,1));
+}
+.pu-btn .rc-piece use,
+.pu-btn .rc-piece.powerup-asset use{
+  fill:var(--pu-light,var(--piece-color,var(--ink)));
   stroke:var(--neutral-900);
-  stroke-width:19.2;
+  stroke-width:10;
   stroke-linejoin:round;
   stroke-linecap:round;
+  paint-order:stroke fill;
+  vector-effect:non-scaling-stroke;
 }
 .pu-btn.empty{ opacity:.32; pointer-events:none; }
-.pu-btn.armed{ background:var(--color-true-yellow-light); animation:armedPulse .9s ease-in-out infinite; }
-.pu-btn.armed .material-symbols-outlined{ color:var(--ink-fixed); }
+.pu-btn.armed{
+  animation:armedPulse .9s ease-in-out infinite;
+  outline:3px solid var(--color-true-yellow-light);
+  outline-offset:3px;
+}
+.pu-btn.armed .material-symbols-outlined{ color:var(--pu-light,var(--ink-fixed)); }
 .pu-btn.premium{ background:linear-gradient(155deg,var(--color-true-yellow-light),var(--color-yellow-orange-light)); }
 .pu-btn.premium .material-symbols-outlined{ color:var(--color-yellow-orange-dark); }
 .pu-btn.premium .pu-count{ background:var(--color-yellow-orange-dark); }
@@ -1124,12 +1151,13 @@ symbol{
   width:60px;
   height:60px;
   flex:0 0 auto;
-  border-radius:50%;
+  border-radius:24%;
   display:flex;
   align-items:center;
   justify-content:center;
   background:var(--icon-base, var(--color-blue-base));
   border:3px solid var(--neutral-900);
+  box-shadow:4px 4px 0 var(--neutral-900);
   margin-bottom:6px;
 }
 .rc-icon .material-symbols-outlined{
@@ -1141,6 +1169,7 @@ symbol{
   width:58%;
   height:58%;
   overflow:visible;
+  transform-origin:center;
 }
 .rc-icon .rc-piece use{
   fill:var(--icon-light, var(--color-blue-light));
@@ -1148,6 +1177,18 @@ symbol{
   stroke-width:19.2;
   stroke-linejoin:round;
   stroke-linecap:round;
+}
+.rc-icon .rc-piece.powerup-asset{
+  transform:translate(var(--icon-shift-x,0),var(--icon-shift-y,0)) scale(var(--icon-scale,1));
+}
+.rc-icon .rc-piece.powerup-asset use{
+  fill:var(--icon-light, var(--color-blue-light));
+  stroke:var(--neutral-900);
+  stroke-width:10;
+  stroke-linejoin:round;
+  stroke-linecap:round;
+  paint-order:stroke fill;
+  vector-effect:non-scaling-stroke;
 }
 
 .rc-name{
@@ -1821,8 +1862,8 @@ symbol{
   gap:10px;
 }
 .shop-row .reward-card .rc-icon{
-  width:74px;
-  height:74px;
+  width:112px;
+  height:112px;
   margin-bottom:10px;
 }
 .shop-row .reward-card .rc-name{
@@ -1958,7 +1999,8 @@ symbol{
    END-OF-LEVEL + REWARD POPUPS
    ============================================================ */
 #screen-overlay.popup-overlay,
-#reward-overlay.popup-overlay{
+#reward-overlay.popup-overlay,
+#special-confirm-overlay.popup-overlay{
   position:fixed;
   inset:0;
   z-index:230;
@@ -1976,14 +2018,16 @@ symbol{
   transition:opacity .18s ease, visibility .18s ease!important;
 }
 #screen-overlay.popup-overlay.active,
-#reward-overlay.popup-overlay.active{
+#reward-overlay.popup-overlay.active,
+#special-confirm-overlay.popup-overlay.active{
   opacity:1;
   visibility:visible;
   pointer-events:auto;
   transform:none!important;
 }
 #screen-overlay.popup-overlay .overlay-card,
-#reward-overlay.popup-overlay .overlay-card{
+#reward-overlay.popup-overlay .overlay-card,
+#special-confirm-overlay.popup-overlay .overlay-card{
   position:relative;
   width:min(100%,360px);
   max-width:360px;
@@ -2062,9 +2106,186 @@ symbol{
   color:var(--ink);
   text-transform:uppercase;
 }
+
+.special-confirm-art{
+  min-height:108px;
+  display:grid;
+  place-items:center;
+  margin:2px 0;
+}
+.special-confirm-art .rc-icon{
+  width:84px;
+  height:84px;
+  margin:0;
+}
+.special-confirm-title{
+  font:800 1.05rem/1 Manrope,sans-serif;
+  text-align:center;
+  color:var(--ink);
+  text-transform:uppercase;
+}
+.special-confirm-desc{
+  margin:0;
+  text-align:center!important;
+}
+.special-confirm-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  width:100%;
+}
+.special-confirm-actions .primary,
+.special-confirm-actions .secondary{
+  width:100%;
+  margin:0!important;
+  padding-left:10px!important;
+  padding-right:10px!important;
+}
 #reward-continue-btn{
   width:100%;
   margin:4px 0 0!important;
+}
+
+
+/* ============================================================
+   HOW TO PLAY SHEET
+   ============================================================ */
+.howto-sheet{
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+}
+.howto-intro{
+  margin:0!important;
+  color:var(--muted)!important;
+}
+.howto-section{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.howto-section-title{
+  margin:0;
+  font:800 .86rem/1 Manrope,sans-serif;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+.howto-steps{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.howto-step{
+  display:grid;
+  grid-template-columns:48px minmax(0,1fr);
+  gap:12px;
+  align-items:start;
+  padding:12px;
+  border:var(--border-thick) solid var(--neutral-900);
+  border-radius:18px;
+  background:var(--neutral-50);
+  box-shadow:var(--shadow-small);
+}
+.howto-step.has-stack{
+  grid-template-columns:74px minmax(0,1fr);
+}
+.howto-step-copy b,
+.howto-item-copy b{
+  display:block;
+  margin-bottom:4px;
+  font:800 .95rem/1.1 Manrope,sans-serif;
+  color:var(--ink);
+}
+.howto-step-copy span,
+.howto-item-copy span{
+  display:block;
+  color:var(--neutral-800);
+  font:700 .92rem/1.35 Inter,system-ui,sans-serif;
+}
+.howto-icon-tile,
+.howto-item-icon{
+  --icon-base:var(--color-blue-base);
+  --icon-light:var(--color-blue-light);
+  width:48px;
+  height:48px;
+  border-radius:24%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:var(--icon-base);
+  border:3px solid var(--neutral-900);
+  box-shadow:4px 4px 0 var(--neutral-900);
+}
+.howto-icon-tile svg,
+.howto-item-icon svg{
+  width:58%;
+  height:58%;
+  overflow:visible;
+  transform-origin:center;
+}
+.howto-icon-tile use,
+.howto-item-icon use{
+  fill:var(--icon-light);
+  stroke:var(--neutral-900);
+  stroke-width:19.2;
+  stroke-linejoin:round;
+  stroke-linecap:round;
+}
+.howto-icon-tile svg.powerup-asset,
+.howto-item-icon svg.powerup-asset{
+  transform:translate(var(--icon-shift-x,0),var(--icon-shift-y,0)) scale(var(--icon-scale,1));
+}
+.howto-icon-tile svg.powerup-asset use,
+.howto-item-icon svg.powerup-asset use{
+  stroke-width:10;
+  paint-order:stroke fill;
+  vector-effect:non-scaling-stroke;
+}
+.howto-item-grid{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:10px;
+}
+.howto-item{
+  display:grid;
+  grid-template-columns:56px minmax(0,1fr);
+  gap:12px;
+  align-items:start;
+  padding:12px;
+  border:var(--border-thick) solid var(--neutral-900);
+  border-radius:18px;
+  background:var(--neutral-0);
+  box-shadow:var(--shadow-small);
+}
+.howto-item-icon{
+  width:56px;
+  height:56px;
+}
+
+.howto-powerup-stack{
+  position:relative;
+  width:74px;
+  height:62px;
+}
+.howto-powerup-stack .howto-icon-tile{
+  position:absolute;
+  width:42px;
+  height:42px;
+  box-shadow:3px 3px 0 var(--neutral-900);
+}
+.howto-powerup-stack .stack-a{ left:0; top:12px; z-index:1; }
+.howto-powerup-stack .stack-b{ left:16px; top:0; z-index:3; }
+.howto-powerup-stack .stack-c{ left:32px; top:18px; z-index:2; }
+.howto-note{
+  margin:0;
+  color:var(--neutral-800);
+  font:700 .92rem/1.4 Inter,system-ui,sans-serif;
+}
+@media (min-width:380px){
+  .howto-item-grid.two-col{
+    grid-template-columns:1fr 1fr;
+  }
 }
 
 /* ============================================================
@@ -2285,11 +2506,13 @@ symbol{
   background:var(--card-light);
 }
 .shop-item-art .rc-icon{
-  width:94px;
-  height:94px;
+  width:min(128px,48vw);
+  height:min(128px,48vw);
   margin:0;
   background:var(--card-base);
   border:3px solid var(--neutral-900);
+  border-radius:24%;
+  box-shadow:5px 5px 0 var(--neutral-900);
 }
 .shop-item-art .rc-icon .material-symbols-outlined{
   font-size:2.5rem!important;
@@ -2337,7 +2560,7 @@ symbol{
     <svg class="splash-mark-spinner" viewBox="0 0 480 480" aria-hidden="true"><use href="#piece-8tip-star" xlink:href="#piece-8tip-star"></use></svg>
   </div>
   <h1 class="splash-title">Mellow Match</h1>
-  <p class="splash-tagline">match. cascade. repeat.</p>
+  <p class="splash-tagline">Match, repeat.</p>
   <div class="splash-dots" aria-hidden="true"><i></i><i></i><i></i></div>
 </div>
 
@@ -2430,7 +2653,26 @@ symbol{
     M100,230 L380,230 L380,270 L100,270 Z"/>
 </symbol>
 
-    <symbol id="progress-star" viewBox="0 0 100 100">
+    <symbol id="pu-swap-new" viewBox="0 0 256 256">
+  <path d="M224,48V152a16,16,0,0,1-16,16H112v16a8,8,0,0,1-13.66,5.66l-24-24a8,8,0,0,1,0-11.32l24-24A8,8,0,0,1,112,136v16h96V48H96v8a8,8,0,0,1-16,0V48A16,16,0,0,1,96,32H208A16,16,0,0,1,224,48ZM168,192a8,8,0,0,0-8,8v8H48V104h96v16a8,8,0,0,0,13.66,5.66l24-24a8,8,0,0,0,0-11.32l-24-24A8,8,0,0,0,144,72V88H48a16,16,0,0,0-16,16V208a16,16,0,0,0,16,16H160a16,16,0,0,0,16-16v-8A8,8,0,0,0,168,192Z"/>
+</symbol>
+<symbol id="pu-shuffle-new" viewBox="0 0 256 256">
+  <path d="M237.66,178.34a8,8,0,0,1,0,11.32l-24,24A8,8,0,0,1,200,208V192a72.15,72.15,0,0,1-57.65-30.14l-41.72-58.4A56.1,56.1,0,0,0,55.06,80H32a8,8,0,0,1,0-16H55.06a72.12,72.12,0,0,1,58.59,30.15l41.72,58.4A56.08,56.08,0,0,0,200,176V160a8,8,0,0,1,13.66-5.66ZM143,107a8,8,0,0,0,11.16-1.86l1.2-1.67A56.08,56.08,0,0,1,200,80V96a8,8,0,0,0,13.66,5.66l24-24a8,8,0,0,0,0-11.32l-24-24A8,8,0,0,0,200,48V64a72.15,72.15,0,0,0-57.65,30.14l-1.2,1.67A8,8,0,0,0,143,107Zm-30,42a8,8,0,0,0-11.16,1.86l-1.2,1.67A56.1,56.1,0,0,1,55.06,176H32a8,8,0,0,0,0,16H55.06a72.12,72.12,0,0,0,58.59-30.15l1.2-1.67A8,8,0,0,0,113,149Z"/>
+</symbol>
+<symbol id="pu-five-new" viewBox="0 0 256 256">
+  <path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm-4,88a36,36,0,0,1,0,72,35.54,35.54,0,0,1-25.71-10.4,8,8,0,1,1,11.42-11.2A19.73,19.73,0,0,0,124,168a20,20,0,0,0,0-40,19.73,19.73,0,0,0-14.29,5.6,8,8,0,0,1-13.6-6.92l8-48A8,8,0,0,1,112,72h40a8,8,0,0,1,0,16H118.78l-4.19,25.14A38.8,38.8,0,0,1,124,112Z"/>
+</symbol>
+<symbol id="pu-bomb-new" viewBox="0 0 256 256">
+  <path d="M248,32h0a8,8,0,0,0-8,8,52.66,52.66,0,0,1-3.57,17.39C232.38,67.22,225.7,72,216,72c-11.06,0-18.85-9.76-29.49-24.65C176,32.66,164.12,16,144,16c-16.39,0-29,8.89-35.43,25a66.07,66.07,0,0,0-3.9,15H88A16,16,0,0,0,72,72v9.59A88,88,0,0,0,112,248h1.59A88,88,0,0,0,152,81.59V72a16,16,0,0,0-16-16H120.88a46.76,46.76,0,0,1,2.69-9.37C127.62,36.78,134.3,32,144,32c11.06,0,18.85,9.76,29.49,24.65C184,71.34,195.88,88,216,88c16.39,0,29-8.89,35.43-25A68.69,68.69,0,0,0,256,40,8,8,0,0,0,248,32ZM111.89,209.32A8,8,0,0,1,104,216a8.52,8.52,0,0,1-1.33-.11,57.5,57.5,0,0,1-46.57-46.57,8,8,0,1,1,15.78-2.64,41.29,41.29,0,0,0,33.43,33.43A8,8,0,0,1,111.89,209.32Z"/>
+</symbol>
+<symbol id="pu-row-new" viewBox="0 0 256 256">
+  <path d="M237.66,133.66l-32,32A8,8,0,0,1,192,160V136H64v24a8,8,0,0,1-13.66,5.66l-32-32a8,8,0,0,1,0-11.32l32-32A8,8,0,0,1,64,96v24H192V96a8,8,0,0,1,13.66-5.66l32,32A8,8,0,0,1,237.66,133.66Z"/>
+</symbol>
+<symbol id="pu-col-new" viewBox="0 0 256 256">
+  <path d="M167.39,196.94a8,8,0,0,1-1.73,8.72l-32,32a8,8,0,0,1-11.32,0l-32-32A8,8,0,0,1,96,192h24V64H96a8,8,0,0,1-5.66-13.66l32-32a8,8,0,0,1,11.32,0l32,32A8,8,0,0,1,160,64H136V192h24A8,8,0,0,1,167.39,196.94Z"/>
+</symbol>
+
+<symbol id="progress-star" viewBox="0 0 100 100">
   <path d="M50 6 L58 34 L79 21 L66 41 L94 50 L66 59 L79 79 L58 66 L50 94 L42 66 L21 79 L34 59 L6 50 L34 41 L21 21 L42 34Z"/>
 </symbol>
 
@@ -2505,7 +2747,7 @@ symbol{
       <svg viewBox="0 0 480 480" aria-hidden="true"><use href="#piece-8tip-star" xlink:href="#piece-8tip-star"></use></svg>
     </div>
     <h2>Mellow Match</h2>
-    <p>match, repeat.</p>
+    <p>Match, repeat.</p>	
     <p class="menu-status" id="menu-status" hidden></p>
     <div class="menu-actions">
       <button class="primary" id="menu-continue-btn" hidden>CONTINUE</button>
@@ -2541,14 +2783,85 @@ symbol{
   <div class="overlay-card has-corner-close">
     <button class="modal-corner-close" id="howto-close-btn" aria-label="Close How To Play"><span class="material-symbols-outlined">close</span></button>
     <h2>How To Play</h2>
-    <ul class="howto-list">
-      <li>Swap two adjacent tiles to line up 3 or more of the same colour.</li>
-      <li>Match 4 in a row for a striped rocket, an L or T shape for a burst tile, or 5+ in a row for a colour bomb.</li>
-      <li>Combine two special tiles — like two rockets, or a rocket with a colour bomb — for an even bigger blast.</li>
-      <li>Fill the meter before you run out of moves to clear the level and bank stars.</li>
-      <li>Boards can be different shapes with gaps carved in — tiles rest on top of the gaps instead of falling through.</li>
-      <li>Earn a free power-up every 5 levels, or buy one anytime in the Shop.</li>
-    </ul>
+    <div class="howto-sheet ui-scroll">
+      <p class="howto-intro">The goal is simple. Make matches, score points, and fill the star meter before you run out of moves.</p>
+
+      <div class="howto-section">
+        <h3 class="howto-section-title">The basics</h3>
+        <div class="howto-steps">
+          <div class="howto-step">
+            <div class="howto-icon-tile" style="--icon-base:var(--color-yellow-orange-base);--icon-light:var(--color-yellow-orange-light)">
+              <svg viewBox="0 0 480 480" aria-hidden="true"><use href="#piece-circle"></use></svg>
+            </div>
+            <div class="howto-step-copy">
+              <b>Match 3 or more</b>
+              <span>Swap two neighbouring tiles to line up 3 or more of the same colour. Bigger matches make stronger special tiles.</span>
+            </div>
+          </div>
+
+          <div class="howto-step">
+            <div class="howto-icon-tile" style="--icon-base:var(--color-true-yellow-base);--icon-light:var(--color-true-yellow-light)">
+              <svg viewBox="0 0 100 100" aria-hidden="true"><use href="#progress-star"></use></svg>
+            </div>
+            <div class="howto-step-copy">
+              <b>Fill the meter</b>
+              <span>Every match adds score. Reach the level goal before your moves run out to clear the level and bank your stars.</span>
+            </div>
+          </div>
+
+          <div class="howto-step has-stack">
+            <div class="howto-powerup-stack" aria-hidden="true">
+              <div class="howto-icon-tile stack-a" style="--icon-base:var(--color-red-orange-base);--icon-light:var(--color-red-orange-light)">
+                <svg class="powerup-asset" viewBox="0 0 256 256" style="--icon-scale:1.18"><use href="#pu-swap-new"></use></svg>
+              </div>
+              <div class="howto-icon-tile stack-b" style="--icon-base:var(--color-blue-base);--icon-light:var(--color-blue-light)">
+                <svg class="powerup-asset" viewBox="0 0 256 256" style="--icon-scale:1.14"><use href="#pu-shuffle-new"></use></svg>
+              </div>
+              <div class="howto-icon-tile stack-c" style="--icon-base:var(--color-yellow-orange-base);--icon-light:var(--color-yellow-orange-light)">
+                <svg class="powerup-asset" viewBox="0 0 256 256" style="--icon-scale:1.06"><use href="#pu-bomb-new"></use></svg>
+              </div>
+            </div>
+            <div class="howto-step-copy">
+              <b>Use power-ups when you need a hand</b>
+              <span>Power-ups sit below the board. Tap one to use it. You earn free ones as you play, and you can buy more in the shop.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="howto-section">
+        <h3 class="howto-section-title">Special tiles you can make on the board</h3>
+        <div class="howto-item-grid">
+          <div class="howto-item">
+            <div class="howto-item-icon" style="--icon-base:var(--color-yellow-orange-base);--icon-light:var(--color-yellow-orange-light)">
+              <svg class="powerup-asset" viewBox="0 0 256 256" style="--icon-scale:1.16" aria-hidden="true"><use href="#pu-row-new"></use></svg>
+            </div>
+            <div class="howto-item-copy"><b>Horizontal Clear</b><span>Make 4 in a vertical line to create this tile. When that tile becomes part of a match, it clears the whole row.</span></div>
+          </div>
+
+          <div class="howto-item">
+            <div class="howto-item-icon" style="--icon-base:var(--color-pink-base);--icon-light:var(--color-pink-light)">
+              <svg class="powerup-asset" viewBox="0 0 256 256" style="--icon-scale:1.16" aria-hidden="true"><use href="#pu-col-new"></use></svg>
+            </div>
+            <div class="howto-item-copy"><b>Vertical Clear</b><span>Make 4 in a horizontal line to create this tile. When that tile becomes part of a match, it clears the whole column.</span></div>
+          </div>
+
+          <div class="howto-item">
+            <div class="howto-item-icon" style="--icon-base:var(--color-purple-base);--icon-light:var(--color-purple-light)">
+              <svg viewBox="0 0 480 480" aria-hidden="true"><use href="#piece-corners"></use></svg>
+            </div>
+            <div class="howto-item-copy"><b>Burst Tile</b><span>Make an L or T shape. When the burst tile becomes part of a match, it clears the tiles around it in a 3 by 3 area.</span></div>
+          </div>
+
+          <div class="howto-item">
+            <div class="howto-item-icon" style="--icon-base:var(--color-yellow-orange-base);--icon-light:var(--color-yellow-orange-light)">
+              <svg class="powerup-asset" viewBox="0 0 256 256" style="--icon-scale:1.06" aria-hidden="true"><use href="#pu-bomb-new"></use></svg>
+            </div>
+            <div class="howto-item-copy"><b>Color Bomb</b><span>Make 5 in a row to create it. Tap it to clear a random colour, or swap it with another tile for a bigger effect.</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -2628,6 +2941,21 @@ symbol{
   </div>
 </div>
 
+<div class="overlay popup-overlay" id="special-confirm-overlay">
+  <div class="overlay-card">
+    <div class="popup-content">
+      <span class="collection-kicker">POWER-UP</span>
+      <h2 id="special-confirm-heading">Use Power-Up?</h2>
+      <div class="special-confirm-art" id="special-confirm-art"></div>
+      <p class="special-confirm-desc" id="special-confirm-desc">Use this power-up now?</p>
+      <div class="special-confirm-actions">
+        <button class="primary" id="special-confirm-use-btn">USE</button>
+        <button class="secondary" id="special-confirm-cancel-btn">CANCEL</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="overlay" id="shop-overlay">
   <div class="overlay-card shop-card has-corner-close">
     <button class="modal-corner-close" id="shop-close-btn" aria-label="Close Shop"><span class="material-symbols-outlined">close</span></button>
@@ -2662,12 +2990,18 @@ const SPECIALS = { NONE: 0, H_STRIPE: 1, V_STRIPE: 2, BURST: 3, BOMB: 4 };
    SVG piece referenced by SPECIAL_SHAPES) instead of icon, so the tray/shop
    icon always matches the tile the power-up actually produces. */
 const POWER_UPS = {
-    hammer: { pieceIcon: 'pu-mallet', name: 'Hammer', desc: 'Tap any tile to smash it instantly.', colorId: 6, cost: 20 },
-    shuffle: { pieceIcon: 'pu-cards', name: 'Shuffle', desc: 'Reshuffle the whole board.', colorId: 3, cost: 25 },
-    extraMoves: { icon: 'add_circle', name: '+5 Moves', desc: 'Adds 5 extra moves to spend.', colorId: 4, cost: 20 },
-    colorBomb: { pieceIcon: 'piece-bomb', name: 'Color Bomb', desc: 'Drops a color bomb onto the board.', colorId: 1, cost: 35 },
-    rowRocket: { pieceIcon: 'piece-arrow-h', name: 'Row Rocket', desc: 'Drops a striped rocket that clears a row.', colorId: 1, cost: 25 },
-    colRocket: { pieceIcon: 'piece-arrow-v', name: 'Col Rocket', desc: 'Drops a striped rocket that clears a column.', colorId: 2, cost: 25 }
+    swap: { pieceIcon: 'pu-swap-new', iconViewBox: '0 0 256 256', exactIcon: true, iconScale: 1.18, name: 'Swap', desc: 'Swap any two tiles on the board.', colorId: 6, cost: 20 },
+    shuffle: { pieceIcon: 'pu-shuffle-new', iconViewBox: '0 0 256 256', exactIcon: true, iconScale: 1.14, name: 'Shuffle', desc: 'Reshuffle the whole board.', colorId: 3, cost: 25 },
+    extraMoves: { pieceIcon: 'pu-five-new', iconViewBox: '0 0 256 256', exactIcon: true, iconScale: 1.08, name: '+5 Moves', desc: 'Adds 5 extra moves to spend.', colorId: 4, cost: 20 },
+    colorBomb: { pieceIcon: 'pu-bomb-new', iconViewBox: '0 0 256 256', exactIcon: true, iconScale: 1.06, name: 'Color Bomb', desc: 'Drops a color bomb onto the board.', colorId: 1, cost: 35 },
+    rowRocket: { pieceIcon: 'pu-row-new', iconViewBox: '0 0 256 256', exactIcon: true, iconScale: 1.16, name: 'Horizontal Clear', desc: 'Drops a special tile that clears a whole row when matched.', colorId: 1, cost: 25 },
+    colRocket: { pieceIcon: 'pu-col-new', iconViewBox: '0 0 256 256', exactIcon: true, iconScale: 1.16, name: 'Vertical Clear', desc: 'Drops a special tile that clears a whole column when matched.', colorId: 2, cost: 25 }
+};
+
+const BOARD_SPECIAL_INFO = {
+    [SPECIALS.H_STRIPE]: { pieceIcon: 'pu-row-new', iconViewBox: '0 0 256 256', exactIcon: true, iconScale: 1.16, name: 'Horizontal Clear', desc: 'Clears the whole row when this tile becomes part of a match.', colorId: 1 },
+    [SPECIALS.V_STRIPE]: { pieceIcon: 'pu-col-new', iconViewBox: '0 0 256 256', exactIcon: true, iconScale: 1.16, name: 'Vertical Clear', desc: 'Clears the whole column when this tile becomes part of a match.', colorId: 2 },
+    [SPECIALS.BOMB]: { pieceIcon: 'pu-bomb-new', iconViewBox: '0 0 256 256', exactIcon: true, iconScale: 1.06, name: 'Color Bomb', desc: 'Pops itself and clears a random colour from the board.', colorId: 1 }
 };
 
 const PREMIUM_POWER_UPS = {};
@@ -2675,7 +3009,7 @@ const PREMIUM_POWER_UPS = {};
 const ACTION_WORDS = ["BAM!", "RAD!", "BOOM!", "SICK!", "WILD!", "POP!", "SWEET!", "TASTY!"];
 
 const SHAPES = { 1: 'piece-burst', 2: 'piece-sparkle', 3: 'piece-circle', 4: 'piece-diamond', 5: 'piece-x', 6: 'piece-8tip-star' };
-const SPECIAL_SHAPES = { [SPECIALS.H_STRIPE]: 'piece-arrow-h', [SPECIALS.V_STRIPE]: 'piece-arrow-v', [SPECIALS.BURST]: 'piece-corners', [SPECIALS.BOMB]: 'piece-bomb' };
+const SPECIAL_SHAPES = { [SPECIALS.H_STRIPE]: 'pu-row-new', [SPECIALS.V_STRIPE]: 'pu-col-new', [SPECIALS.BURST]: 'piece-corners', [SPECIALS.BOMB]: 'pu-bomb-new' };
 
 const COLORS = {
     1: '#FFC567', 2: '#FB7DA8', 3: '#058CD7', 4: '#0D9488', 5: '#552C87', 6: '#FD5A46'
@@ -2997,7 +3331,7 @@ this.progressTrack = document.getElementById('progressTrack');
         this._saveTimer = null;
 
         this.inventory = {
-            hammer: 0,
+            swap: 0,
             shuffle: 0,
             extraMoves: 0,
             colorBomb: 0,
@@ -3005,6 +3339,7 @@ this.progressTrack = document.getElementById('progressTrack');
             colRocket: 0
         };
         this.pendingPowerUp = null;
+        this.pendingPowerUpConfirm = null;
         this.coins = 0;
         this.collection = this.loadCollection();
         this.saveCollection();
@@ -3061,6 +3396,7 @@ this.progressTrack = document.getElementById('progressTrack');
         this.boardEl.style.width = `${boardW}px`;
         this.boardEl.style.height = `${boardH}px`;
         document.documentElement.style.setProperty('--board-pad', `${pad}px`);
+        document.documentElement.style.setProperty('--powerup-cell', `${cell}px`);
 
         this.allTiles().forEach(t => {
             t.el.style.width = `${cell}px`;
@@ -3842,6 +4178,7 @@ this.progressTrack = document.getElementById('progressTrack');
             this.canUndo = false;
             this.undoSnapshot = null;
             this.pendingPowerUp = null;
+        this.pendingPowerUpConfirm = null;
 
             this.applyTheme(this.currentLevelIdx);
             this.progressTrack.classList.remove('tier-2', 'tier-3', 'full');
@@ -3918,7 +4255,14 @@ this.progressTrack = document.getElementById('progressTrack');
         if (!save) { await this.startLevel(); return; }
         this.currentLevelIdx = save.currentLevelIdx || 0;
         this.coins = save.coins || 0;
-        if (save.inventory) this.inventory = Object.assign(this.inventory, save.inventory);
+        if (save.inventory) {
+            const restoredInventory = Object.assign({}, save.inventory);
+            const legacySwapCount = (restoredInventory.hammer || 0) + (restoredInventory.freeSwap || 0);
+            if (legacySwapCount > 0) restoredInventory.swap = (restoredInventory.swap || 0) + legacySwapCount;
+            delete restoredInventory.hammer;
+            delete restoredInventory.freeSwap;
+            this.inventory = Object.assign(this.inventory, restoredInventory);
+        }
         this.updateCoinDisplay();
         this.updatePowerUpTray();
         if (save.level) {
@@ -3946,8 +4290,7 @@ this.progressTrack = document.getElementById('progressTrack');
         this.currentLevelIdx = 0;
         this.coins = 0;
         this.inventory = {
-            hammer: 0, shuffle: 0, extraMoves: 0, colorBomb: 0, rowRocket: 0, colRocket: 0, freeSwap: 0,
-            megaHammer: 0, doubleBomb: 0, megaBurst: 0, bigMoves: 0, undo: 0, coinDoubler: 0, mysteryBox: 0
+            swap: 0, shuffle: 0, extraMoves: 0, colorBomb: 0, rowRocket: 0, colRocket: 0
         };
         this.updateCoinDisplay();
         this.updatePowerUpTray();
@@ -3996,6 +4339,8 @@ document.getElementById('screen-btn').addEventListener('click', () => this.onScr
 document.getElementById('screen-shop-btn').addEventListener('click', () => this.openShop());
 document.getElementById('screen-menu-btn').addEventListener('click', () => this.openMainMenuFromGame());
 document.getElementById('reward-continue-btn').addEventListener('click', () => this.onRewardContinue());
+document.getElementById('special-confirm-use-btn').addEventListener('click', () => this.confirmPowerUpUse());
+document.getElementById('special-confirm-cancel-btn').addEventListener('click', () => this.closePowerUpConfirm());
 document.getElementById('board-menu-btn').addEventListener('click', () => this.openMainMenuFromGame());
 document.getElementById('menu-stickers-btn').addEventListener('click', () => this.openStickerBook());
 document.getElementById('sticker-close-btn').addEventListener('click', () => this.closeStickerBook());
@@ -4131,6 +4476,7 @@ document.getElementById('theme-btn').addEventListener('click', () => this.toggle
         this.applyTheme(this.currentLevelIdx);
         this.progressTrack.classList.remove('tier-2', 'tier-3', 'full');
         this.pendingPowerUp = null;
+        this.pendingPowerUpConfirm = null;
         this.updatePowerUpTray();
         this.updateHUD(false);
 
@@ -4243,6 +4589,13 @@ document.getElementById('theme-btn').addEventListener('click', () => this.toggle
         tile.el.className = cls.join(' ');
 
         const symbolId = tile.special !== SPECIALS.NONE ? SPECIAL_SHAPES[tile.special] : SHAPES[tile.color];
+        const specialInfo = BOARD_SPECIAL_INFO[tile.special] || null;
+        const usesPowerUpArtwork = !!specialInfo;
+        tile.icon.setAttribute('viewBox', usesPowerUpArtwork ? '0 0 256 256' : '0 0 480 480');
+        tile.icon.classList.toggle('powerup-asset', usesPowerUpArtwork);
+        tile.icon.style.setProperty('--icon-scale', usesPowerUpArtwork ? String(specialInfo.iconScale || 1) : '1');
+        tile.icon.style.setProperty('--icon-shift-x', usesPowerUpArtwork ? (specialInfo.iconShiftX || '0px') : '0px');
+        tile.icon.style.setProperty('--icon-shift-y', usesPowerUpArtwork ? (specialInfo.iconShiftY || '0px') : '0px');
         tile.iconUse.setAttribute('href', `#${symbolId}`);
         tile.iconUse.setAttributeNS('http://www.w3.org/1999/xlink', 'href', `#${symbolId}`);
     }
@@ -4336,13 +4689,60 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
 
     /* ---------- Interaction ---------- */
 
+    openPowerUpConfirm(type) {
+        const def = POWER_UPS[type];
+        if (!def || this.isProcessing || !this.inventory[type]) return;
+        this.pendingPowerUpConfirm = type;
+        document.getElementById('special-confirm-heading').innerText = `Use ${def.name}?`;
+        document.getElementById('special-confirm-art').innerHTML = this.buildCardIcon(def);
+        document.getElementById('special-confirm-desc').innerText = def.desc;
+        document.getElementById('special-confirm-overlay').classList.add('active');
+    }
+
+    closePowerUpConfirm() {
+        this.pendingPowerUpConfirm = null;
+        document.getElementById('special-confirm-overlay').classList.remove('active');
+    }
+
+    confirmPowerUpUse() {
+        const type = this.pendingPowerUpConfirm;
+        this.closePowerUpConfirm();
+        if (!type) return;
+        this.activatePowerUp(type);
+    }
+
+    async useBoardColorBomb(tile) {
+        if (!tile || this.isProcessing || tile.special !== SPECIALS.BOMB) return;
+        const liveTile = this.board?.[tile.r]?.[tile.c];
+        if (liveTile !== tile) return;
+        if (this.moves <= 0) {
+            this.checkWinLoss();
+            return;
+        }
+
+        this.resetIdleTimer();
+        this.clearSelection();
+        this.undoSnapshot = this.snapshotBoard();
+        this.canUndo = true;
+        this.moves--;
+        this.bumpEl(this.movesEl.closest('.pill'));
+        this.updateHUD();
+        this.isProcessing = true;
+        this.sfx.special();
+        this.lastSwap = null;
+        await this.resolveBoard([[liveTile]], null);
+    }
+
     onTileClick(tile) {
         if (this.isProcessing || this.drag?.moved) return;
         this.resetIdleTimer();
 
-        if (this.pendingPowerUp === 'hammer') { this.useHammer(tile); return; }
-        if (this.pendingPowerUp === 'megaHammer') { this.useMegaHammer(tile); return; }
-        if (this.pendingPowerUp === 'freeSwap') { this.handleFreeSwapPick(tile); return; }
+        if (this.pendingPowerUp === 'swap') { this.handleSwapPick(tile); return; }
+
+        if (!this.selected && tile.special === SPECIALS.BOMB) {
+            this.useBoardColorBomb(tile);
+            return;
+        }
 
         if (!this.selected) {
             this.selected = tile;
@@ -4368,7 +4768,7 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
     onPointerDown(e, tile) {
         if (this.isProcessing) return;
         this.resetIdleTimer();
-        if (this.pendingPowerUp === 'hammer' || this.pendingPowerUp === 'megaHammer' || this.pendingPowerUp === 'freeSwap') return;
+        if (this.pendingPowerUp === 'swap') return;
 
         this.drag = { tile, startX: e.clientX, startY: e.clientY, moved: false };
         tile.el.setPointerCapture?.(e.pointerId);
@@ -4432,8 +4832,6 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
         this.clearSelection();
 
         if (nr >= 0 && nr < ROWS && nc >= 0 && nc < COLS && this.board[nr][nc]) {
-            if (this.pendingPowerUp === 'hammer') { this.useHammer(tile); return; }
-            if (this.pendingPowerUp === 'megaHammer') { this.useMegaHammer(tile); return; }
             this.attemptSwap(tile, this.board[nr][nc]);
         } else {
             this.springBack(tile);
@@ -4627,21 +5025,28 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
         const move = this.findHintMove();
         if (!move) return;
         this.hintActive = true;
-        for (const tile of move) {
+        const [first, second] = move;
+        const animateWiggle = (tile, other) => {
+            const stepX = Math.sign(other.c - tile.c) * Math.max(8, this.geom.cell * 0.16);
+            const stepY = Math.sign(other.r - tile.r) * Math.max(8, this.geom.cell * 0.16);
+            const tilt = stepX !== 0 ? (stepX > 0 ? 6 : -6) : (stepY > 0 ? 4 : -4);
             tile.inner.animate(
                 [
-                    { transform: 'scale(1)' },
-                    { transform: 'scale(1.13)', offset: .35 },
-                    { transform: 'scale(.97)', offset: .65 },
-                    { transform: 'scale(1)' }
+                    { transform: 'translate3d(0,0,0) rotate(0deg)' },
+                    { transform: `translate3d(${stepX}px,${stepY}px,0) rotate(${tilt}deg)`, offset: .26 },
+                    { transform: `translate3d(${-stepX * 0.22}px,${-stepY * 0.22}px,0) rotate(${-tilt * 0.45}deg)`, offset: .52 },
+                    { transform: `translate3d(${stepX * 0.58}px,${stepY * 0.58}px,0) rotate(${tilt * 0.55}deg)`, offset: .78 },
+                    { transform: 'translate3d(0,0,0) rotate(0deg)' }
                 ],
-                { duration: 720, easing: 'ease-in-out', iterations: 2 }
+                { duration: 820, easing: 'ease-in-out', iterations: 2 }
             );
-        }
+        };
+        animateWiggle(first, second);
+        animateWiggle(second, first);
         setTimeout(() => {
             this.hintActive = false;
             this.resetIdleTimer();
-        }, 1440);
+        }, 1640);
     }
 
     async ensureSolvable() { if (!this.hasPossibleMove()) await this.reshuffleBoard(); }
@@ -4968,7 +5373,12 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
 
     buildIconGlyph(def) {
         if (def.pieceIcon) {
-            return `<svg class="rc-piece" viewBox="0 0 480 480" aria-hidden="true"><use href="#${def.pieceIcon}" xlink:href="#${def.pieceIcon}"></use></svg>`;
+            const viewBox = def.iconViewBox || '0 0 480 480';
+            const assetClass = def.exactIcon ? ' powerup-asset' : '';
+            const scale = def.iconScale || 1;
+            const shiftX = def.iconShiftX || '0px';
+            const shiftY = def.iconShiftY || '0px';
+            return `<svg class="rc-piece${assetClass}" viewBox="${viewBox}" style="--icon-scale:${scale};--icon-shift-x:${shiftX};--icon-shift-y:${shiftY};" aria-hidden="true"><use href="#${def.pieceIcon}" xlink:href="#${def.pieceIcon}"></use></svg>`;
         }
         return `<span class="material-symbols-outlined">${def.icon}</span>`;
     }
@@ -5048,7 +5458,11 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
                 + (count === 0 ? ' empty' : '')
                 + (this.pendingPowerUp === type ? ' armed' : '');
             btn.setAttribute('aria-label', `${def.name} (${count})`);
-            if (def.pieceIcon) btn.style.setProperty('--piece-color', COLORS[def.colorId] || COLORS[1]);
+            const base = COLORS[def.colorId] || COLORS[1];
+            const light = COLORS_LIGHT[def.colorId] || COLORS_LIGHT[1];
+            btn.style.setProperty('--pu-base', base);
+            btn.style.setProperty('--pu-light', light);
+            if (def.pieceIcon) btn.style.setProperty('--piece-color', light);
             btn.innerHTML = this.buildIconGlyph(def)
                 + (count > 0 ? `<span class="pu-count">${count}</span>` : '');
             btn.addEventListener('click', () => this.usePowerUp(type));
@@ -5059,15 +5473,22 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
     }
 
     usePowerUp(type) {
+        this.openPowerUpConfirm(type);
+    }
+
+    activatePowerUp(type) {
         if (this.isProcessing) return;
         if (!this.inventory[type]) return;
 
-        if (type === 'hammer' || type === 'megaHammer' || type === 'freeSwap') {
+        if (type === 'swap') {
             this.pendingPowerUp = this.pendingPowerUp === type ? null : type;
             this.clearSelection();
             this.updatePowerUpTray();
             return;
         }
+
+        this.pendingPowerUp = null;
+        this.clearSelection();
 
         if (type === 'undo' && !this.canUndo) {
             this.comboFeedback('NOTHING TO UNDO');
@@ -5127,17 +5548,26 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
         this.comboFeedback('MYSTERY LOOT!');
     }
 
-    handleFreeSwapPick(tile) {
-        if (!this.selected) { this.selected = tile; this.setTileVisual(tile); this.microPulse(tile); return; }
-        if (this.selected === tile) { this.clearSelection(); return; }
-        const a = this.selected;
+    handleSwapPick(tile) {
+        if (!this.selected) {
+            this.selected = tile;
+            this.setTileVisual(tile);
+            this.microPulse(tile);
+            return;
+        }
+        if (this.selected === tile) {
+            this.clearSelection();
+            return;
+        }
+        const firstTile = this.selected;
         this.clearSelection();
-        this.useFreeSwap(a, tile);
+        this.useSwapPowerUp(firstTile, tile);
     }
 
-    async useFreeSwap(p1, p2) {
+    async useSwapPowerUp(p1, p2) {
         this.pendingPowerUp = null;
-        this.inventory.freeSwap--;
+        this.pendingPowerUpConfirm = null;
+        this.inventory.swap--;
         this.updatePowerUpTray();
         this.isProcessing = true;
         this.sfx.swap();
@@ -5154,7 +5584,9 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
             this.lastSwap = { p1, p2 };
             await this.resolveBoard(matchGroups, comboResult);
         } else {
+            if (this.moves > 0 && this.score < this.starMax) await this.ensureSolvable();
             this.isProcessing = false;
+            this.markDirty();
         }
     }
 
@@ -5184,41 +5616,6 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
         this.updateHUD(false);
         this.comboFeedback('UNDONE!');
         this.isProcessing = false;
-    }
-
-    async useHammer(tile) {
-        this.pendingPowerUp = null;
-        this.inventory.hammer--;
-        this.updatePowerUpTray();
-        this.isProcessing = true;
-        this.sfx.pop(1);
-        await this.popTile(tile, 0);
-        this.bumpCollectionStat('tilesCleared', 1);
-        this.board[tile.r][tile.c] = null;
-        this.addScore(20);
-        await this.applyGravity();
-        if (this.moves > 0 && this.score < this.starMax) await this.ensureSolvable();
-        this.checkWinLoss();
-    }
-
-    async useMegaHammer(tile) {
-        this.pendingPowerUp = null;
-        this.inventory.megaHammer--;
-        this.updatePowerUpTray();
-        this.isProcessing = true;
-        this.sfx.special();
-        this.flashScreen(.35);
-        const row = tile.r;
-        const victims = [];
-        for (let c = 0; c < COLS; c++) if (this.board[row][c]) victims.push(this.board[row][c]);
-        const pops = victims.map((p, i) => this.popTile(p, i * 20));
-        victims.forEach(p => this.addScore(15));
-        await Promise.all(pops);
-        this.bumpCollectionStat('tilesCleared', victims.length);
-        victims.forEach(p => { this.board[p.r][p.c] = null; });
-        await this.applyGravity();
-        if (this.moves > 0 && this.score < this.starMax) await this.ensureSolvable();
-        this.checkWinLoss();
     }
 
     dropSpecialAt(special) {
@@ -5332,7 +5729,8 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
         setInterval(() => {
             if (this.isProcessing || this.hintActive) return;
             if (document.getElementById('screen-overlay').classList.contains('active')) return;
-            if (Date.now() - this.lastActionAt < 10000) return;
+            if (document.getElementById('special-confirm-overlay').classList.contains('active')) return;
+            if (Date.now() - this.lastActionAt < 20000) return;
             this.showHint();
         }, 1000);
     }
