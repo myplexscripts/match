@@ -844,8 +844,26 @@ symbol{
   z-index:250;
   pointer-events:none;
   background:var(--color-blue-base);
-  transform:translateX(-100%);
+  transform:translate3d(-105%,0,0);
   will-change:transform;
+  display:grid;
+  place-items:center;
+  overflow:hidden;
+}
+.level-wipe-number{
+  margin:0;
+  color:var(--ink-fixed);
+  font:800 clamp(2.6rem,14vw,5.25rem)/.9 Manrope,sans-serif;
+  letter-spacing:-.055em;
+  text-transform:uppercase;
+  transform:scale(.92);
+  opacity:0;
+  will-change:transform,opacity;
+}
+.level-wipe-number.visible{
+  opacity:1;
+  transform:scale(1);
+  transition:opacity .16s ease,transform .28s cubic-bezier(.16,.84,.22,1);
 }
 
 .bottom-bar{
@@ -3552,8 +3570,8 @@ symbol{
           </button>
         </div>
         <div class="settings-slider-row">
-          <input id="music-volume-slider" type="range" min="0" max="100" step="1" value="24" aria-label="Background music volume">
-          <output id="music-volume-output" for="music-volume-slider">24%</output>
+          <input id="music-volume-slider" type="range" min="0" max="100" step="1" value="100" aria-label="Background music volume">
+          <output id="music-volume-output" for="music-volume-slider">100%</output>
         </div>
       </div>
 
@@ -3569,8 +3587,8 @@ symbol{
           </button>
         </div>
         <div class="settings-slider-row">
-          <input id="sfx-volume-slider" type="range" min="0" max="100" step="1" value="82" aria-label="Sound effects volume">
-          <output id="sfx-volume-output" for="sfx-volume-slider">82%</output>
+          <input id="sfx-volume-slider" type="range" min="0" max="100" step="1" value="100" aria-label="Sound effects volume">
+          <output id="sfx-volume-output" for="sfx-volume-slider">100%</output>
         </div>
       </div>
     </section>
@@ -3900,6 +3918,7 @@ symbol{
         <button class="secondary" data-debug-action="fail">LEVEL FAIL</button>
         <button class="secondary" data-debug-action="reward">FREE POWER-UP</button>
         <button class="secondary" data-debug-action="achievement">STAMP POPUP</button>
+        <button class="secondary" data-debug-action="levelWipe">LEVEL WIPE</button>
       </div>
     </section>
 
@@ -3915,7 +3934,7 @@ symbol{
   </div>
 </div>
 
-<div class="level-wipe" id="levelWipe"></div>
+<div class="level-wipe" id="levelWipe" aria-hidden="true"><div class="level-wipe-number" id="levelWipeNumber">LEVEL 1</div></div>
 
 <script src="lib/lottie-light.min.js"></script>
 <script>
@@ -4409,14 +4428,16 @@ class SFX {
     constructor() {
         this.sfxMuted = false;
         this.musicMuted = false;
-        this.masterVolume = 0.82;
-        this.musicVolume = 0.24;
+        this.masterVolume = 1;
+        this.musicVolume = 1;
 
         this.sfxFiles = {
             invalid: 'audio/invalid.mp3',
             levelSuccess: 'audio/level_success.mp3',
             powerUp: 'audio/power_up.mp3',
             reward: 'audio/reward.mp3',
+            milestoneHit: 'audio/milestone_hit.mp3',
+            slide: 'audio/slide.mp3',
             tilePop: 'audio/tile_swap_pop.mp3',
             tileSpecial: 'audio/tile_swap_special.mp3'
         };
@@ -4445,10 +4466,10 @@ class SFX {
         this.currentMusicKey = null;
         this.musicRequestId = 0;
 
-        /* Short SFX begin fetching immediately, but are decoded only after a
-           user gesture unlocks Web Audio. Full music loops are fetched on
-           demand when one of the preview buttons is tapped. */
-        Object.entries(this.sfxFiles).forEach(([key, src]) => {
+        /* Begin fetching both SFX and the two music loops during the splash
+           screen. iOS may still require a gesture before playback, but the
+           network/decode work can be completed before that gesture happens. */
+        Object.entries(this.files).forEach(([key, src]) => {
             this.preloadData[key] = this.fetchAudio(src, key);
         });
 
@@ -4578,6 +4599,19 @@ class SFX {
         Object.keys(this.sfxFiles).forEach(key => {
             this.load(key).catch(err => console.warn(`[audio] failed loading ${key}:`, err));
         });
+    }
+
+
+    async warmMusic() {
+        /* AudioContext may remain suspended until the first real gesture on
+           iOS, but decodeAudioData can still prepare the buffers in advance. */
+        this.createContext();
+        const keys = Object.keys(this.musicFiles);
+        await Promise.all(keys.map(key => this.load(key).catch(err => {
+            console.warn(`[audio] failed warming ${key}:`, err);
+            return null;
+        })));
+        return keys.every(key => !!this.buffers[key]);
     }
 
     setSfxMuted(value) {
@@ -4747,7 +4781,8 @@ class SFX {
         this.play('tilePop', 0.68, rate);
     }
     special() { this.play('tileSpecial', 0.82, 1); }
-    shuffle() { this.play('powerUp', 0.78, 0.96); }
+    milestoneHit() { this.play('milestoneHit', 0.88, 1); }
+    slide() { this.play('slide', 0.82, 1); }
     powerUp() { this.play('powerUp', 0.82, 1); }
     reward() { this.play('reward', 0.84, 1); }
     win() { this.play('levelSuccess', 0.92, 1); }
@@ -4770,6 +4805,10 @@ this.progressTrack = document.getElementById('progressTrack');
         this.textLayer = document.getElementById('textLayer');
         this.flashEl = document.getElementById('screenFlash');
         this.levelWipeEl = document.getElementById('levelWipe');
+        this.levelWipeNumberEl = document.getElementById('levelWipeNumber');
+        this.lastPresentedLevel = null;
+        this.hintAnimation = null;
+        this.pausedBoardAnimations = [];
         this.canvas = document.getElementById('fxCanvas');
         this.ctx = this.canvas.getContext('2d', { alpha: true, desynchronized: true });
 
@@ -5796,6 +5835,7 @@ this.progressTrack = document.getElementById('progressTrack');
             this.updateHUD(false);
             this.isLevelActive = true;
             this.isProcessing = false;
+            this.lastPresentedLevel = (this.currentLevelIdx || 0) + 1;
         } catch (e) {
             console.warn('[match] saved level could not be restored, starting fresh.', e);
             this.clearSave();
@@ -5897,6 +5937,7 @@ this.progressTrack = document.getElementById('progressTrack');
 
     beginNewGame() {
         this.clearSave();
+        this.lastPresentedLevel = null;
         this.currentLevelIdx = 0;
         this.coins = 0;
         this.inventory = {
@@ -6113,8 +6154,8 @@ document.getElementById('sfx-volume-slider')?.addEventListener('input', e => thi
     initAudioSettings() {
         let saved = null;
         try { saved = JSON.parse(localStorage.getItem(this.audioSettingsKey) || 'null'); } catch (e) { saved = null; }
-        const musicVolume = Number.isFinite(saved?.musicVolume) ? saved.musicVolume : 0.24;
-        const sfxVolume = Number.isFinite(saved?.sfxVolume) ? saved.sfxVolume : 0.82;
+        const musicVolume = Number.isFinite(saved?.musicVolume) ? saved.musicVolume : 1;
+        const sfxVolume = Number.isFinite(saved?.sfxVolume) ? saved.sfxVolume : 1;
         this.sfx.setMusicVolume(musicVolume);
         this.sfx.setSfxVolume(sfxVolume);
         this.sfx.setMusicMuted(!!saved?.musicMuted);
@@ -6213,7 +6254,6 @@ document.getElementById('sfx-volume-slider')?.addEventListener('input', e => thi
         this.sfx.setSfxMuted(!this.sfx.sfxMuted);
         this.persistAudioSettings();
         this.syncSettingsUI();
-        if (!this.sfx.sfxMuted) this.sfx.reward();
     }
 
     setMusicVolumeFromUI(value) {
@@ -6294,10 +6334,68 @@ document.getElementById('sfx-volume-slider')?.addEventListener('input', e => thi
         this.startLevel();
     }
 
+    async coverLevelWipe(levelNumber) {
+        const wipe = this.levelWipeEl;
+        const label = this.levelWipeNumberEl;
+        if (!wipe || !label) return;
+
+        const palette = [
+            'var(--color-yellow-orange-base)',
+            'var(--color-pink-base)',
+            'var(--color-red-orange-base)',
+            'var(--color-purple-light)',
+            'var(--color-green-base)',
+            'var(--color-blue-base)',
+            'var(--color-teal-base)'
+        ];
+        const colour = palette[Math.abs(levelNumber * 7 + 3) % palette.length];
+        wipe.style.background = colour;
+        wipe.style.transform = 'translate3d(-105%,0,0)';
+        label.innerText = `LEVEL ${levelNumber}`;
+        label.classList.remove('visible');
+        wipe.getAnimations().forEach(anim => anim.cancel());
+
+        const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const duration = reduced ? 1 : 330;
+        const anim = wipe.animate(
+            [
+                { transform:'translate3d(-105%,0,0)' },
+                { transform:'translate3d(0%,0,0)' }
+            ],
+            { duration, easing:reduced ? 'linear' : 'cubic-bezier(.72,0,.22,1)', fill:'forwards' }
+        );
+        await this.safeFinished(anim);
+        wipe.style.transform = 'translate3d(0%,0,0)';
+        requestAnimationFrame(() => label.classList.add('visible'));
+        await wait(reduced ? 1 : 430);
+    }
+
+    async revealLevelWipe() {
+        const wipe = this.levelWipeEl;
+        const label = this.levelWipeNumberEl;
+        if (!wipe || !label) return;
+        const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        label.classList.remove('visible');
+        const duration = reduced ? 1 : 360;
+        const anim = wipe.animate(
+            [
+                { transform:'translate3d(0%,0,0)' },
+                { transform:'translate3d(105%,0,0)' }
+            ],
+            { duration, easing:reduced ? 'linear' : 'cubic-bezier(.72,0,.22,1)', fill:'forwards' }
+        );
+        await this.safeFinished(anim);
+        wipe.style.transform = 'translate3d(-105%,0,0)';
+        label.classList.remove('visible');
+    }
+
     async startLevel() {
         this.isProcessing = true;
         const fromSheet = this.activePaperOverlay();
-        const config = generateLevel(this.currentLevelIdx + 1);
+        const nextLevelNumber = this.currentLevelIdx + 1;
+        const showLevelWipe = this.lastPresentedLevel !== null && this.lastPresentedLevel !== nextLevelNumber;
+        if (showLevelWipe) await this.coverLevelWipe(nextLevelNumber);
+        const config = generateLevel(nextLevelNumber);
         this.levelConfig = config;
         ROWS = config.rows; COLS = config.cols;
         this.blocked = config.blocked;
@@ -6335,6 +6433,7 @@ document.getElementById('sfx-volume-slider')?.addEventListener('input', e => thi
         await this.ensureSolvable();
         this.isProcessing = false;
         this.isLevelActive = true;
+        this.lastPresentedLevel = nextLevelNumber;
         this.persist();
 
         /* The complete board is ready before it ever enters the viewport. */
@@ -6343,6 +6442,7 @@ document.getElementById('sfx-volume-slider')?.addEventListener('input', e => thi
             this.syncPaperUnderlay();
             this.resumeBoardSession();
         }
+        if (showLevelWipe) await this.revealLevelWipe();
     }
 
     renderSockets() {
@@ -6530,7 +6630,7 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
         this.ringBurst(x, y, color, 40 + index * 8);
         this.particleBurst(x, y, index + 1, 10 + index * 3);
         this.progressToast(['1 STAR!', '2 STARS!', '3 STARS!'][index]);
-        this.sfx.reward();
+        this.sfx.milestoneHit();
         this.vibrate(14 + index * 5);
     }
 
@@ -6581,7 +6681,6 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
         this.bumpEl(this.movesEl.closest('.pill'));
         this.updateHUD();
         this.isProcessing = true;
-        this.sfx.special();
         this.lastSwap = null;
         await this.resolveBoard([[liveTile]], null);
     }
@@ -6724,12 +6823,34 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
             this.levelRunStartedAt = null;
         }
         this.boardIdleActive = false;
+
+        /* A hint belongs only to a board the player can currently see. */
+        if (this.hintAnimation) {
+            try { this.hintAnimation.cancel(); } catch (e) {}
+            this.hintAnimation = null;
+        }
+        this.hintActive = false;
+
+        /* Freeze in-flight board animation when a sheet/menu covers gameplay.
+           Awaiters on animation.finished remain paused until gameplay returns. */
+        const gamePage = this.gamePageElement?.();
+        this.pausedBoardAnimations = gamePage && gamePage.getAnimations
+            ? gamePage.getAnimations({ subtree:true }).filter(anim => anim.playState === 'running')
+            : [];
+        this.pausedBoardAnimations.forEach(anim => {
+            try { anim.pause(); } catch (e) {}
+        });
     }
 
     resumeBoardSession() {
         if (!this.isLevelActive) return;
+        (this.pausedBoardAnimations || []).forEach(anim => {
+            try { if (anim.playState === 'paused') anim.play(); } catch (e) {}
+        });
+        this.pausedBoardAnimations = [];
         if (this.levelRunStartedAt === null) this.levelRunStartedAt = performance.now();
         this.boardIdleActive = true;
+        this.hintActive = false;
         this.lastActionAt = Date.now();
     }
 
@@ -6907,38 +7028,43 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
     }
 
     showHint() {
+        if (!this.boardIdleActive || !this.isLevelActive || this.hintActive) return;
         const move = this.findHintMove();
         if (!move) return;
         this.hintActive = true;
-        const [first, second] = move;
-        const animateWiggle = (tile, other) => {
-            const stepX = Math.sign(other.c - tile.c) * Math.max(8, this.geom.cell * 0.16);
-            const stepY = Math.sign(other.r - tile.r) * Math.max(8, this.geom.cell * 0.16);
-            const tilt = stepX !== 0 ? (stepX > 0 ? 6 : -6) : (stepY > 0 ? 4 : -4);
-            tile.inner.animate(
-                [
-                    { transform: 'translate3d(0,0,0) rotate(0deg)' },
-                    { transform: `translate3d(${stepX}px,${stepY}px,0) rotate(${tilt}deg)`, offset: .26 },
-                    { transform: `translate3d(${-stepX * 0.22}px,${-stepY * 0.22}px,0) rotate(${-tilt * 0.45}deg)`, offset: .52 },
-                    { transform: `translate3d(${stepX * 0.58}px,${stepY * 0.58}px,0) rotate(${tilt * 0.55}deg)`, offset: .78 },
-                    { transform: 'translate3d(0,0,0) rotate(0deg)' }
-                ],
-                { duration: 820, easing: 'ease-in-out', iterations: 2 }
-            );
-        };
-        animateWiggle(first, second);
-        animateWiggle(second, first);
-        setTimeout(() => {
+        const [tile, destination] = move;
+        const stepX = Math.sign(destination.c - tile.c) * Math.max(8, this.geom.cell * 0.16);
+        const stepY = Math.sign(destination.r - tile.r) * Math.max(8, this.geom.cell * 0.16);
+        const tilt = stepX !== 0 ? (stepX > 0 ? 6 : -6) : (stepY > 0 ? 4 : -4);
+
+        this.hintAnimation = tile.inner.animate(
+            [
+                { transform: 'translate3d(0,0,0) rotate(0deg)' },
+                { transform: `translate3d(${stepX}px,${stepY}px,0) rotate(${tilt}deg)`, offset:.28 },
+                { transform: `translate3d(${-stepX * .2}px,${-stepY * .2}px,0) rotate(${-tilt * .4}deg)`, offset:.56 },
+                { transform: `translate3d(${stepX * .5}px,${stepY * .5}px,0) rotate(${tilt * .45}deg)`, offset:.78 },
+                { transform: 'translate3d(0,0,0) rotate(0deg)' }
+            ],
+            { duration:820, easing:'ease-in-out', iterations:2 }
+        );
+
+        const finish = () => {
+            this.hintAnimation = null;
             this.hintActive = false;
-            this.resetIdleTimer();
-        }, 1640);
+            if (this.boardIdleActive && this.isLevelActive) this.resetIdleTimer();
+        };
+        this.hintAnimation.addEventListener('finish', finish, { once:true });
+        this.hintAnimation.addEventListener('cancel', () => {
+            this.hintAnimation = null;
+            this.hintActive = false;
+        }, { once:true });
     }
 
-    async ensureSolvable() { if (!this.hasPossibleMove()) await this.reshuffleBoard(); }
+    async ensureSolvable() { if (!this.hasPossibleMove()) await this.reshuffleBoard(false); }
 
-    async reshuffleBoard() {
+    async reshuffleBoard(fromPowerUp = false) {
         this.comboFeedback('SHUFFLING!');
-        this.sfx.shuffle();
+        if (fromPowerUp) this.sfx.powerUp();
 
         this.allTiles().forEach(p => {
             p.el.style.transition = 'transform .3s ease, opacity .3s ease';
@@ -6995,7 +7121,6 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
 
             if (combo?.isCombo) {
                 this.recordSpecialCombo(combo);
-                this.sfx.special();
                 if (combo.type === 'BOMB_BOMB') {
                     this.allTiles().forEach(t => toDestroy.add(t));
                     this.flashScreen(.5);
@@ -7187,18 +7312,38 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
         tile.el.remove();
     }
 
-    spawnSpecial(r, c, color, special) {
+    spawnSpecial(r, c, color, special, source = 'match') {
         const existing = this.board[r][c];
         if (existing) existing.el.remove();
         const tile = this.createTile(r, c, color, special);
         tile.el.style.transform = this.tileTransform(r, c);
-        tile.inner.animate(
-            [{ transform: 'scale(.82) rotate(-6deg)' }, { transform: 'scale(1.18) rotate(5deg)' }, { transform: 'scale(.97) rotate(-2deg)' }, { transform: 'scale(1) rotate(0)' }],
-            { duration: 340, easing: 'cubic-bezier(.16,.84,.22,1)' }
+        tile.el.style.zIndex = '24';
+
+        /* Audio language:
+           - special made by a match -> tile_swap_special.mp3
+           - special placed by a player power-up -> power_up.mp3 */
+        if (source === 'powerUp') this.sfx.powerUp();
+        else this.sfx.special();
+
+        /* Give a newly-created special a tiny announcement beat: flex out,
+           grow, wiggle, then settle cleanly back into the board. */
+        const announce = tile.inner.animate(
+            [
+                { transform:'scale(.76,1.12) rotate(0deg)', offset:0 },
+                { transform:'scale(1.32,.86) rotate(-6deg)', offset:.22 },
+                { transform:'scale(1.18,1.18) rotate(6deg)', offset:.4 },
+                { transform:'scale(1.27,.92) rotate(-4deg)', offset:.56 },
+                { transform:'scale(.96,1.07) rotate(2deg)', offset:.76 },
+                { transform:'scale(1) rotate(0deg)', offset:1 }
+            ],
+            { duration:620, easing:'cubic-bezier(.16,.84,.22,1)' }
         );
+        announce.addEventListener('finish', () => { tile.el.style.zIndex = ''; }, { once:true });
+        announce.addEventListener('cancel', () => { tile.el.style.zIndex = ''; }, { once:true });
+
         const p = this.shellPointForCell(r, c);
-        this.ringBurst(p.x, p.y, special === SPECIALS.BOMB ? COLORS[1] : COLORS[color], 42);
-        this.particleBurst(p.x, p.y, color || 1, 12);
+        this.ringBurst(p.x, p.y, special === SPECIALS.BOMB ? COLORS[1] : COLORS[color], 48);
+        this.particleBurst(p.x, p.y, color || 1, 14);
         return tile;
     }
 
@@ -7388,7 +7533,6 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
             this.checkAchievements();
         }
         this.inventory[type] = (this.inventory[type] || 0) + 1;
-        this.sfx.powerUp();
         this.updateCoinDisplay();
         this.updatePowerUpTray();
         this.openShop();
@@ -7449,12 +7593,16 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
 
         this.inventory[type]--;
         this.recordPowerUpUse(type);
-        if (type !== 'shuffle') this.sfx.powerUp();
+
+        /* Board-piece power-ups play power_up.mp3 at the exact moment their
+           special tile is created. Utility power-ups announce on confirmation. */
+        const createsBoardPiece = ['colorBomb', 'doubleBomb', 'rowRocket', 'colRocket', 'megaBurst'].includes(type);
+        if (!createsBoardPiece && type !== 'shuffle') this.sfx.powerUp();
 
         if (type === 'shuffle') {
             this.isProcessing = true;
             this.updatePowerUpTray();
-            this.reshuffleBoard().then(() => { this.isProcessing = false; });
+            this.reshuffleBoard(true).then(() => { this.isProcessing = false; });
         } else if (type === 'extraMoves') {
             this.moves += 5;
             this.levelMovesAllotted += 5;
@@ -7592,7 +7740,7 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
         if (!candidates.length) return;
         const [r, c] = candidates[Math.floor(Math.random() * candidates.length)];
         const color = special === SPECIALS.BOMB ? 0 : this.board[r][c].color;
-        this.spawnSpecial(r, c, color, special);
+        this.spawnSpecial(r, c, color, special, 'powerUp');
     }
 
     dropColorBombs(count) {
@@ -7793,14 +7941,18 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
 
     startWatchdog() {
         setInterval(() => {
-            const overlayActive = document.getElementById('screen-overlay').classList.contains('active');
-            if (this.isProcessing && !overlayActive) {
+            const overlayActive = !!document.querySelector('.overlay.active');
+            if (!this.boardIdleActive || !this.isLevelActive || overlayActive) {
+                this.stuckTicks = 0;
+                return;
+            }
+            if (this.isProcessing) {
                 this.stuckTicks = (this.stuckTicks || 0) + 1;
                 if (this.stuckTicks > 7) { console.warn('[match] input was stuck; repairing board.'); this.repairBoard(); }
             } else {
                 this.stuckTicks = 0;
             }
-            if (!this.isProcessing && !overlayActive && this.board && this.numColors) {
+            if (!this.isProcessing && this.board && this.numColors) {
                 for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) if (!this.board[r][c] && !this.blocked[r][c]) { this.repairBoard(); return; }
                 const valid = new Set(this.allTiles().map(t => t.el));
                 this.grid.querySelectorAll('.tile').forEach(el => { if (!valid.has(el)) el.remove(); });
@@ -8120,6 +8272,11 @@ Object.assign(Game.prototype, {
             document.getElementById('reward-message').innerText = `Test reward: ${def.name}.`;
             return;
         }
+        if (action === 'levelWipe') {
+            const levelNumber = Math.max(1, (this.currentLevelIdx || 0) + 1);
+            this.coverLevelWipe(levelNumber).then(() => this.revealLevelWipe());
+            return;
+        }
         if (action === 'achievement') {
             this.debugReturnAfterAchievement = true;
             const first = ACHIEVEMENTS[0];
@@ -8168,6 +8325,14 @@ Object.assign(Game.prototype, {
     },
 
     makeMiniGameArtwork(challenge) {
+        /* Supplied square artwork for the first sliding challenge. Keep this
+           mapping explicit so later challenge art can be dropped into
+           art/slide/ without changing the puzzle renderer. */
+        const customArtwork = {
+            1: 'art/slide/slide_art_01.png'
+        };
+        if (customArtwork[challenge]) return `url("${customArtwork[challenge]}")`;
+
         const sets = [
             ['#FFC567','#FB7DA8','#058CD7','#0D9488','#552C87','#FD5A46'],
             ['#63C5FB','#FDB5CD','#FAD970','#4FF0E1','#9F76D2','#FEA499'],
@@ -8421,12 +8586,12 @@ Object.assign(Game.prototype, {
         const blankEl = host?.children?.[info.blank];
         const liveTile = tileEl || host?.children?.[index];
         s.animating = true;
+        this.sfx.slide();
 
         const finish = () => {
             [s.tiles[info.blank], s.tiles[index]] = [s.tiles[index], s.tiles[info.blank]];
             s.moves++;
             s.animating = false;
-            this.sfx.swap();
             this.renderMiniGame();
             if (s.tiles.every((v,i) => v === i)) setTimeout(() => this.completeMiniGame(), 180);
         };
@@ -8514,7 +8679,12 @@ async function boot() {
     await Promise.race([DurableSave.restore(), wait(1200)]);
     window.game = new Game();
     window.game.initMiniGameDebug();
-    await Promise.all([minDisplay, Promise.race([fontsReady, wait(2000)])]);
+    const musicWarm = window.game.sfx.warmMusic().catch(() => false);
+    await Promise.all([
+        minDisplay,
+        Promise.race([fontsReady, wait(2000)]),
+        Promise.race([musicWarm, wait(1800)])
+    ]);
     document.getElementById('splash')?.classList.add('hidden');
 }
 window.addEventListener('load', boot);
