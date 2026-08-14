@@ -3711,6 +3711,58 @@ button.sticker-slot.stamp-catalog-entry.earned:active .stamp-slot-visual{ transf
 /* Edge swipe-back feedback. */
 body.swipe-back-active{ cursor:grabbing; }
 
+
+/* ============================================================
+   POPUP SHAPE LANGUAGE
+   ============================================================
+   Popups share the same border/shadow system, but not the exact same box.
+   The asymmetric radii make them feel like pieces from the game's shape
+   language instead of generic modal rectangles. */
+#screen-overlay.popup-overlay .overlay-card{
+  border-radius:38px 38px 14px 38px;
+}
+#reward-overlay.popup-overlay .overlay-card{
+  border-radius:38px 14px 38px 38px;
+}
+#special-confirm-overlay.popup-overlay .overlay-card{
+  border-radius:14px 38px 38px 38px;
+}
+#achievement-overlay.popup-overlay .overlay-card{
+  border-radius:38px 38px 38px 14px;
+}
+
+/* Reward/result cards get a little more breathing room and a softer,
+   squarer footprint so they read as game objects rather than web dialogs. */
+#screen-overlay.popup-overlay .overlay-card,
+#reward-overlay.popup-overlay .overlay-card,
+#achievement-overlay.popup-overlay .overlay-card{
+  width:min(100%,374px);
+  max-width:374px;
+  padding:30px 26px 26px;
+}
+
+/* A quick physical entrance helps the popup feel separate from the board,
+   without making the result sequence feel rushed. */
+#screen-overlay.popup-overlay.active .overlay-card,
+#reward-overlay.popup-overlay.active .overlay-card,
+#special-confirm-overlay.popup-overlay.active .overlay-card,
+#achievement-overlay.popup-overlay.active .overlay-card{
+  animation:popupSettle .28s cubic-bezier(.16,.84,.22,1) both;
+}
+@keyframes popupSettle{
+  0%{ transform:translate3d(0,14px,0) scale(.96)!important; opacity:.35; }
+  72%{ transform:translate3d(0,-2px,0) scale(1.01)!important; opacity:1; }
+  100%{ transform:translate3d(0,0,0) scale(1)!important; opacity:1; }
+}
+@media(prefers-reduced-motion:reduce){
+  #screen-overlay.popup-overlay.active .overlay-card,
+  #reward-overlay.popup-overlay.active .overlay-card,
+  #special-confirm-overlay.popup-overlay.active .overlay-card,
+  #achievement-overlay.popup-overlay.active .overlay-card{
+    animation:none!important;
+  }
+}
+
 </style>
 </head>
 
@@ -8890,8 +8942,13 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
         const placed = [];
         const firstVertical = Math.random() < 0.5;
 
-        await this.showFinaleBanner(`${count} MOVE${count === 1 ? '' : 'S'} LEFT`, reduced ? 1 : 520);
-        await this.showFinaleBanner('BONUS BUSTERS!', reduced ? 1 : 500);
+        /* Give the player time to understand why the level has not ended yet.
+           The finale is deliberately staged as: remaining moves -> conversion ->
+           individual placements -> ready beat -> simultaneous activation. */
+        await this.showFinaleBanner(`${count} MOVE${count === 1 ? '' : 'S'} LEFT`, reduced ? 1 : 950);
+        await wait(reduced ? 1 : 180);
+        await this.showFinaleBanner('TURNING THEM INTO BUSTERS', reduced ? 1 : 1050);
+        await wait(reduced ? 1 : 220);
 
         for (let i = 0; i < shuffled.length; i++) {
             const oldTile = shuffled[i];
@@ -8911,7 +8968,20 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
             this.movesEl.innerText = this.moves;
             if (!reduced) {
                 this.bumpEl(this.movesEl.closest('.pill'));
-                await wait(92);
+
+                /* Each buster gets its own readable landing beat. */
+                const landing = tile.inner.animate(
+                    [
+                        { transform:'scale(1) rotate(0deg)' },
+                        { transform:'scale(1.18,.9) rotate(-2deg)', offset:.34 },
+                        { transform:'scale(.96,1.08) rotate(1deg)', offset:.62 },
+                        { transform:'scale(1.04) rotate(0deg)', offset:.82 },
+                        { transform:'scale(1) rotate(0deg)' }
+                    ],
+                    { duration:420, easing:'cubic-bezier(.16,.84,.22,1)' }
+                );
+                await this.safeFinished(landing);
+                await wait(140);
             }
         }
 
@@ -8920,7 +8990,7 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
             this.movesEl.innerText = '0';
             if (!reduced) {
                 const power = 1 + overflowMoves * 0.10;
-                this.comboFeedback(`BONUS x${power.toFixed(1)}`);
+                await this.showFinaleBanner(`BONUS x${power.toFixed(1)}`, 620);
                 await wait(180);
             }
         } else {
@@ -8929,8 +8999,13 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
         }
 
         if (!placed.length) return 0;
-        await this.showFinaleBanner('GO!', reduced ? 1 : 360);
-        await wait(reduced ? 1 : 120);
+
+        /* Let the completed set sit on the board before it fires. */
+        await wait(reduced ? 1 : 650);
+        await this.showFinaleBanner('BUSTERS READY', reduced ? 1 : 700);
+        await wait(reduced ? 1 : 250);
+        await this.showFinaleBanner('GO!', reduced ? 1 : 520);
+        await wait(reduced ? 1 : 260);
 
         /* All busters fire on the same beat. Existing specials caught in their
            paths can chain normally, but the free finale busters themselves do
@@ -9039,7 +9114,7 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
             this.recordLevelResult(playedLevel, this.score, stars, elapsedMs);
             if (!this.replayLevelNumber) this.clearLevelLossStreak(playedLevel);
 
-            await wait(this.isReducedMotion() ? 1 : 650);
+            await wait(this.isReducedMotion() ? 1 : 1050);
 
             if (this.replayLevelNumber) {
                 /* Replays are for improving a personal best. They never farm
@@ -9080,7 +9155,7 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
         } else {
             if (!this.replayLevelNumber) this.noteLevelLoss(playedLevel);
             this.sfx.lose();
-            await wait(this.isReducedMotion() ? 1 : 650);
+            await wait(this.isReducedMotion() ? 1 : 900);
             this.showScreen('Out of Moves', 'TRY AGAIN', null, this.replayLevelNumber ? 'replay' : 'play', !this.replayLevelNumber, {
                 coinsEarned:0,
                 elapsedMs,
