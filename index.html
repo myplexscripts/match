@@ -26,11 +26,6 @@
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 
-<!-- Fetch the first sliding-puzzle image as early as possible. Music is
-     warmed by the persistent <audio preload="auto"> elements instead of
-     rel=preload, which some browsers ignore for audio. -->
-<link rel="preload" href="art/slide/slide_puzzle_01.png" as="image" type="image/png">
-
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
@@ -727,7 +722,7 @@ symbol{
 .progress-track{
   position:absolute;
   left:0;
-  right:0;
+  right:112px;
   top:50%;
   transform:translateY(-50%);
   height:16px;
@@ -737,6 +732,28 @@ symbol{
   box-shadow:3px 3px 0 var(--neutral-800);
   overflow:visible;
 }
+
+.progress-score{
+  position:absolute;
+  right:0;
+  top:50%;
+  width:84px;
+  min-height:34px;
+  transform:translateY(-50%);
+  display:grid;
+  place-items:center;
+  align-content:center;
+  gap:1px;
+  padding:4px 8px;
+  background:var(--neutral-50);
+  border:2px solid var(--neutral-800);
+  border-radius:12px;
+  box-shadow:3px 3px 0 var(--neutral-800);
+  z-index:12;
+}
+.progress-score b{font:850 .95rem/1 Manrope,sans-serif;color:var(--ink);}
+.progress-score span{font:800 .54rem/1 Inter,sans-serif;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);}
+
 .progress-fill{
   position:absolute;
   left:0;
@@ -813,6 +830,26 @@ symbol{
   z-index:55;
   overflow:visible;
 }
+
+.finale-banner{
+  position:absolute;
+  left:50%;
+  top:42%;
+  transform:translate(-50%,-50%) scale(.9);
+  z-index:90;
+  pointer-events:none;
+  padding:10px 16px;
+  border:2px solid var(--neutral-900);
+  background:var(--neutral-50);
+  box-shadow:4px 4px 0 var(--neutral-900);
+  font:900 clamp(1.15rem,5vw,1.7rem)/1 Manrope,sans-serif;
+  text-transform:uppercase;
+  letter-spacing:-.03em;
+  opacity:0;
+}
+.finale-banner.show{animation:finaleBannerIn .46s cubic-bezier(.16,.84,.22,1) forwards;}
+@keyframes finaleBannerIn{0%{opacity:0;transform:translate(-50%,-50%) scale(.75) rotate(-2deg)}55%{opacity:1;transform:translate(-50%,-50%) scale(1.08) rotate(1deg)}100%{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+
 .combo-text{
   position:absolute;
   left:50%;
@@ -855,24 +892,26 @@ symbol{
 }
 .level-wipe-copy{
   position:absolute;
-  top:calc(24px + env(safe-area-inset-top));
-  left:max(20px, calc((100vw - 480px) / 2 + 20px));
-  right:max(20px, calc((100vw - 480px) / 2 + 20px));
+  top:50%;
+  left:max(28px, calc((100vw - 520px) / 2 + 28px));
+  right:max(28px, calc((100vw - 520px) / 2 + 28px));
+  transform:translateY(-50%);
+  text-align:left;
 }
 .level-wipe-number{
   margin:0;
   color:var(--ink-fixed);
-  font:800 2rem/1.05 Manrope,sans-serif;
-  letter-spacing:-.03em;
+  font:850 clamp(3.6rem,16vw,6.5rem)/.92 Manrope,sans-serif;
+  letter-spacing:-.055em;
   text-transform:uppercase;
-  transform:translateY(5px);
+  transform:translateY(10px);
   opacity:0;
   will-change:transform,opacity;
 }
 .level-wipe-number.visible{
   opacity:1;
   transform:translateY(0);
-  transition:opacity .16s ease,transform .26s cubic-bezier(.16,.84,.22,1);
+  transition:opacity .16s ease,transform .3s cubic-bezier(.16,.84,.22,1);
 }
 
 .bottom-bar{
@@ -3050,10 +3089,10 @@ symbol{
   text-transform:uppercase;
   color:var(--muted);
 }
-.sticker-slot.mini-game-stamp{aspect-ratio:1 / 1;}
-.sticker-slot.mini-game-stamp .mini-reward-stamp{width:100%;max-width:136px;box-shadow:none;transform:none;}
+ .sticker-slot.mini-game-stamp{aspect-ratio:1 / 1;}
+ .sticker-slot.mini-game-stamp .mini-reward-stamp{width:100%;max-width:136px;box-shadow:none;transform:none;}
 
-/* ---------- Sliding stamp challenge ---------- */
+/* ---------- Memory Match stamp challenge ---------- */
 .mini-game-card,
 .debug-card{
   width:min(100%,480px);
@@ -3106,73 +3145,79 @@ symbol{
   text-transform:uppercase;
   color:var(--muted);
 }
-.slide-puzzle-wrap{
-  display:flex;
-  justify-content:center;
+.memory-game-wrap{
   width:100%;
-  margin:20px 0 16px;
-}
-.slide-puzzle{
-  --puzzle-cols:3;
-  --puzzle-rows:3;
-  --preview-art:none;
-  position:relative;
-  width:min(78vw,340px);
-  aspect-ratio:1 / 1;
   display:grid;
-  grid-template-columns:repeat(var(--puzzle-cols),1fr);
-  grid-template-rows:repeat(var(--puzzle-rows),1fr);
-  gap:5px;
-  padding:5px;
+  place-items:center;
+  margin-top:12px;
+}
+.memory-grid{
+  --memory-cols:3;
+  width:min(100%,430px);
+  display:grid;
+  grid-template-columns:repeat(var(--memory-cols),minmax(0,1fr));
+  gap:10px;
+  padding:10px;
   background:var(--neutral-900);
-  border:3px solid var(--border-color);
+  border:2px solid var(--neutral-900);
   box-shadow:5px 5px 0 var(--shadow-color);
-  overflow:hidden;
 }
-.slide-tile{
+.memory-card{
   position:relative;
+  aspect-ratio:1 / 1;
   min-width:0;
-  min-height:0;
+  border:0;
   padding:0;
-  border:2px solid var(--border-color);
-  border-radius:9px;
-  background-repeat:no-repeat;
+  background:transparent;
   cursor:pointer;
-  box-shadow:2px 2px 0 var(--shadow-color);
-  transition:transform .12s ease, box-shadow .12s ease;
+  touch-action:manipulation;
 }
-.slide-tile:active{transform:translate(2px,2px);box-shadow:none;}
-.slide-tile.blank{
-  background:var(--neutral-0)!important;
-  border-style:dashed;
-  box-shadow:none;
-  opacity:.45;
-  pointer-events:none;
+.memory-card-back,.memory-card-front{
+  position:absolute;
+  inset:0;
+  display:grid;
+  place-items:center;
+  border:2px solid var(--neutral-900);
+  border-radius:16%;
+  box-shadow:3px 3px 0 var(--shadow-color);
+  transition:opacity .14s ease,transform .2s cubic-bezier(.16,.84,.22,1);
 }
-.slide-puzzle::after{
+.memory-card-back{
+  background:var(--neutral-50);
+  color:var(--neutral-800);
+  opacity:1;
+  transform:scale(1);
+}
+.memory-card-back::before,.memory-card-back::after{
   content:"";
   position:absolute;
-  inset:5px;
-  z-index:30;
-  background-image:var(--preview-art);
-  background-size:cover;
-  background-position:center;
+  width:42%;
+  height:3px;
+  border-radius:999px;
+  background:currentColor;
+}
+.memory-card-back::before{transform:rotate(45deg)}
+.memory-card-back::after{transform:rotate(-45deg)}
+.memory-card-front{
+  background:var(--memory-bg,var(--color-blue-base));
   opacity:0;
-  pointer-events:none;
-  transition:opacity .18s ease;
+  transform:scale(.76) rotate(-3deg);
 }
-.slide-puzzle.show-preview::after{opacity:1;}
-.slide-puzzle.show-preview .slide-tile{visibility:hidden;}
-.mini-game-note{
-  margin:0!important;
-  color:var(--muted)!important;
-  font-size:.82rem!important;
-  line-height:1.4!important;
-  text-align:left!important;
+.memory-card-front svg{width:58%;height:58%;overflow:visible;}
+.memory-card-front use{
+  fill:var(--memory-icon,var(--color-blue-light));
+  stroke:var(--neutral-900);
+  stroke-width:4;
+  stroke-linejoin:round;
+  stroke-linecap:round;
+  paint-order:stroke fill;
 }
-.mini-game-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;}
-.mini-game-actions button{min-height:48px;}
-
+.memory-card.revealed .memory-card-back,.memory-card.matched .memory-card-back{opacity:0;transform:scale(.78);}
+.memory-card.revealed .memory-card-front,.memory-card.matched .memory-card-front{opacity:1;transform:scale(1) rotate(0deg);}
+.memory-card.matched .memory-card-front{animation:memoryMatched .36s cubic-bezier(.16,.84,.22,1);}
+@keyframes memoryMatched{0%{transform:scale(1)}45%{transform:scale(1.15) rotate(2deg)}72%{transform:scale(.96) rotate(-1deg)}100%{transform:scale(1)}}
+.memory-card.wrong .memory-card-front{animation:memoryWrong .3s ease-out;}
+@keyframes memoryWrong{0%,100%{transform:translateX(0)}30%{transform:translateX(-5px) rotate(-2deg)}65%{transform:translateX(5px) rotate(2deg)}}
 .mini-reward-card{align-items:center;text-align:center;}
 .mini-reward-card h2{text-align:center;}
 .mini-reward-stamp{
@@ -3313,25 +3358,6 @@ html[data-reduced-motion="true"] *,html[data-reduced-motion="true"] *::before,ht
   text-align:right;
 }
 
-/* Sliding puzzle pieces are draggable as well as tappable. */
-.slide-puzzle{touch-action:none;}
-.slide-tile{
-  touch-action:none;
-  user-select:none;
-  -webkit-user-select:none;
-  will-change:transform;
-}
-.slide-tile.dragging{
-  z-index:5;
-  transition:none!important;
-  cursor:grabbing;
-  box-shadow:1px 1px 0 var(--shadow-color);
-}
-.slide-tile.sliding{
-  z-index:4;
-  transition:transform .13s cubic-bezier(.22,.8,.2,1),box-shadow .13s ease!important;
-  box-shadow:1px 1px 0 var(--shadow-color);
-}
 
 /* ---------- Debug lab ---------- */
 #menu-debug-btn{background:var(--neutral-100);}
@@ -3512,7 +3538,7 @@ button.sticker-slot.stamp-catalog-entry.earned:active .stamp-slot-visual{ transf
 .locked-stamp-placeholder::before{ transform:translate(-50%,-50%) rotate(45deg); }
 .locked-stamp-placeholder::after{ transform:translate(-50%,-50%) rotate(-45deg); }
 
-.album-slide-stamp{
+.album-memory-stamp{
   width:120px!important;
   max-width:120px!important;
   transform:none!important;
@@ -3559,7 +3585,7 @@ button.sticker-slot.stamp-catalog-entry.earned:active .stamp-slot-visual{ transf
   max-width:180px!important;
   transform:none!important;
 }
-.detail-slide-stamp{
+.detail-memory-stamp{
   width:190px!important;
   max-width:190px!important;
   transform:none!important;
@@ -3597,7 +3623,7 @@ button.sticker-slot.stamp-catalog-entry.earned:active .stamp-slot-visual{ transf
   .sticker-slot .stamp-face,
   .sticker-slot .stamp-placeholder{ width:112px!important; max-width:112px!important; }
   .locked-stamp-placeholder{ width:104px!important; max-width:104px!important; }
-  .album-slide-stamp{ width:112px!important; max-width:112px!important; }
+  .album-memory-stamp{ width:112px!important; max-width:112px!important; }
 }
 
 
@@ -3834,23 +3860,22 @@ body.swipe-back-active{ cursor:grabbing; }
     <span>level</span>
   </div>
   <div class="pill"><b id="moves-txt">0</b><span>moves left</span></div>
-  <div class="pill"><b id="score-txt">0</b><span>score</span></div>
 </header>
 
   <main class="stage">
     <div class="shell" id="shell">
       <div class="level-progress">
         <div class="progress-track" id="progressTrack">
-  <div class="progress-fill" id="progressFill"></div>
-  <i class="milestone-dot" id="mile1"></i>
-  <i class="milestone-dot" id="mile2"></i>
-  <i class="milestone-dot" id="mile3"></i>
-</div>
-        <span class="progress-head" id="progressHead">
-          <svg class="progress-head-icon" viewBox="0 0 100 100" aria-hidden="true">
-            <use href="#progress-star"></use>
-          </svg>
-        </span>
+          <div class="progress-fill" id="progressFill"></div>
+          <i class="milestone-dot" id="mile1"></i>
+          <i class="milestone-dot" id="mile2"></i>
+          <span class="progress-head" id="progressHead">
+            <svg class="progress-head-icon" viewBox="0 0 100 100" aria-hidden="true">
+              <use href="#progress-star"></use>
+            </svg>
+          </span>
+        </div>
+        <div class="progress-score" aria-label="Current score"><b id="score-txt">0</b><span>score</span></div>
       </div>
 
       <div class="board" id="board">
@@ -3859,6 +3884,7 @@ body.swipe-back-active{ cursor:grabbing; }
 
       <canvas class="fx-canvas" id="fxCanvas"></canvas>
       <div class="text-layer" id="textLayer"></div>
+      <div class="finale-banner" id="finaleBanner" aria-hidden="true"></div>
     </div>
   </main>
 
@@ -3934,7 +3960,7 @@ body.swipe-back-active{ cursor:grabbing; }
         <div class="settings-audio-head">
           <div>
             <b>Background music</b>
-            <span>Mind-Bender · 8-Bit Puzzler during slide challenges</span>
+            <span>Mind-Bender · 8-Bit Puzzler during memory challenges</span>
           </div>
           <button class="secondary settings-mute-btn" type="button" id="music-mute-btn" aria-pressed="false">
             <span class="material-symbols-outlined" id="music-mute-icon">volume_up</span>
@@ -4277,20 +4303,19 @@ body.swipe-back-active{ cursor:grabbing; }
     <div class="mini-game-head">
       <div class="mini-game-head-copy">
         <span class="mini-game-kicker" id="mini-game-kicker">LEVEL 10 CHALLENGE</span>
-        <h2>Slide It Into Place</h2>
+        <h2>Memory Match</h2>
       </div>
     </div>
     <div class="mini-game-meta">
-      <div><b id="mini-game-moves">0</b><span>Moves</span></div>
-      <div><b id="mini-game-size">3 × 3</b><span>Puzzle</span></div>
+      <div><b id="mini-game-pairs">0 / 3</b><span>Pairs</span></div>
+      <div><b id="mini-game-turns">0</b><span>Turns</span></div>
     </div>
-    <div class="slide-puzzle-wrap">
-      <div class="slide-puzzle" id="slide-puzzle" role="group" aria-label="Sliding tile puzzle"></div>
+    <div class="memory-game-wrap">
+      <div class="memory-grid" id="memory-grid" role="group" aria-label="Memory matching game"></div>
     </div>
-    <p class="mini-game-note">Tap a tile or drag it into the empty space until the square artwork is back in order. Complete it to turn the finished artwork into a collectible stamp.</p>
+    <p class="mini-game-note">Find every matching pair. The cards use the same shapes and colours as the main board.</p>
     <div class="mini-game-actions">
-      <button class="secondary" id="mini-game-peek-btn" hidden>HOLD TO PEEK</button>
-      <button class="secondary" id="mini-game-debug-solve-btn" hidden>DEBUG: SOLVE</button>
+      <button class="secondary" id="mini-game-debug-solve-btn" hidden>DEBUG: MATCH ALL</button>
     </div>
   </div>
 </div>
@@ -4300,7 +4325,7 @@ body.swipe-back-active{ cursor:grabbing; }
     <span class="collection-kicker">CHALLENGE COMPLETE</span>
     <h2>New Stamp!</h2>
     <div class="mini-reward-stamp"><div class="mini-reward-stamp-art" id="mini-reward-art"></div></div>
-    <p class="mini-reward-copy" id="mini-reward-copy">You restored the artwork and earned its stamp.</p>
+    <p class="mini-reward-copy" id="mini-reward-copy">You matched every pair and earned a new stamp.</p>
     <div class="mini-bonus-placeholder" id="mini-bonus-reward" hidden>
       <span class="mini-bonus-kicker">BONUS POWER-UP</span>
       <div class="mini-bonus-content"><span class="mini-bonus-art" id="mini-bonus-art"></span><b id="mini-bonus-name">Power-Up</b></div>
@@ -4348,11 +4373,11 @@ body.swipe-back-active{ cursor:grabbing; }
     </section>
 
     <section class="debug-section">
-      <h3>Sliding challenge</h3>
+      <h3>Memory Match</h3>
       <div class="debug-grid">
-        <button class="secondary" data-debug-action="mini10">LEVEL 10 · 3 × 3</button>
-        <button class="secondary" data-debug-action="mini30">LEVEL 30 · 4 × 4</button>
-        <button class="secondary" data-debug-action="mini60">LEVEL 60 · 5 × 5</button>
+        <button class="secondary" data-debug-action="mini10">LEVEL 10 · 3 PAIRS</button>
+        <button class="secondary" data-debug-action="mini30">LEVEL 30 · 5 PAIRS</button>
+        <button class="secondary" data-debug-action="mini60">LEVEL 60 · 8 PAIRS</button>
         <button class="secondary" data-debug-action="miniReward">REWARD SCREEN</button>
       </div>
     </section>
@@ -4564,9 +4589,9 @@ const STICKER_SHEETS = ACHIEVEMENTS.map(a => ({
 }));
 
 /* Catalogue numbering is permanent. Achievement stamps occupy No. 01-99.
-   Sliding challenge stamps use the 100-series, so adding new achievement
-   stamps later never renumbers a collectible the player already owns. */
-const SLIDING_STAMP_CATALOG_LEVELS = Array.from({ length:10 }, (_, i) => (i + 1) * 10);
+   Memory Match stamps use the 100-series, so new achievements never renumber
+   a collectible the player already owns. */
+const MEMORY_STAMP_CATALOG_LEVELS = Array.from({ length:10 }, (_, i) => (i + 1) * 10);
 
 const wait = ms => new Promise(res => setTimeout(res, ms));
 
@@ -4921,7 +4946,6 @@ class SFX {
             powerUp: 'audio/power_up.mp3',
             reward: 'audio/reward.mp3',
             milestoneHit: 'audio/milestone_hit.mp3',
-            slide: 'audio/slide.mp3',
             tilePop: 'audio/tile_swap_pop.mp3',
             tileSpecial: 'audio/tile_swap_special.mp3'
         };
@@ -5274,7 +5298,6 @@ class SFX {
     }
     special() { this.play('tileSpecial', 0.82, 1); }
     milestoneHit() { this.play('milestoneHit', 0.88, 1); }
-    slide() { this.play('slide', 0.82, 1); }
     shuffle() { this.play('powerUp', 0.78, 0.96); }
     powerUp() { this.play('powerUp', 0.82, 1); }
     reward() { this.play('reward', 0.84, 1); }
@@ -5577,7 +5600,7 @@ this.progressTrack = document.getElementById('progressTrack');
             cards,
             stickers: [],
             completedSheets: [],
-            miniGameStamps: [],
+            memoryGameStamps: [],
             stampEarnedAt: {},
             levelRecords: {},
             levelLossStreaks: {}
@@ -5613,8 +5636,23 @@ this.progressTrack = document.getElementById('progressTrack');
             const validSheetIds = new Set(STICKER_SHEETS.map(sheet => sheet.id));
             data.stickers = (Array.isArray(data.stickers) ? data.stickers : []).filter(key => validStickerKeys.has(key));
             data.completedSheets = (Array.isArray(data.completedSheets) ? data.completedSheets : []).filter(id => validSheetIds.has(id));
-            data.miniGameStamps = Array.isArray(data.miniGameStamps) ? data.miniGameStamps : [];
+            /* Migrate stamps earned by the retired Memory Match challenge into the
+               Memory Match catalogue without taking anything away from players. */
+            const legacyMini = Array.isArray(data.miniGameStamps) ? data.miniGameStamps : [];
+            data.memoryGameStamps = Array.isArray(data.memoryGameStamps) ? data.memoryGameStamps : [];
+            legacyMini.forEach(key => {
+                const level = Number(String(key).replace('sliding-',''));
+                const migrated = Number.isFinite(level) ? `memory-${level}` : null;
+                if (migrated && !data.memoryGameStamps.includes(migrated)) data.memoryGameStamps.push(migrated);
+            });
+            delete data.miniGameStamps;
             data.stampEarnedAt = data.stampEarnedAt && typeof data.stampEarnedAt === 'object' ? data.stampEarnedAt : {};
+            Object.keys(data.stampEarnedAt).forEach(key => {
+                if (!key.startsWith('mini:sliding-')) return;
+                const level = key.replace('mini:sliding-','');
+                const nextKey = `memory:memory-${level}`;
+                if (!data.stampEarnedAt[nextKey]) data.stampEarnedAt[nextKey] = data.stampEarnedAt[key];
+            });
             data.levelRecords = data.levelRecords && typeof data.levelRecords === 'object' ? data.levelRecords : {};
             data.levelLossStreaks = data.levelLossStreaks && typeof data.levelLossStreaks === 'object' ? data.levelLossStreaks : {};
             this.ensurePunchCardRewards(data);
@@ -5677,32 +5715,27 @@ this.progressTrack = document.getElementById('progressTrack');
             });
         });
 
-        const earnedSlidingLevels = (this.collection?.miniGameStamps || [])
-            .map(key => Number(String(key).replace('sliding-','')))
+        const earnedMemoryLevels = (this.collection?.memoryGameStamps || [])
+            .map(key => Number(String(key).replace('memory-','')))
             .filter(level => Number.isFinite(level) && level >= 10);
-        const slidingLevels = Array.from(new Set([...SLIDING_STAMP_CATALOG_LEVELS, ...earnedSlidingLevels])).sort((a,b) => a - b);
-        const ownedSliding = new Set(this.collection?.miniGameStamps || []);
-        const slidingEntries = slidingLevels.map(level => {
+        const memoryLevels = Array.from(new Set([...MEMORY_STAMP_CATALOG_LEVELS, ...earnedMemoryLevels])).sort((a,b) => a - b);
+        const ownedMemory = new Set(this.collection?.memoryGameStamps || []);
+        const memoryEntries = memoryLevels.map(level => {
             const challenge = Math.max(1, Math.floor(level / 10));
-            const rawKey = `sliding-${level}`;
-            const albumKey = `mini:${rawKey}`;
+            const rawKey = `memory-${level}`;
+            const albumKey = `memory:${rawKey}`;
             return {
-                albumKey,
-                rawKey,
-                type:'sliding',
-                no:100 + challenge,
-                level,
-                challenge,
-                name:`Level ${level} Puzzle`,
-                desc:`Complete the Level ${level} sliding challenge.`,
+                albumKey, rawKey, type:'memory', no:100 + challenge, level, challenge,
+                name:`Level ${level} Memory Match`,
+                desc:`Complete the Level ${level} Memory Match challenge.`,
                 secret:false,
-                artwork:this.makeMiniGameArtwork(challenge),
-                owned:ownedSliding.has(rawKey),
+                artwork:this.makeMemoryStampArtwork(challenge),
+                owned:ownedMemory.has(rawKey),
                 earnedAt:this.stampEarnedTimestamp(albumKey)
             };
         });
 
-        return achievementEntries.concat(slidingEntries);
+        return achievementEntries.concat(memoryEntries);
     }
 
     chooseUnownedStickerFromSheet(sheetId, data = this.collection, excludeKeys = new Set()) {
@@ -6387,8 +6420,8 @@ this.progressTrack = document.getElementById('progressTrack');
 
             let artwork = '';
             if (entry.owned) {
-                artwork = entry.type === 'sliding'
-                    ? `<div class="mini-reward-stamp album-slide-stamp" aria-hidden="true"><div class="mini-reward-stamp-art" style="background-image:${entry.artwork}"></div></div>`
+                artwork = entry.type === 'memory'
+                    ? `<div class="mini-reward-stamp album-memory-stamp" aria-hidden="true"><div class="mini-reward-stamp-art" style="background-image:${entry.artwork}"></div></div>`
                     : this.buildStickerFace(entry.sticker);
             } else {
                 artwork = this.buildLockedStampPlaceholder();
@@ -6440,8 +6473,8 @@ this.progressTrack = document.getElementById('progressTrack');
         if (description) description.textContent = entry.desc || 'Collected stamp.';
         if (date) date.textContent = this.formatStampEarnedAt(entry.earnedAt);
         if (art) {
-            art.innerHTML = entry.type === 'sliding'
-                ? `<div class="mini-reward-stamp detail-slide-stamp" aria-hidden="true"><div class="mini-reward-stamp-art" style="background-image:${entry.artwork}"></div></div>`
+            art.innerHTML = entry.type === 'memory'
+                ? `<div class="mini-reward-stamp detail-memory-stamp" aria-hidden="true"><div class="mini-reward-stamp-art" style="background-image:${entry.artwork}"></div></div>`
                 : this.buildStickerFace(entry.sticker);
         }
 
@@ -7534,7 +7567,7 @@ if (peekBtn) {
 
         const progress = Math.max(0, Math.min(100, (this.score / this.starMax) * 100));
 this.progressFill.style.width = `${progress}%`;
-this.progressHead.style.left = `calc(2px + (100% - 4px) * ${progress / 100})`;
+this.progressHead.style.left = `${progress}%`;
 this.progressTrack.classList.toggle('full', this.score >= this.starMax);
 
         const banked = this.computeBankedStars();
@@ -7543,8 +7576,11 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
 
         MILESTONE_PCTS.forEach((pt, i) => {
             const passed = progress >= pt - 0.01;
-            this.mileEls[i].style.left = `${Math.min(100, pt)}%`;
-            this.mileEls[i].classList.toggle('passed', passed);
+            const milestoneEl = this.mileEls[i];
+            if (milestoneEl) {
+                milestoneEl.style.left = `${Math.min(100, pt)}%`;
+                milestoneEl.classList.toggle('passed', passed);
+            }
             if (passed && !this.reachedMilestones.has(i) && celebrate) {
                 this.reachedMilestones.add(i);
                 this.milestoneCelebrate(i, pt);
@@ -7584,7 +7620,7 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
 
     milestoneCelebrate(index, pct) {
         const el = this.mileEls[index];
-        el.animate(
+        if (el) el.animate(
             [
                 { transform: 'translate(-50%,-50%) scale(1)' },
                 { transform: 'translate(-50%,-50%) scale(1.6)', offset: .45 },
@@ -7612,7 +7648,7 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
     addScore(pts) {
         this.score += pts;
         this.updateHUD(true);
-        this.bumpEl(this.scoreEl.closest('.pill'));
+        this.bumpEl(this.scoreEl.closest('.progress-score'));
     }
 
     /* ---------- Interaction ---------- */
@@ -8361,16 +8397,25 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
 
         /* Give a newly-created special a tiny announcement beat: flex out,
            grow, wiggle, then settle cleanly back into the board. */
-        const announce = tile.inner.animate(
-            [
-                { transform:'scale(.76,1.12) rotate(0deg)', offset:0 },
-                { transform:'scale(1.32,.86) rotate(-6deg)', offset:.22 },
-                { transform:'scale(1.18,1.18) rotate(6deg)', offset:.4 },
-                { transform:'scale(1.27,.92) rotate(-4deg)', offset:.56 },
-                { transform:'scale(.96,1.07) rotate(2deg)', offset:.76 },
-                { transform:'scale(1) rotate(0deg)', offset:1 }
-            ],
-            { duration:this.isReducedMotion() ? 1 : (source === 'finale' ? 330 : 620), easing:'cubic-bezier(.16,.84,.22,1)' }
+        const announceFrames = source === 'finale'
+            ? [
+                { transform:'scale(.58) rotate(-6deg)', opacity:.35 },
+                { transform:'scale(1.34,.82) rotate(4deg)', opacity:1, offset:.3 },
+                { transform:'scale(.9,1.18) rotate(-3deg)', offset:.52 },
+                { transform:'scale(1.18,.92) rotate(2deg)', offset:.72 },
+                { transform:'scale(1) rotate(0deg)' }
+              ]
+            : [
+                { transform:'scale(1) rotate(0deg)' },
+                { transform:'scale(1.24,.9) rotate(-2deg)', offset:.2 },
+                { transform:'scale(1.16) rotate(2.5deg)', offset:.38 },
+                { transform:'scale(1.18) rotate(-2deg)', offset:.52 },
+                { transform:'scale(1.1) rotate(1.5deg)', offset:.68 },
+                { transform:'scale(.97,1.05) rotate(-.5deg)', offset:.84 },
+                { transform:'scale(1) rotate(0deg)' }
+              ];
+        const announce = tile.inner.animate(announceFrames,
+            { duration:this.isReducedMotion() ? 1 : (source === 'finale' ? 440 : 620), easing:'cubic-bezier(.16,.84,.22,1)' }
         );
         announce.addEventListener('finish', () => { tile.el.style.zIndex = ''; }, { once:true });
         announce.addEventListener('cancel', () => { tile.el.style.zIndex = ''; }, { once:true });
@@ -8813,6 +8858,18 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
 
     /* ---------- Win / loss ---------- */
 
+    async showFinaleBanner(text, hold = 420) {
+        const el = document.getElementById('finaleBanner');
+        if (!el) return;
+        el.classList.remove('show');
+        el.textContent = text;
+        void el.offsetWidth;
+        el.classList.add('show');
+        await wait(this.isReducedMotion() ? 1 : hold);
+        el.classList.remove('show');
+        el.style.opacity = '0';
+    }
+
     async runRemainingMovesBonus(remainingMoves) {
         const count = Math.max(0, Math.floor(remainingMoves || 0));
         if (!count) return 0;
@@ -8833,8 +8890,8 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
         const placed = [];
         const firstVertical = Math.random() < 0.5;
 
-        this.comboFeedback(`${count} MOVE${count === 1 ? '' : 'S'} LEFT!`);
-        await wait(reduced ? 1 : 180);
+        await this.showFinaleBanner(`${count} MOVE${count === 1 ? '' : 'S'} LEFT`, reduced ? 1 : 520);
+        await this.showFinaleBanner('BONUS BUSTERS!', reduced ? 1 : 500);
 
         for (let i = 0; i < shuffled.length; i++) {
             const oldTile = shuffled[i];
@@ -8846,6 +8903,10 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
 
             const tile = this.spawnSpecial(live.r, live.c, live.color, special, 'finale');
             placed.push(tile);
+            const impactPoint = this.shellPointForCell(tile.r, tile.c);
+            this.ringBurst(impactPoint.x, impactPoint.y, COLORS[tile.color] || COLORS[1], 58);
+            this.particleBurst(impactPoint.x, impactPoint.y, tile.color || 1, 10);
+            this.vibrate(11);
             this.moves = Math.max(0, this.moves - 1);
             this.movesEl.innerText = this.moves;
             if (!reduced) {
@@ -8868,7 +8929,8 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
         }
 
         if (!placed.length) return 0;
-        await wait(reduced ? 1 : 300);
+        await this.showFinaleBanner('GO!', reduced ? 1 : 360);
+        await wait(reduced ? 1 : 120);
 
         /* All busters fire on the same beat. Existing specials caught in their
            paths can chain normally, but the free finale busters themselves do
@@ -8977,6 +9039,8 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
             this.recordLevelResult(playedLevel, this.score, stars, elapsedMs);
             if (!this.replayLevelNumber) this.clearLevelLossStreak(playedLevel);
 
+            await wait(this.isReducedMotion() ? 1 : 650);
+
             if (this.replayLevelNumber) {
                 /* Replays are for improving a personal best. They never farm
                    progression rewards, coins, stamps, or lifetime clear counts. */
@@ -9016,6 +9080,7 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
         } else {
             if (!this.replayLevelNumber) this.noteLevelLoss(playedLevel);
             this.sfx.lose();
+            await wait(this.isReducedMotion() ? 1 : 650);
             this.showScreen('Out of Moves', 'TRY AGAIN', null, this.replayLevelNumber ? 'replay' : 'play', !this.replayLevelNumber, {
                 coinsEarned:0,
                 elapsedMs,
@@ -9381,32 +9446,24 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
 
 
 
-/* ---------- Sliding challenge + debug tooling ---------- */
-const MINI_GAME_CUSTOM_ART = {
-    1: 'art/slide/slide_puzzle_01.png'
-};
+/* ---------- Memory Match challenge + debug tooling ---------- */
 const __originalOnRewardContinue = Game.prototype.onRewardContinue;
 const __originalCloseAchievementPopup = Game.prototype.closeAchievementPopup;
 
 Object.assign(Game.prototype, {
     initMiniGameDebug() {
-        if (!this.collection.miniGameStamps) this.collection.miniGameStamps = [];
+        if (!this.collection.memoryGameStamps) this.collection.memoryGameStamps = [];
         this.pendingPostMiniReward = false;
         this.miniGameState = null;
         this.debugMiniGame = false;
         this.debugReturnAfterReward = false;
         this.debugReturnAfterAchievement = false;
-        this.miniGameArtLoadFailed = new Set();
 
         document.getElementById('menu-debug-btn')?.addEventListener('click', () => this.openDebugPanel(false));
         document.getElementById('debug-close-btn')?.addEventListener('click', () => this.closeDebugPanel());
         document.getElementById('mini-reward-continue-btn')?.addEventListener('click', () => this.continueAfterMiniGame());
         document.getElementById('mini-game-debug-solve-btn')?.addEventListener('click', () => this.debugSolveMiniGame());
-
-        document.querySelectorAll('[data-debug-action]').forEach(btn => {
-            btn.addEventListener('click', () => this.runDebugAction(btn.dataset.debugAction));
-        });
-
+        document.querySelectorAll('[data-debug-action]').forEach(btn => btn.addEventListener('click', () => this.runDebugAction(btn.dataset.debugAction)));
         this.updateDebugReadout();
     },
 
@@ -9449,49 +9506,25 @@ Object.assign(Game.prototype, {
     },
 
     closeDebugPanel() {
-        this.swipeModalSwap(
-            document.getElementById('debug-overlay'),
-            document.getElementById('menu-overlay'),
-            false
-        );
+        this.swipeModalSwap(document.getElementById('debug-overlay'), document.getElementById('menu-overlay'), false);
     },
 
     runDebugAction(action) {
         if (!action) return;
-        if (action === 'coins') {
-            this.addCoins(5000);
-            this.updateDebugReadout();
-            return;
-        }
+        if (action === 'coins') { this.addCoins(5000); this.updateDebugReadout(); return; }
         if (action === 'powerups') {
             Object.keys(POWER_UPS).forEach(key => this.inventory[key] = (this.inventory[key] || 0) + 5);
-            this.updatePowerUpTray();
-            this.persist();
-            return;
+            this.updatePowerUpTray(); this.persist(); return;
         }
-        if (action === 'clear-save') {
-            this.clearSave();
-            this.updateDebugReadout();
-            return;
-        }
+        if (action === 'clear-save') { this.clearSave(); this.updateDebugReadout(); return; }
         if (action.startsWith('jump')) {
             const target = Number(action.replace('jump','')) || 1;
-            this.currentLevelIdx = Math.max(0, target - 1);
-            this.persist();
-            this.updateDebugReadout();
-            return;
+            this.currentLevelIdx = Math.max(0, target - 1); this.persist(); this.updateDebugReadout(); return;
         }
         if (action === 'win' || action === 'fail') {
             const success = action === 'win';
             this.swipeModalSwap(document.getElementById('debug-overlay'), document.getElementById('screen-overlay'), true);
-            setTimeout(() => this.showScreen(
-                success ? 'Level Clear!' : 'Out of Moves',
-                'BACK TO DEBUG',
-                success ? 3 : null,
-                'debugReturn',
-                true,
-                { coinsEarned:success ? 300 : 0, elapsedMs:61000, score:success ? 1100 : 640, movesUsed:18, movesAllotted:20 }
-            ), 30);
+            setTimeout(() => this.showScreen(success ? 'Level Clear!' : 'Out of Moves','BACK TO DEBUG',success ? 3 : null,'debugReturn',true,{ coinsEarned:success ? 300 : 0, elapsedMs:61000, score:success ? 1100 : 640, movesUsed:18, movesAllotted:20 }),30);
             return;
         }
         if (action === 'reward') {
@@ -9505,8 +9538,7 @@ Object.assign(Game.prototype, {
         }
         if (action === 'levelWipe') {
             const levelNumber = Math.max(1, (this.currentLevelIdx || 0) + 1);
-            this.coverLevelWipe(levelNumber).then(() => this.revealLevelWipe());
-            return;
+            this.coverLevelWipe(levelNumber).then(() => this.revealLevelWipe()); return;
         }
         if (action === 'achievement') {
             this.debugReturnAfterAchievement = true;
@@ -9526,413 +9558,177 @@ Object.assign(Game.prototype, {
         if (action === 'mini60') return this.startMiniGame(60, true);
         if (action === 'miniReward') {
             this.debugMiniGame = true;
-            this.miniGameState = { level:10, artwork:this.makeMiniGameArtwork(1), moves:14 };
+            this.miniGameState = { level:10, challenge:1, pairs:3, matchedPairs:3, turns:4, artwork:this.makeMemoryStampArtwork(1) };
             this.showMiniGameReward(true);
         }
     },
 
     miniGameConfig(levelNumber) {
         const challenge = Math.max(1, Math.floor(Math.max(10, levelNumber) / 10));
-
-        // Square sliding puzzles. Difficulty rises first through a deeper legal
-        // scramble, then by increasing the NxN board size. Every starting board
-        // is created from the solved state using legal blank-space moves, so it
-        // is guaranteed to be solvable.
-        if (challenge === 1) return { challenge, cols:3, rows:3, scramble:18, minDistance:6 };
-        if (challenge === 2) return { challenge, cols:3, rows:3, scramble:34, minDistance:9 };
-        if (challenge === 3) return { challenge, cols:4, rows:4, scramble:42, minDistance:12 };
-        if (challenge === 4) return { challenge, cols:4, rows:4, scramble:62, minDistance:17 };
-        if (challenge === 5) return { challenge, cols:4, rows:4, scramble:82, minDistance:21 };
-
-        // 5 x 5 is deliberately held until Level 60. From there the board size
-        // stays readable on mobile while the scramble keeps getting tougher.
-        return {
-            challenge,
-            cols:5,
-            rows:5,
-            scramble:96 + (challenge - 6) * 18,
-            minDistance:26 + Math.min(14, (challenge - 6) * 2)
-        };
+        let pairs;
+        if (challenge === 1) pairs = 3;
+        else if (challenge === 2) pairs = 4;
+        else if (challenge === 3) pairs = 5;
+        else if (challenge === 4) pairs = 6;
+        else if (challenge <= 6) pairs = 8;
+        else if (challenge <= 8) pairs = 10;
+        else pairs = 12;
+        const cols = pairs <= 3 ? 3 : 4;
+        return { challenge, pairs, cols };
     },
 
-    makeMiniGameArtwork(challenge) {
-        /* One square source image is intentionally sliced by CSS across every
-           movable tile. The player does NOT need nine separate files. */
-        const customSrc = MINI_GAME_CUSTOM_ART[challenge];
-        if (customSrc && !this.miniGameArtLoadFailed?.has(challenge)) {
-            const resolved = new URL(customSrc, document.baseURI).href;
-            return `url("${resolved}")`;
+    memoryPairDefinitions(challenge, pairCount) {
+        const combos = [];
+        for (let color = 1; color <= 6; color++) {
+            for (let shape = 1; shape <= 6; shape++) combos.push({ color, shape, key:`${color}:${shape}` });
         }
+        const rng = mulberry32(challenge * 65537 + 91);
+        for (let i = combos.length - 1; i > 0; i--) {
+            const j = Math.floor(rng() * (i + 1));
+            [combos[i], combos[j]] = [combos[j], combos[i]];
+        }
+        return combos.slice(0, pairCount);
+    },
 
-        const sets = [
-            ['#FFC567','#FB7DA8','#058CD7','#0D9488','#552C87','#FD5A46'],
-            ['#63C5FB','#FDB5CD','#FAD970','#4FF0E1','#9F76D2','#FEA499'],
-            ['#FD5A46','#FFC567','#552C87','#058CD7','#0D9488','#FB7DA8']
-        ];
-        const c = sets[(challenge - 1) % sets.length];
-        const n = challenge % 6;
-        const tilt = 7 + n * 2;
-        const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1200">
-          <rect width="1200" height="1200" fill="${c[0]}"/>
-          <circle cx="${230 + n*14}" cy="235" r="170" fill="${c[1]}" stroke="#17161A" stroke-width="26"/>
-          <rect x="650" y="105" width="330" height="330" rx="32" fill="${c[2]}" stroke="#17161A" stroke-width="26" transform="rotate(${tilt} 815 270)"/>
-          <path d="M95 610 L365 430 L520 705 L235 825 Z" fill="${c[3]}" stroke="#17161A" stroke-width="26"/>
-          <circle cx="845" cy="645" r="205" fill="${c[4]}" stroke="#17161A" stroke-width="26"/>
-          <path d="M690 520 L1050 520 L1050 795 L690 795 Z" fill="none" stroke="#17161A" stroke-width="26"/>
-          <path d="M85 1010 H535 V1115 H85 Z" fill="${c[5]}" stroke="#17161A" stroke-width="26"/>
-          <path d="M700 1035 L860 875 L1020 1035 L860 1160 Z" fill="${c[2]}" stroke="#17161A" stroke-width="26"/>
-          <circle cx="585" cy="905" r="68" fill="#F7F5F0" stroke="#17161A" stroke-width="26"/>
-          <path d="M530 230 L585 120 L640 230 L750 285 L640 340 L585 450 L530 340 L420 285 Z" fill="${c[5]}" stroke="#17161A" stroke-width="26"/>
+    makeMemoryStampArtwork(challenge) {
+        const palette = [
+            ['#FFC567','#FB7DA8','#058CD7','#0D9488'],
+            ['#552C87','#FD5A46','#FFC567','#058CD7'],
+            ['#0D9488','#FB7DA8','#552C87','#FD5A46']
+        ][(challenge - 1) % 3];
+        const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600">
+          <rect width="600" height="600" fill="${palette[0]}"/>
+          <rect x="54" y="54" width="220" height="220" rx="34" fill="${palette[1]}" stroke="#17161A" stroke-width="18"/>
+          <rect x="326" y="54" width="220" height="220" rx="34" fill="${palette[1]}" stroke="#17161A" stroke-width="18"/>
+          <path d="M164 105 L218 164 L164 223 L110 164 Z" fill="${palette[3]}" stroke="#17161A" stroke-width="14"/>
+          <path d="M436 105 L490 164 L436 223 L382 164 Z" fill="${palette[3]}" stroke="#17161A" stroke-width="14"/>
+          <circle cx="164" cy="436" r="92" fill="${palette[2]}" stroke="#17161A" stroke-width="18"/>
+          <circle cx="436" cy="436" r="92" fill="${palette[2]}" stroke="#17161A" stroke-width="18"/>
         </svg>`;
         return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
-    },
-
-    async preloadMiniGameArtwork(challenge) {
-        const src = MINI_GAME_CUSTOM_ART[challenge];
-        if (!src) return true;
-        if (this.miniGameArtLoadFailed?.has(challenge)) return false;
-        const url = new URL(src, document.baseURI).href;
-
-        return await new Promise(resolve => {
-            const image = new Image();
-            image.decoding = 'async';
-            image.onload = () => resolve(true);
-            image.onerror = () => {
-                this.miniGameArtLoadFailed?.add(challenge);
-                console.warn(`[slide puzzle] Could not load artwork: ${url}. Check the path, filename case, and that the PNG is deployed.`);
-                resolve(false);
-            };
-            image.src = url;
-            if (image.complete && image.naturalWidth > 0) resolve(true);
-        });
-    },
-
-    miniGameDistanceScore(tiles, cols, blankValue) {
-        let score = 0;
-        tiles.forEach((value, index) => {
-            if (value === blankValue) return;
-            const currentRow = Math.floor(index / cols);
-            const currentCol = index % cols;
-            const solvedRow = Math.floor(value / cols);
-            const solvedCol = value % cols;
-            score += Math.abs(currentRow - solvedRow) + Math.abs(currentCol - solvedCol);
-        });
-        return score;
-    },
-
-    scrambleMiniGame(config) {
-        const total = config.cols * config.rows;
-        const solved = Array.from({length:total}, (_,i) => i);
-        const tiles = solved.slice();
-        const blankValue = total - 1;
-        let blank = total - 1;
-        let previousBlank = -1;
-        let movesMade = 0;
-        const maxMoves = config.scramble + 180;
-
-        // Scrambling from the solved board using only legal moves guarantees a
-        // solvable puzzle. We also avoid immediately undoing the previous move
-        // and require a minimum Manhattan-distance score so later challenges do
-        // not accidentally spawn almost solved.
-        while (movesMade < config.scramble || this.miniGameDistanceScore(tiles, config.cols, blankValue) < config.minDistance) {
-            const neighbours = [];
-            const r = Math.floor(blank / config.cols);
-            const c = blank % config.cols;
-            if (r > 0) neighbours.push(blank - config.cols);
-            if (r < config.rows - 1) neighbours.push(blank + config.cols);
-            if (c > 0) neighbours.push(blank - 1);
-            if (c < config.cols - 1) neighbours.push(blank + 1);
-
-            const options = neighbours.filter(index => index !== previousBlank);
-            const choices = options.length ? options : neighbours;
-            const next = choices[Math.floor(Math.random() * choices.length)];
-            [tiles[blank], tiles[next]] = [tiles[next], tiles[blank]];
-            previousBlank = blank;
-            blank = next;
-            movesMade++;
-
-            if (movesMade >= maxMoves) break;
-        }
-
-        // A long legal walk can theoretically loop back to solved. One extra
-        // legal move is enough to prevent ever presenting a completed board.
-        if (tiles.every((value, index) => value === index)) {
-            const r = Math.floor(blank / config.cols);
-            const c = blank % config.cols;
-            const next = c > 0 ? blank - 1 : (r > 0 ? blank - config.cols : blank + 1);
-            [tiles[blank], tiles[next]] = [tiles[next], tiles[blank]];
-        }
-
-        return { tiles, blankValue };
     },
 
     async startMiniGame(levelNumber, debug = false) {
         if (!this.musicSessionActive) this.startMusicSession('puzzle');
         else this.setMusicContext('puzzle');
         const config = this.miniGameConfig(levelNumber);
-        await this.preloadMiniGameArtwork(config.challenge);
-        const scrambled = this.scrambleMiniGame(config);
-        const solved = Array.from({length:config.cols * config.rows}, (_,i) => i);
-        const artwork = this.makeMiniGameArtwork(config.challenge);
-
+        const defs = this.memoryPairDefinitions(config.challenge, config.pairs);
+        const cards = defs.flatMap((def, pairIndex) => [
+            { ...def, id:`${pairIndex}-a`, pairIndex, revealed:false, matched:false },
+            { ...def, id:`${pairIndex}-b`, pairIndex, revealed:false, matched:false }
+        ]);
+        const rng = mulberry32(levelNumber * 31337 + 7);
+        for (let i = cards.length - 1; i > 0; i--) {
+            const j = Math.floor(rng() * (i + 1));
+            [cards[i], cards[j]] = [cards[j], cards[i]];
+        }
         this.debugMiniGame = !!debug;
-        this.miniGameDrag = null;
-        this.miniGameSuppressClickUntil = 0;
         this.miniGameState = {
-            level:levelNumber,
-            challenge:config.challenge,
-            cols:config.cols,
-            rows:config.rows,
-            tiles:solved,
-            scrambledTiles:scrambled.tiles,
-            blankValue:scrambled.blankValue,
-            moves:0,
-            artwork,
-            previewing:true,
-            peeking:false
+            level:levelNumber, challenge:config.challenge, pairs:config.pairs, cols:config.cols, cards,
+            firstIndex:null, lock:false, matchedPairs:0, turns:0, artwork:this.makeMemoryStampArtwork(config.challenge)
         };
-
         const kicker = document.getElementById('mini-game-kicker');
         if (kicker) kicker.innerText = debug ? `DEBUG · LEVEL ${levelNumber} CHALLENGE` : `LEVEL ${levelNumber} CHALLENGE`;
         document.getElementById('mini-game-debug-solve-btn').hidden = !debug;
-        const peek = document.getElementById('mini-game-peek-btn');
-        if (peek) peek.hidden = config.cols < 4;
         this.renderMiniGame();
-
         const from = this.activePaperOverlay();
         const overlay = document.getElementById('mini-game-overlay');
         if (from && from !== overlay) this.swipeModalSwap(from, overlay, true);
         else this.panGameToSheet(overlay);
-
-        /* Give the player the reference image first, then briefly show the solved
-           tile grid, then reveal the legally scrambled board. */
-        const host = document.getElementById('slide-puzzle');
-        if (host) host.classList.add('show-preview');
-        await wait(this.isReducedMotion() ? 1 : 900);
-        if (!this.miniGameState) return;
-        if (host) host.classList.remove('show-preview');
-        await wait(this.isReducedMotion() ? 1 : 260);
-        if (!this.miniGameState) return;
-        this.miniGameState.tiles = this.miniGameState.scrambledTiles.slice();
-        this.miniGameState.previewing = false;
-        this.renderMiniGame();
     },
 
     renderMiniGame() {
-        const state = this.miniGameState;
-        const host = document.getElementById('slide-puzzle');
-        if (!state || !host) return;
-        host.style.setProperty('--puzzle-cols', state.cols);
-        host.style.setProperty('--puzzle-rows', state.rows);
-        host.style.setProperty('--preview-art', state.artwork);
-        document.getElementById('mini-game-moves').innerText = String(state.moves);
-        document.getElementById('mini-game-size').innerText = `${state.cols} × ${state.rows}`;
+        const s = this.miniGameState;
+        const host = document.getElementById('memory-grid');
+        if (!s || !host) return;
+        host.style.setProperty('--memory-cols', String(s.cols));
+        document.getElementById('mini-game-pairs').innerText = `${s.matchedPairs} / ${s.pairs}`;
+        document.getElementById('mini-game-turns').innerText = String(s.turns);
         host.innerHTML = '';
-
-        state.tiles.forEach((value, index) => {
+        s.cards.forEach((card,index) => {
             const btn = document.createElement('button');
             btn.type = 'button';
-            btn.className = 'slide-tile' + (value === state.blankValue ? ' blank' : '');
-            btn.dataset.index = String(index);
-            if (value !== state.blankValue) {
-                const solvedRow = Math.floor(value / state.cols);
-                const solvedCol = value % state.cols;
-                const x = state.cols === 1 ? 0 : solvedCol / (state.cols - 1) * 100;
-                const y = state.rows === 1 ? 0 : solvedRow / (state.rows - 1) * 100;
-                btn.style.backgroundImage = state.artwork;
-                btn.style.backgroundSize = `${state.cols * 100}% ${state.rows * 100}%`;
-                btn.style.backgroundPosition = `${x}% ${y}%`;
-                btn.setAttribute('aria-label', `Puzzle tile ${value + 1}`);
-                btn.addEventListener('click', e => {
-                    if (performance.now() < (this.miniGameSuppressClickUntil || 0)) {
-                        e.preventDefault();
-                        return;
-                    }
-                    this.moveMiniGameTile(index, btn);
-                });
-                btn.addEventListener('pointerdown', e => this.beginMiniGameDrag(e, index, btn));
-            } else {
-                btn.setAttribute('aria-label', 'Empty puzzle space');
-            }
+            btn.className = `memory-card${card.revealed ? ' revealed' : ''}${card.matched ? ' matched' : ''}`;
+            btn.disabled = card.matched;
+            btn.setAttribute('aria-label', card.revealed || card.matched ? `Card ${index + 1}, revealed` : `Card ${index + 1}, hidden`);
+            btn.style.setProperty('--memory-bg', themeColor(card.color,'base'));
+            btn.style.setProperty('--memory-icon', themeColor(card.color,'light'));
+            btn.innerHTML = `<span class="memory-card-back" aria-hidden="true"></span><span class="memory-card-front" aria-hidden="true"><svg viewBox="0 0 480 480"><use href="#${SHAPES[card.shape]}"></use></svg></span>`;
+            btn.addEventListener('click', () => this.flipMemoryCard(index,btn));
             host.appendChild(btn);
         });
     },
 
-    miniGameMoveInfo(index) {
+    flipMemoryCard(index, el) {
         const s = this.miniGameState;
-        if (!s || s.animating || s.previewing || s.peeking) return null;
-        const blank = s.tiles.indexOf(s.blankValue);
-        const br = Math.floor(blank / s.cols), bc = blank % s.cols;
-        const tr = Math.floor(index / s.cols), tc = index % s.cols;
-        if (Math.abs(br - tr) + Math.abs(bc - tc) !== 1) return null;
-        return { blank, br, bc, tr, tc };
-    },
-
-    beginMiniGamePeek() {
-        const s = this.miniGameState;
-        const host = document.getElementById('slide-puzzle');
-        if (!s || !host || s.previewing || s.cols < 4) return;
-        s.peeking = true;
-        host.classList.add('show-preview');
-    },
-
-    endMiniGamePeek() {
-        const s = this.miniGameState;
-        const host = document.getElementById('slide-puzzle');
-        if (s) s.peeking = false;
-        if (host && !s?.previewing) host.classList.remove('show-preview');
-    },
-
-    beginMiniGameDrag(e, index, tileEl) {
-        const info = this.miniGameMoveInfo(index);
-        const host = document.getElementById('slide-puzzle');
-        if (!info || !host || !tileEl || e.button > 0) return;
-
-        const blankEl = host.children[info.blank];
-        if (!blankEl) return;
-        const tileRect = tileEl.getBoundingClientRect();
-        const blankRect = blankEl.getBoundingClientRect();
-        const targetX = blankRect.left - tileRect.left;
-        const targetY = blankRect.top - tileRect.top;
-        const horizontal = Math.abs(targetX) > Math.abs(targetY);
-        const distance = Math.abs(horizontal ? targetX : targetY);
-        if (!distance) return;
-
-        this.miniGameDrag = {
-            pointerId:e.pointerId,
-            index,
-            tileEl,
-            startX:e.clientX,
-            startY:e.clientY,
-            targetX,
-            targetY,
-            horizontal,
-            distance,
-            progress:0,
-            moved:false
-        };
-
-        tileEl.classList.add('dragging');
-        try { tileEl.setPointerCapture(e.pointerId); } catch (err) {}
-
-        const move = ev => this.updateMiniGameDrag(ev);
-        const finish = ev => this.finishMiniGameDrag(ev, move, finish);
-        tileEl.addEventListener('pointermove', move);
-        tileEl.addEventListener('pointerup', finish);
-        tileEl.addEventListener('pointercancel', finish);
-    },
-
-    updateMiniGameDrag(e) {
-        const d = this.miniGameDrag;
-        if (!d || e.pointerId !== d.pointerId) return;
-        e.preventDefault();
-        const raw = d.horizontal ? (e.clientX - d.startX) : (e.clientY - d.startY);
-        const sign = Math.sign(d.horizontal ? d.targetX : d.targetY) || 1;
-        const towardBlank = Math.max(0, raw * sign);
-        d.progress = Math.max(0, Math.min(1, towardBlank / d.distance));
-        if (towardBlank > 4) d.moved = true;
-        d.tileEl.style.transform = `translate3d(${d.targetX * d.progress}px,${d.targetY * d.progress}px,0)`;
-    },
-
-    finishMiniGameDrag(e, moveHandler, finishHandler) {
-        const d = this.miniGameDrag;
-        if (!d || e.pointerId !== d.pointerId) return;
-        d.tileEl.removeEventListener('pointermove', moveHandler);
-        d.tileEl.removeEventListener('pointerup', finishHandler);
-        d.tileEl.removeEventListener('pointercancel', finishHandler);
-        try { d.tileEl.releasePointerCapture(e.pointerId); } catch (err) {}
-
-        this.miniGameDrag = null;
-        if (!d.moved) {
-            d.tileEl.classList.remove('dragging');
-            d.tileEl.style.transform = '';
+        const card = s?.cards?.[index];
+        if (!s || !card || s.lock || card.matched || card.revealed) return;
+        card.revealed = true;
+        el?.classList.add('revealed');
+        this.sfx.play('tilePop', .48, 1.04);
+        this.vibrate(7);
+        if (s.firstIndex === null) {
+            s.firstIndex = index;
             return;
         }
-
-        e.preventDefault();
-        this.miniGameSuppressClickUntil = performance.now() + 420;
-        if (d.progress >= 0.32) {
-            this.moveMiniGameTile(d.index, d.tileEl, d.progress);
-        } else {
-            d.tileEl.classList.remove('dragging');
-            d.tileEl.classList.add('sliding');
-            d.tileEl.style.transform = 'translate3d(0,0,0)';
+        const firstIndex = s.firstIndex;
+        const first = s.cards[firstIndex];
+        s.firstIndex = null;
+        s.turns++;
+        document.getElementById('mini-game-turns').innerText = String(s.turns);
+        const match = first.pairIndex === card.pairIndex;
+        s.lock = true;
+        if (match) {
+            first.matched = true; card.matched = true; s.matchedPairs++;
+            const host = document.getElementById('memory-grid');
+            host?.children?.[firstIndex]?.classList.add('matched');
+            el?.classList.add('matched');
+            document.getElementById('mini-game-pairs').innerText = `${s.matchedPairs} / ${s.pairs}`;
+            const rect = el?.getBoundingClientRect();
+            const shell = document.querySelector('.mini-game-card')?.getBoundingClientRect();
+            if (rect && shell) this.vibrate(14);
             setTimeout(() => {
-                if (d.tileEl?.isConnected) {
-                    d.tileEl.classList.remove('sliding');
-                    d.tileEl.style.transform = '';
-                }
-            }, 150);
+                s.lock = false;
+                if (s.matchedPairs >= s.pairs) this.completeMiniGame();
+            }, this.isReducedMotion() ? 1 : 360);
+        } else {
+            const host = document.getElementById('memory-grid');
+            host?.children?.[firstIndex]?.classList.add('wrong');
+            el?.classList.add('wrong');
+            setTimeout(() => {
+                first.revealed = false; card.revealed = false; s.lock = false; this.renderMiniGame();
+            }, this.isReducedMotion() ? 1 : 700);
         }
-    },
-
-    moveMiniGameTile(index, tileEl = null, dragProgress = 0) {
-        const s = this.miniGameState;
-        const info = this.miniGameMoveInfo(index);
-        if (!s || !info) return;
-        const host = document.getElementById('slide-puzzle');
-        const blankEl = host?.children?.[info.blank];
-        const liveTile = tileEl || host?.children?.[index];
-        s.animating = true;
-        this.sfx.slide();
-
-        const finish = () => {
-            [s.tiles[info.blank], s.tiles[index]] = [s.tiles[index], s.tiles[info.blank]];
-            s.moves++;
-            s.animating = false;
-            this.renderMiniGame();
-            if (s.tiles.every((v,i) => v === i)) setTimeout(() => this.completeMiniGame(), 180);
-        };
-
-        if (!liveTile || !blankEl) {
-            finish();
-            return;
-        }
-
-        const tileRect = liveTile.getBoundingClientRect();
-        const blankRect = blankEl.getBoundingClientRect();
-        const remainingX = blankRect.left - tileRect.left;
-        const remainingY = blankRect.top - tileRect.top;
-        const remainingFraction = Math.max(0.001, 1 - Math.max(0, Math.min(0.999, dragProgress)));
-        const dx = dragProgress ? remainingX / remainingFraction : remainingX;
-        const dy = dragProgress ? remainingY / remainingFraction : remainingY;
-        liveTile.classList.remove('dragging');
-        liveTile.classList.add('sliding');
-        if (!dragProgress) liveTile.style.transform = 'translate3d(0,0,0)';
-        requestAnimationFrame(() => {
-            liveTile.style.transform = `translate3d(${dx}px,${dy}px,0)`;
-        });
-        setTimeout(finish, this.isReducedMotion() ? 1 : 145);
     },
 
     debugSolveMiniGame() {
         const s = this.miniGameState;
         if (!s) return;
-        s.previewing = false;
-        s.peeking = false;
-        document.getElementById('slide-puzzle')?.classList.remove('show-preview');
-        s.tiles = Array.from({length:s.cols*s.rows}, (_,i) => i);
+        s.cards.forEach(card => { card.revealed = true; card.matched = true; });
+        s.matchedPairs = s.pairs;
+        s.turns = Math.max(s.turns, s.pairs);
         this.renderMiniGame();
-        setTimeout(() => this.completeMiniGame(), 120);
+        setTimeout(() => this.completeMiniGame(), 260);
     },
 
-    completeMiniGame() {
+    async completeMiniGame() {
         if (!this.miniGameState) return;
         this.setMusicContext('main');
         this.sfx.win();
+        await wait(this.isReducedMotion() ? 1 : 650);
         const overlay = document.getElementById('mini-game-overlay');
         overlay.classList.remove('active');
         this.showMiniGameReward(this.debugMiniGame);
     },
 
     showMiniGameReward(debug = false) {
-        const s = this.miniGameState || {level:10,challenge:1,moves:0,artwork:this.makeMiniGameArtwork(1)};
+        const s = this.miniGameState || {level:10,challenge:1,pairs:3,matchedPairs:3,turns:4,artwork:this.makeMemoryStampArtwork(1)};
         const art = document.getElementById('mini-reward-art');
         if (art) art.style.backgroundImage = s.artwork;
         const copy = document.getElementById('mini-reward-copy');
         if (copy) copy.innerText = debug
-            ? `Debug preview. This would award the Level ${s.level} puzzle stamp, 500 coins and its bonus power-up.`
-            : `You restored the artwork in ${s.moves} moves. The finished artwork is now part of your stamp collection.`;
+            ? `Debug preview. This would award the Level ${s.level} Memory Match stamp, 500 coins and its bonus power-up.`
+            : `You found all ${s.pairs} pairs in ${s.turns} turns. This Memory Match stamp is now part of your collection.`;
 
         const bonusBox = document.getElementById('mini-bonus-reward');
         const bonusArt = document.getElementById('mini-bonus-art');
@@ -9951,24 +9747,19 @@ Object.assign(Game.prototype, {
         } else if (bonusBox) bonusBox.hidden = true;
 
         if (!debug) {
-            if (!this.collection.miniGameStamps) this.collection.miniGameStamps = [];
-            const key = `sliding-${s.level}`;
-            if (!this.collection.miniGameStamps.includes(key)) {
-                this.collection.miniGameStamps.push(key);
-                this.recordStampEarned(`mini:${key}`);
+            if (!this.collection.memoryGameStamps) this.collection.memoryGameStamps = [];
+            const key = `memory-${s.level}`;
+            if (!this.collection.memoryGameStamps.includes(key)) {
+                this.collection.memoryGameStamps.push(key);
+                this.recordStampEarned(`memory:${key}`);
             }
             if (bonusType && !s.bonusPowerUpAwarded) {
                 this.inventory[bonusType] = (this.inventory[bonusType] || 0) + 1;
                 s.bonusPowerUpAwarded = true;
                 this.updatePowerUpTray();
             }
-            if (!s.bonusCoinsAwarded) {
-                this.addCoins(500);
-                s.bonusCoinsAwarded = true;
-            }
-            this.saveCollection();
-            this.persist();
-            this.sfx.reward();
+            if (!s.bonusCoinsAwarded) { this.addCoins(500); s.bonusCoinsAwarded = true; }
+            this.saveCollection(); this.persist(); this.sfx.reward();
         }
 
         document.getElementById('mini-game-reward-overlay').classList.add('active');
@@ -9979,10 +9770,7 @@ Object.assign(Game.prototype, {
         this.setMusicContext('main');
         document.getElementById('mini-game-reward-overlay').classList.remove('active');
         if (this.debugMiniGame) {
-            this.debugMiniGame = false;
-            this.miniGameState = null;
-            this.openDebugPanel(true);
-            return;
+            this.debugMiniGame = false; this.miniGameState = null; this.openDebugPanel(true); return;
         }
         this.miniGameState = null;
         this.pendingPostMiniReward = false;
