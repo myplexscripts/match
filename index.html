@@ -855,6 +855,7 @@ symbol{
   place-items:center;
   overflow:hidden;
 }
+.level-wipe-copy{display:grid;place-items:center;gap:14px;text-align:center;padding:24px;}
 .level-wipe-number{
   margin:0;
   color:var(--ink-fixed);
@@ -865,11 +866,16 @@ symbol{
   opacity:0;
   will-change:transform,opacity;
 }
-.level-wipe-number.visible{
-  opacity:1;
-  transform:scale(1);
-  transition:opacity .16s ease,transform .28s cubic-bezier(.16,.84,.22,1);
+.level-wipe-detail{
+  color:var(--ink-fixed);
+  font:800 clamp(.78rem,3.8vw,1rem)/1 Inter,sans-serif;
+  letter-spacing:.085em;
+  text-transform:uppercase;
+  opacity:0;
+  transform:translateY(7px);
 }
+.level-wipe-number.visible{opacity:1;transform:scale(1);transition:opacity .16s ease,transform .28s cubic-bezier(.16,.84,.22,1);}
+.level-wipe-number.visible + .level-wipe-detail{opacity:.82;transform:translateY(0);transition:opacity .18s .08s ease,transform .28s .05s cubic-bezier(.16,.84,.22,1);}
 
 .bottom-bar{
   flex:0 0 auto;
@@ -1133,6 +1139,9 @@ symbol{
   width:100%;
   margin-top:0;
 }
+.menu-continue-btn{display:flex!important;flex-direction:column;align-items:center;justify-content:center;gap:3px;line-height:1.05;}
+.menu-continue-btn[hidden]{display:none!important;}
+.menu-continue-btn small{font:800 .67rem/1 Inter,sans-serif;letter-spacing:.045em;text-transform:uppercase;opacity:.68;}
 
 .howto-list{
   margin:0;
@@ -3108,6 +3117,7 @@ symbol{
 .slide-puzzle{
   --puzzle-cols:3;
   --puzzle-rows:3;
+  --preview-art:none;
   position:relative;
   width:min(78vw,340px);
   aspect-ratio:1 / 1;
@@ -3141,6 +3151,20 @@ symbol{
   opacity:.45;
   pointer-events:none;
 }
+.slide-puzzle::after{
+  content:"";
+  position:absolute;
+  inset:5px;
+  z-index:30;
+  background-image:var(--preview-art);
+  background-size:cover;
+  background-position:center;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .18s ease;
+}
+.slide-puzzle.show-preview::after{opacity:1;}
+.slide-puzzle.show-preview .slide-tile{visibility:hidden;}
 .mini-game-note{
   margin:0!important;
   color:var(--muted)!important;
@@ -3178,6 +3202,11 @@ symbol{
   text-transform:uppercase;
   letter-spacing:.07em;
 }
+.mini-bonus-kicker{display:block;margin-bottom:9px;font-size:.67rem;letter-spacing:.1em;}
+.mini-bonus-content{display:flex;align-items:center;justify-content:center;gap:10px;color:var(--ink);}
+.mini-bonus-art{width:42px;height:42px;display:grid;place-items:center;}
+.mini-bonus-art svg{width:100%;height:100%;overflow:visible;}
+.mini-bonus-content b{font:800 .92rem/1 Manrope,sans-serif;}
 
 /* ---------- Settings ---------- */
 #menu-settings-btn{background:var(--neutral-100);}
@@ -3258,6 +3287,13 @@ symbol{
 }
 .settings-mute-btn .material-symbols-outlined{font-size:1.05rem;}
 .settings-mute-btn.muted{background:var(--neutral-100)!important;}
+.settings-toggle-list{border-top:3px solid var(--border-color);}
+.settings-toggle-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:15px 0;border-bottom:3px solid var(--border-color);}
+.settings-toggle-row > div{min-width:0;}
+.settings-toggle-row b{display:block;font:800 1rem/1.15 Manrope,sans-serif;color:var(--ink);}
+.settings-toggle-row span{display:block;margin-top:5px;font:700 .75rem/1.35 Inter,sans-serif;color:var(--muted);}
+.settings-toggle-row .settings-mute-btn span{margin:0;color:inherit;}
+html[data-reduced-motion="true"] *,html[data-reduced-motion="true"] *::before,html[data-reduced-motion="true"] *::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important;}
 .settings-slider-row{
   display:grid;
   grid-template-columns:minmax(0,1fr) 48px;
@@ -3537,7 +3573,7 @@ symbol{
     <p>match, repeat.</p>
     <p class="menu-status" id="menu-status" hidden></p>
     <div class="menu-actions">
-      <button class="primary" id="menu-continue-btn" hidden>CONTINUE</button>
+      <button class="primary menu-continue-btn" id="menu-continue-btn" hidden><span>CONTINUE</span><small id="menu-continue-detail">Level 1</small></button>
       <button class="secondary" id="menu-newgame-btn">NEW</button>
       <button class="secondary" id="menu-howto-btn">HOW TO PLAY</button>
       <button class="secondary" id="menu-stickers-btn">ALBUM</button>
@@ -3559,6 +3595,20 @@ symbol{
       <div class="settings-choice" role="group" aria-label="Appearance">
         <button class="secondary settings-choice-btn" type="button" data-setting-theme="light"><span class="material-symbols-outlined">light_mode</span>LIGHT</button>
         <button class="secondary settings-choice-btn" type="button" data-setting-theme="dark"><span class="material-symbols-outlined">dark_mode</span>DARK</button>
+      </div>
+    </section>
+
+    <section class="settings-section" aria-labelledby="settings-gameplay-title">
+      <h3 id="settings-gameplay-title">Gameplay</h3>
+      <div class="settings-toggle-list">
+        <div class="settings-toggle-row">
+          <div><b>Haptics</b><span>Small vibration feedback for milestones and invalid moves</span></div>
+          <button class="secondary settings-mute-btn" type="button" id="haptics-toggle-btn" aria-pressed="true"><span class="material-symbols-outlined">vibration</span><span id="haptics-toggle-label">ON</span></button>
+        </div>
+        <div class="settings-toggle-row">
+          <div><b>Reduced motion</b><span>Minimises wipes, bounces, wiggles, and transition movement</span></div>
+          <button class="secondary settings-mute-btn" type="button" id="reduced-motion-toggle-btn" aria-pressed="false"><span class="material-symbols-outlined">motion_photos_off</span><span id="reduced-motion-toggle-label">OFF</span></button>
+        </div>
       </div>
     </section>
 
@@ -3618,7 +3668,7 @@ symbol{
     <button class="modal-corner-close" id="howto-close-btn" aria-label="Close How To Play"><span class="material-symbols-outlined">close</span></button>
     <h2>How To Play</h2>
     <div class="howto-sheet ui-scroll">
-      <p class="howto-intro">The goal is simple. Make matches, score points, and fill the star meter before you run out of moves.</p>
+      <p class="howto-intro">The goal is simple. Make matches and reach the first star before you run out of moves. Any moves left over become bonus points that can push you toward two or three stars.</p>
 
       <div class="howto-section">
         <h3 class="howto-section-title">The basics</h3>
@@ -3882,6 +3932,7 @@ symbol{
     </div>
     <p class="mini-game-note">Tap a tile or drag it into the empty space until the square artwork is back in order. Complete it to turn the finished artwork into a collectible stamp.</p>
     <div class="mini-game-actions">
+      <button class="secondary" id="mini-game-peek-btn" hidden>HOLD TO PEEK</button>
       <button class="secondary" id="mini-game-debug-solve-btn" hidden>DEBUG: SOLVE</button>
     </div>
   </div>
@@ -3893,7 +3944,10 @@ symbol{
     <h2>New Stamp!</h2>
     <div class="mini-reward-stamp"><div class="mini-reward-stamp-art" id="mini-reward-art"></div></div>
     <p class="mini-reward-copy" id="mini-reward-copy">You restored the artwork and earned its stamp.</p>
-    <div class="mini-bonus-placeholder">SECOND REWARD · TBD</div>
+    <div class="mini-bonus-placeholder" id="mini-bonus-reward" hidden>
+      <span class="mini-bonus-kicker">BONUS POWER-UP</span>
+      <div class="mini-bonus-content"><span class="mini-bonus-art" id="mini-bonus-art"></span><b id="mini-bonus-name">Power-Up</b></div>
+    </div>
     <button class="primary" id="mini-reward-continue-btn">CONTINUE</button>
   </div>
 </div>
@@ -3941,7 +3995,7 @@ symbol{
   </div>
 </div>
 
-<div class="level-wipe" id="levelWipe" aria-hidden="true"><div class="level-wipe-number" id="levelWipeNumber">LEVEL 1</div></div>
+<div class="level-wipe" id="levelWipe" aria-hidden="true"><div class="level-wipe-copy"><div class="level-wipe-number" id="levelWipeNumber">LEVEL 1</div><div class="level-wipe-detail" id="levelWipeDetail">1,000 POINTS · 20 MOVES</div></div></div>
 
 <script src="lib/lottie-light.min.js"></script>
 <script>
@@ -4409,19 +4463,34 @@ function generateLevel(levelNumber) {
     let shape = levelNumber <= 2 ? 'classic' : BOARD_SHAPES[Math.floor(rng() * BOARD_SHAPES.length)];
     let blocked = buildShapeMask(rows, cols, shape, rng);
     let playable = countPlayable(blocked, rows, cols);
+    let runSlots = countRunSlots(blocked, rows, cols);
 
-    if (shape !== 'classic' && (playable < rows * cols * 0.55 || countRunSlots(blocked, rows, cols) < 12)) {
+    if (shape !== 'classic' && (playable < rows * cols * 0.55 || runSlots < 12)) {
         shape = 'classic';
         blocked = buildShapeMask(rows, cols, 'classic', rng);
         playable = rows * cols;
+        runSlots = countRunSlots(blocked, rows, cols);
     }
 
-    const colors = Math.min(7, 5 + Math.floor(tier / 2));
-    const moves = 16 + Math.min(10, tier) + Math.round(playable / 12);
-    const perCell = 27 + Math.min(14, tier * 1.6);
-    const target = Math.round(playable * perCell / 10) * 10;
+    /* Difficulty budget: board shape, colour count, target pressure, and move
+       pressure should not all spike on the same level. Tight/gappy silhouettes
+       automatically get a little compensation instead of becoming surprise walls. */
+    const playableRatio = playable / Math.max(1, rows * cols);
+    const runDensity = runSlots / Math.max(1, playable);
+    const constrained = Math.max(0, 1 - playableRatio);
+    const cramped = Math.max(0, 0.72 - runDensity);
 
-    return { id: levelNumber, rows, cols, blocked, moves, target, colors, desc: SHAPE_DESCS[shape], shape };
+    let colors = Math.min(7, 5 + Math.floor(tier / 2));
+    if (levelNumber > 2 && (constrained > 0.16 || cramped > 0.08)) colors = Math.max(5, colors - 1);
+
+    let moves = 16 + Math.min(10, tier) + Math.round(playable / 12);
+    if (constrained > 0.2 || cramped > 0.12) moves += 1;
+
+    const perCell = 27 + Math.min(14, tier * 1.6);
+    const targetRelief = Math.max(0.84, 1 - constrained * 0.24 - cramped * 0.22 - Math.max(0, colors - 6) * 0.025);
+    const target = Math.round((playable * perCell * targetRelief) / 10) * 10;
+
+    return { id: levelNumber, rows, cols, blocked, moves, target, colors, desc: SHAPE_DESCS[shape], shape, difficultyRelief:targetRelief };
 }
 
 /* ---------- Lottie confetti ---------- */
@@ -4821,8 +4890,11 @@ this.progressTrack = document.getElementById('progressTrack');
         this.flashEl = document.getElementById('screenFlash');
         this.levelWipeEl = document.getElementById('levelWipe');
         this.levelWipeNumberEl = document.getElementById('levelWipeNumber');
+        this.levelWipeDetailEl = document.getElementById('levelWipeDetail');
         this.lastPresentedLevel = null;
         this.hintAnimation = null;
+        this.hintStage = 0;
+        this.hintMove = null;
         this.pausedBoardAnimations = [];
         this.canvas = document.getElementById('fxCanvas');
         this.ctx = this.canvas.getContext('2d', { alpha: true, desynchronized: true });
@@ -4851,6 +4923,7 @@ this.progressTrack = document.getElementById('progressTrack');
         this.undoSnapshot = null;
         this.coinDoublerActive = false;
         this.isLevelActive = false;
+        this.levelEnding = false;
         this._saveTimer = null;
 
         this.inventory = {
@@ -4891,6 +4964,10 @@ this.progressTrack = document.getElementById('progressTrack');
         this.musicContext = 'main';
         this.musicSessionActive = false;
         this.initAudioSettings();
+        this.qolSettingsKey = 'mellowMatch.qol.v1';
+        this.hapticsEnabled = true;
+        this.reducedMotionEnabled = false;
+        this.initQoLSettings();
 
         this.bindEvents();
         this.initColorScheme();
@@ -5859,20 +5936,23 @@ this.progressTrack = document.getElementById('progressTrack');
 
     /* ---------- Main menu ---------- */
 
+    updateContinueButton(save = this.loadSave()) {
+        const continueBtn = document.getElementById('menu-continue-btn');
+        const detail = document.getElementById('menu-continue-detail');
+        const status = document.getElementById('menu-status');
+        if (!continueBtn) return;
+        continueBtn.hidden = !save;
+        if (status) status.hidden = true;
+        if (!save || !detail) return;
+        const levelNumber = (save.currentLevelIdx || 0) + 1;
+        detail.innerText = save.level
+            ? `Level ${levelNumber} · ${Math.max(0, Number(save.level.moves) || 0)} moves left`
+            : `Level ${levelNumber} ready`;
+    }
+
     showMainMenu() {
         const save = this.loadSave();
-        const continueBtn = document.getElementById('menu-continue-btn');
-        const status = document.getElementById('menu-status');
-        continueBtn.hidden = !save;
-        if (save) {
-            const lvl = save.level;
-            status.hidden = false;
-            status.innerText = lvl
-                ? `Saved · Level ${(save.currentLevelIdx || 0) + 1} in progress`
-                : `Saved · Level ${(save.currentLevelIdx || 0) + 1} · ${save.coins || 0} coins`;
-        } else {
-            status.hidden = true;
-        }
+        this.updateContinueButton(save);
         this.updateCollectionMenuButtons();
         this.setPaperUnderlay(true);
         document.getElementById('menu-overlay').classList.add('active');
@@ -5881,19 +5961,7 @@ this.progressTrack = document.getElementById('progressTrack');
     async openMainMenuFromGame() {
         this.pauseMusicSession();
         this.flushSave();
-        const save = this.loadSave();
-        const continueBtn = document.getElementById('menu-continue-btn');
-        const status = document.getElementById('menu-status');
-        continueBtn.hidden = !save;
-        if (save) {
-            const lvl = save.level;
-            status.hidden = false;
-            status.innerText = lvl
-                ? `Saved · Level ${(save.currentLevelIdx || 0) + 1} in progress`
-                : `Saved · Level ${(save.currentLevelIdx || 0) + 1} · ${save.coins || 0} coins`;
-        } else {
-            status.hidden = true;
-        }
+        this.updateContinueButton(this.loadSave());
         this.updateCollectionMenuButtons();
         document.getElementById('screen-overlay').classList.remove('active');
         document.getElementById('reward-overlay').classList.remove('active');
@@ -6102,6 +6170,17 @@ document.getElementById('music-mute-btn')?.addEventListener('click', () => this.
 document.getElementById('sfx-mute-btn')?.addEventListener('click', () => this.toggleSfxMute());
 document.getElementById('music-volume-slider')?.addEventListener('input', e => this.setMusicVolumeFromUI(e.target.value));
 document.getElementById('sfx-volume-slider')?.addEventListener('input', e => this.setSfxVolumeFromUI(e.target.value));
+document.getElementById('haptics-toggle-btn')?.addEventListener('click', () => this.toggleHaptics());
+document.getElementById('reduced-motion-toggle-btn')?.addEventListener('click', () => this.toggleReducedMotion());
+const peekBtn = document.getElementById('mini-game-peek-btn');
+if (peekBtn) {
+    const beginPeek = e => { e.preventDefault(); this.beginMiniGamePeek(); };
+    const endPeek = e => { e.preventDefault(); this.endMiniGamePeek(); };
+    peekBtn.addEventListener('pointerdown', beginPeek);
+    peekBtn.addEventListener('pointerup', endPeek);
+    peekBtn.addEventListener('pointercancel', endPeek);
+    peekBtn.addEventListener('pointerleave', e => { if (e.buttons) endPeek(e); });
+}
     }
 
     /* Lets a mouse pointer drag the shop row horizontally; touch/pen use the
@@ -6166,6 +6245,42 @@ document.getElementById('sfx-volume-slider')?.addEventListener('input', e => thi
 
     toggleColorScheme() {
         this.setColorScheme(this.currentColorScheme() === 'dark' ? 'light' : 'dark');
+    }
+
+    initQoLSettings() {
+        let saved = null;
+        try { saved = JSON.parse(localStorage.getItem(this.qolSettingsKey) || 'null'); } catch (e) { saved = null; }
+        this.hapticsEnabled = saved?.hapticsEnabled !== false;
+        this.reducedMotionEnabled = !!saved?.reducedMotionEnabled;
+        document.documentElement.setAttribute('data-reduced-motion', this.isReducedMotion() ? 'true' : 'false');
+        this.syncSettingsUI();
+    }
+
+    persistQoLSettings() {
+        try {
+            localStorage.setItem(this.qolSettingsKey, JSON.stringify({
+                hapticsEnabled:this.hapticsEnabled,
+                reducedMotionEnabled:this.reducedMotionEnabled
+            }));
+        } catch (e) { /* ignore */ }
+    }
+
+    isReducedMotion() {
+        return !!this.reducedMotionEnabled || !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    }
+
+    toggleHaptics() {
+        this.hapticsEnabled = !this.hapticsEnabled;
+        this.persistQoLSettings();
+        this.syncSettingsUI();
+        if (this.hapticsEnabled) this.vibrate(12);
+    }
+
+    toggleReducedMotion() {
+        this.reducedMotionEnabled = !this.reducedMotionEnabled;
+        document.documentElement.setAttribute('data-reduced-motion', this.isReducedMotion() ? 'true' : 'false');
+        this.persistQoLSettings();
+        this.syncSettingsUI();
     }
 
     initAudioSettings() {
@@ -6254,6 +6369,15 @@ document.getElementById('sfx-volume-slider')?.addEventListener('input', e => thi
         if (sfxIcon) sfxIcon.innerText = this.sfx.sfxMuted ? 'volume_off' : 'volume_up';
         if (musicLabel) musicLabel.innerText = this.sfx.musicMuted ? 'UNMUTE' : 'MUTE';
         if (sfxLabel) sfxLabel.innerText = this.sfx.sfxMuted ? 'UNMUTE' : 'MUTE';
+
+        const hapticsBtn = document.getElementById('haptics-toggle-btn');
+        const hapticsLabel = document.getElementById('haptics-toggle-label');
+        const reducedBtn = document.getElementById('reduced-motion-toggle-btn');
+        const reducedLabel = document.getElementById('reduced-motion-toggle-label');
+        if (hapticsBtn) hapticsBtn.setAttribute('aria-pressed', this.hapticsEnabled ? 'true' : 'false');
+        if (hapticsLabel) hapticsLabel.innerText = this.hapticsEnabled ? 'ON' : 'OFF';
+        if (reducedBtn) reducedBtn.setAttribute('aria-pressed', this.reducedMotionEnabled ? 'true' : 'false');
+        if (reducedLabel) reducedLabel.innerText = this.reducedMotionEnabled ? 'ON' : 'OFF';
     }
 
     openSettings() {
@@ -6365,9 +6489,10 @@ document.getElementById('sfx-volume-slider')?.addEventListener('input', e => thi
         this.startLevel();
     }
 
-    async coverLevelWipe(levelNumber) {
+    async coverLevelWipe(levelNumber, config = null) {
         const wipe = this.levelWipeEl;
         const label = this.levelWipeNumberEl;
+        const detail = this.levelWipeDetailEl;
         if (!wipe || !label) return;
 
         const palette = [
@@ -6383,10 +6508,12 @@ document.getElementById('sfx-volume-slider')?.addEventListener('input', e => thi
         wipe.style.background = colour;
         wipe.style.transform = 'translate3d(-105%,0,0)';
         label.innerText = `LEVEL ${levelNumber}`;
+        if (detail && config) detail.innerText = `${this.formatStat(config.target)} POINTS · ${config.moves} MOVES`;
+        else if (detail) detail.innerText = '';
         label.classList.remove('visible');
         wipe.getAnimations().forEach(anim => anim.cancel());
 
-        const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const reduced = this.isReducedMotion();
         const duration = reduced ? 1 : 330;
         const anim = wipe.animate(
             [
@@ -6405,7 +6532,7 @@ document.getElementById('sfx-volume-slider')?.addEventListener('input', e => thi
         const wipe = this.levelWipeEl;
         const label = this.levelWipeNumberEl;
         if (!wipe || !label) return;
-        const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const reduced = this.isReducedMotion();
         label.classList.remove('visible');
         const duration = reduced ? 1 : 360;
         const anim = wipe.animate(
@@ -6422,11 +6549,14 @@ document.getElementById('sfx-volume-slider')?.addEventListener('input', e => thi
 
     async startLevel() {
         this.isProcessing = true;
+        this.levelEnding = false;
+        this.hintStage = 0;
+        this.hintMove = null;
         const fromSheet = this.activePaperOverlay();
         const nextLevelNumber = this.currentLevelIdx + 1;
-        const showLevelWipe = this.lastPresentedLevel !== null && this.lastPresentedLevel !== nextLevelNumber;
-        if (showLevelWipe) await this.coverLevelWipe(nextLevelNumber);
         const config = generateLevel(nextLevelNumber);
+        const showLevelWipe = this.lastPresentedLevel !== null && this.lastPresentedLevel !== nextLevelNumber;
+        if (showLevelWipe) await this.coverLevelWipe(nextLevelNumber, config);
         this.levelConfig = config;
         ROWS = config.rows; COLS = config.cols;
         this.blocked = config.blocked;
@@ -6646,7 +6776,7 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
                 { transform: 'translate(-50%,-50%) scale(1.6)', offset: .45 },
                 { transform: 'translate(-50%,-50%) scale(1.1)' }
             ],
-            { duration: 520, easing: 'cubic-bezier(.16,.84,.22,1)' }
+            { duration: this.isReducedMotion() ? 1 : 520, easing: 'cubic-bezier(.16,.84,.22,1)' }
         );
         const trackRect = this.progressTrack.getBoundingClientRect();
         const shellRect = this.shell.getBoundingClientRect();
@@ -6861,6 +6991,8 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
             this.hintAnimation = null;
         }
         this.hintActive = false;
+        this.hintStage = 0;
+        this.hintMove = null;
 
         /* Freeze in-flight board animation when a sheet/menu covers gameplay.
            Awaiters on animation.finished remain paused until gameplay returns. */
@@ -6882,6 +7014,8 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
         if (this.levelRunStartedAt === null) this.levelRunStartedAt = performance.now();
         this.boardIdleActive = true;
         this.hintActive = false;
+        this.hintStage = 0;
+        this.hintMove = null;
         this.lastActionAt = Date.now();
     }
 
@@ -6897,6 +7031,8 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
 
     resetIdleTimer() {
         if (this.boardIdleActive) this.lastActionAt = Date.now();
+        this.hintStage = 0;
+        this.hintMove = null;
     }
 
     /* ---------- Swap & match resolution ---------- */
@@ -7064,15 +7200,22 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
         return moves[Math.floor(Math.random() * moves.length)];
     }
 
-    showHint() {
+    showHint(stage = 1) {
         if (!this.boardIdleActive || !this.isLevelActive || this.hintActive) return;
-        const move = this.findHintMove();
+        const move = stage === 2 && this.hintMove ? this.hintMove : this.findHintMove();
         if (!move) return;
         this.hintActive = true;
-        const [tile, destination] = move;
-        const stepX = Math.sign(destination.c - tile.c) * Math.max(8, this.geom.cell * 0.16);
-        const stepY = Math.sign(destination.r - tile.r) * Math.max(8, this.geom.cell * 0.16);
+        this.hintMove = move;
+        const [source, destination] = move;
+        /* Stage one moves only the suggested tile. If the player still waits,
+           stage two nudges only the partner tile 10 seconds later. Never wiggle
+           the whole board or multiple tiles at the same time. */
+        const tile = stage === 2 ? destination : source;
+        const other = stage === 2 ? source : destination;
+        const stepX = Math.sign(other.c - tile.c) * Math.max(8, this.geom.cell * 0.16);
+        const stepY = Math.sign(other.r - tile.r) * Math.max(8, this.geom.cell * 0.16);
         const tilt = stepX !== 0 ? (stepX > 0 ? 6 : -6) : (stepY > 0 ? 4 : -4);
+        const duration = this.isReducedMotion() ? 1 : 820;
 
         this.hintAnimation = tile.inner.animate(
             [
@@ -7082,13 +7225,16 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
                 { transform: `translate3d(${stepX * .5}px,${stepY * .5}px,0) rotate(${tilt * .45}deg)`, offset:.78 },
                 { transform: 'translate3d(0,0,0) rotate(0deg)' }
             ],
-            { duration:820, easing:'ease-in-out', iterations:2 }
+            { duration, easing:'ease-in-out', iterations:this.isReducedMotion() ? 1 : 2 }
         );
 
         const finish = () => {
             this.hintAnimation = null;
             this.hintActive = false;
-            if (this.boardIdleActive && this.isLevelActive) this.resetIdleTimer();
+            if (!this.boardIdleActive || !this.isLevelActive) return;
+            this.lastActionAt = Date.now();
+            if (stage === 1) this.hintStage = 1;
+            else { this.hintStage = 0; this.hintMove = null; }
         };
         this.hintAnimation.addEventListener('finish', finish, { once:true });
         this.hintAnimation.addEventListener('cancel', () => {
@@ -7269,6 +7415,7 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
                the whole board briefly decompose/re-rasterise and appear to vanish. The
                tile pops, particles, combo text and haptics already provide impact. */
 
+            const cascadeSpeed = Math.min(1.15, 1 + Math.max(0, comboCount - 1) * 0.08);
             if (toDestroy.size > 0) {
                 this.sfx.pop(comboCount);
                 if (comboCount > 1) {
@@ -7278,8 +7425,8 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
 
                 const destroyList = Array.from(toDestroy);
                 this.bumpCollectionStat('tilesCleared', destroyList.length);
-                const stagger = Math.min(18, 160 / Math.max(1, destroyList.length));
-                const pops = destroyList.map((p, i) => this.popTile(p, i * stagger));
+                const stagger = Math.min(18, 160 / Math.max(1, destroyList.length)) / cascadeSpeed;
+                const pops = destroyList.map((p, i) => this.popTile(p, i * stagger, cascadeSpeed));
                 await Promise.all(pops);
                 for (const p of destroyList) { this.board[p.r][p.c] = null; }
             }
@@ -7289,13 +7436,13 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
                 spawnQ.forEach(s => this.recordSpecialMade(s.sp));
             }
             spawnQ.forEach(s => this.spawnSpecial(s.r, s.c, s.col, s.sp));
-            await this.applyGravity();
+            await this.applyGravity(cascadeSpeed);
             this.lastSwap = null;
             groups = this.findMatches();
         }
 
         if (this.moves > 0 && this.score < this.starMax) await this.ensureSolvable();
-        this.checkWinLoss();
+        await this.checkWinLoss();
     }
 
     recordSpecialMade(special) {
@@ -7334,14 +7481,14 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
         this.checkAchievements();
     }
 
-    async popTile(tile, delay) {
+    async popTile(tile, delay, speed = 1) {
         const p = this.shellPointForCell(tile.r, tile.c);
         const big = tile.special !== SPECIALS.NONE;
         await wait(delay);
         this.particleBurst(p.x, p.y, tile.special === SPECIALS.BOMB ? (Math.floor(Math.random() * 6) + 1) : tile.color, big ? 14 : 8);
         const anim = tile.inner.animate(
             [{ transform: 'scale(1)', opacity: 1, offset: 0 }, { transform: 'scale(1.18)', opacity: 1, offset: .38 }, { transform: 'scale(.18)', opacity: 0, offset: 1 }],
-            { duration: 190, easing: 'cubic-bezier(.3,.82,.35,1)', fill: 'forwards' }
+            { duration: this.isReducedMotion() ? 1 : Math.max(120, 190 / speed), easing: 'cubic-bezier(.3,.82,.35,1)', fill: 'forwards' }
         );
         await this.safeFinished(anim);
         tile.el.remove();
@@ -7371,7 +7518,7 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
                 { transform:'scale(.96,1.07) rotate(2deg)', offset:.76 },
                 { transform:'scale(1) rotate(0deg)', offset:1 }
             ],
-            { duration:620, easing:'cubic-bezier(.16,.84,.22,1)' }
+            { duration:this.isReducedMotion() ? 1 : 620, easing:'cubic-bezier(.16,.84,.22,1)' }
         );
         announce.addEventListener('finish', () => { tile.el.style.zIndex = ''; }, { once:true });
         announce.addEventListener('cancel', () => { tile.el.style.zIndex = ''; }, { once:true });
@@ -7382,7 +7529,7 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
         return tile;
     }
 
-    async applyGravity() {
+    async applyGravity(speed = 1) {
         // Blocked cells act as solid floors: each column is split into
         // independent segments at every blocked row, and gravity settles
         // each segment on its own (tiles never fall through a gap).
@@ -7409,7 +7556,7 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
                     if (oldRow !== newRow) {
                         const distance = newRow - oldRow;
                         tile.r = newRow; tile.c = c;
-                        animations.push(this.animateFall(tile, oldRow, newRow, distance));
+                        animations.push(this.animateFall(tile, oldRow, newRow, distance, speed));
                     }
                 }
 
@@ -7420,7 +7567,7 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
                     const color = Math.floor(Math.random() * this.numColors) + 1;
                     const tile = this.createTile(actualRow, c, color, SPECIALS.NONE, -(startRow - actualRow));
                     seg[localR] = tile;
-                    animations.push(this.animateSpawnFall(tile, startRow, actualRow, dropDist));
+                    animations.push(this.animateSpawnFall(tile, startRow, actualRow, dropDist, speed));
                 }
 
                 for (let localR = 0; localR < segLen; localR++) this.board[top + localR][c] = seg[localR];
@@ -7429,11 +7576,11 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
         await Promise.all(animations);
     }
 
-    async animateFall(tile, oldRow, newRow, distance) {
+    async animateFall(tile, oldRow, newRow, distance, speed = 1) {
         const start = this.tileTransform(oldRow, tile.c);
         const end = this.tileTransform(newRow, tile.c);
         const p = this.pos(newRow, tile.c);
-        const duration = Math.min(340, 155 + distance * 34);
+        const duration = this.isReducedMotion() ? 1 : Math.min(340, 155 + distance * 34) / speed;
         const anim = tile.el.animate(
             [
                 { transform: start, offset: 0 },
@@ -7449,11 +7596,11 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
         try { anim.cancel(); } catch (e) {}
     }
 
-    async animateSpawnFall(tile, startRow, newRow, distance) {
+    async animateSpawnFall(tile, startRow, newRow, distance, speed = 1) {
         const start = this.tileTransform(startRow, tile.c, .86, .86);
         const p = this.pos(newRow, tile.c);
         const end = this.tileTransform(newRow, tile.c);
-        const duration = Math.min(390, 205 + distance * 36);
+        const duration = this.isReducedMotion() ? 1 : Math.min(390, 205 + distance * 36) / speed;
         tile.el.style.transform = start;
         tile.el.style.opacity = '.25';
         const anim = tile.el.animate(
@@ -7814,23 +7961,58 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
 
     /* ---------- Win / loss ---------- */
 
-    checkWinLoss() {
-        const done = this.moves <= 0 || this.score >= this.starMax;
+    async runRemainingMovesBonus(remainingMoves) {
+        const count = Math.max(0, Math.floor(remainingMoves || 0));
+        if (!count) return 0;
+        const perMove = Math.max(20, Math.round((this.targetScore * 0.025) / 10) * 10);
+        let total = 0;
+        const reduced = this.isReducedMotion();
+
+        for (let i = 0; i < count; i++) {
+            this.moves = Math.max(0, this.moves - 1);
+            const room = Math.max(0, this.starMax - this.score);
+            const bonus = Math.min(perMove, room);
+            if (bonus > 0) {
+                total += bonus;
+                this.addScore(bonus);
+                if (!reduced) this.comboFeedback(`MOVE BONUS +${this.formatStat(bonus)}`);
+            }
+            this.movesEl.innerText = this.moves;
+            if (!reduced) {
+                this.bumpEl(this.movesEl.closest('.pill'));
+                await wait(62);
+            }
+        }
+        if (reduced && total > 0) this.comboFeedback(`MOVE BONUS +${this.formatStat(total)}`);
+        return total;
+    }
+
+    async checkWinLoss() {
+        if (this.levelEnding) return;
+        const success = this.score >= this.targetScore;
+        const done = this.moves <= 0 || success;
         if (!done) { this.isProcessing = false; setTimeout(() => this.maybeShowAchievement(), 0); return; }
 
+        this.levelEnding = true;
+        this.isProcessing = true;
         this.pauseBoardSession();
         this.isLevelActive = false;
         const elapsedMs = this.getLevelElapsedMs();
         const movesAllotted = Math.max(0, this.levelMovesAllotted || 0);
-        const movesUsed = Math.max(0, movesAllotted - Math.max(0, this.moves));
+        const remainingAtFinish = Math.max(0, this.moves);
+        const movesUsed = Math.max(0, movesAllotted - remainingAtFinish);
 
-        if (this.score >= this.targetScore) {
+        if (success) {
+            /* Reaching the normal target ends play immediately. Any unused moves
+               convert into a short score bonus that can still lift the result
+               from one star toward two or three stars. */
+            await this.runRemainingMovesBonus(remainingAtFinish);
             this.sfx.win();
             const stars = this.computeStars();
             this.bumpCollectionStat('starsEarned', stars);
             if (stars === 3) this.bumpCollectionStat('threeStarLevels', 1);
-            if (this.moves === 1) this.bumpCollectionStat('closeCallLevels', 1);
-            if (this.moves === 0) this.bumpCollectionStat('lastMoveLevels', 1);
+            if (movesUsed === movesAllotted - 1) this.bumpCollectionStat('closeCallLevels', 1);
+            if (movesUsed === movesAllotted) this.bumpCollectionStat('lastMoveLevels', 1);
             if ((this.levelPowerUpsUsed || 0) === 0) {
                 this.bumpCollectionStat('noPowerupLevels', 1);
                 if (stars === 3) this.bumpCollectionStat('perfectRunLevels', 1);
@@ -7842,7 +8024,7 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
             this.currentLevelIdx++;
             const rewardMilestone = this.currentLevelIdx % 5 === 0;
             const miniGameMilestone = this.currentLevelIdx % 10 === 0;
-            this.pendingPostMiniReward = miniGameMilestone && rewardMilestone;
+            this.pendingPostMiniReward = false;
             const title = (rewardMilestone || miniGameMilestone) ? `${this.currentLevelIdx} LEVELS CLEARED!` : 'Level Clear!';
             this.showScreen(title, 'CONTINUE', stars, miniGameMilestone ? 'minigame' : (rewardMilestone ? 'reward' : 'play'), true, {
                 coinsEarned,
@@ -7971,8 +8153,14 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
             if (!this.boardIdleActive || !this.isLevelActive) return;
             if (this.isProcessing || this.hintActive) return;
             if (document.querySelector('.overlay.active')) return;
-            if (Date.now() - this.lastActionAt < 20000) return;
-            this.showHint();
+            const idleFor = Date.now() - this.lastActionAt;
+            if (this.hintStage === 0) {
+                if (idleFor < 20000) return;
+                this.showHint(1);
+            } else {
+                if (idleFor < 10000) return;
+                this.showHint(2);
+            }
         }, 1000);
     }
 
@@ -8014,13 +8202,19 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
 
     /* ---------- Canvas FX engine ---------- */
 
-    safeFinished(animation) { return animation.finished.catch(() => {}); }
+    safeFinished(animation) {
+        if (this.isReducedMotion()) {
+            try { animation.finish(); } catch (e) {}
+            return Promise.resolve();
+        }
+        return animation.finished.catch(() => {});
+    }
 
-    vibrate(ms) { if (navigator.vibrate) navigator.vibrate(ms); }
+    vibrate(ms) { if (this.hapticsEnabled && navigator.vibrate) navigator.vibrate(ms); }
 
     flashScreen(intensity = .3) {
         this.flashEl.getAnimations().forEach(a => a.cancel());
-        this.flashEl.animate([{ opacity: 0 }, { opacity: intensity, offset: .28 }, { opacity: 0 }], { duration: 240, easing: 'ease-out' });
+        this.flashEl.animate([{ opacity: 0 }, { opacity: intensity, offset: .28 }, { opacity: 0 }], { duration: this.isReducedMotion() ? 1 : 240, easing: 'ease-out' });
     }
 
     /* ---------- Level transition wipe ---------- */
@@ -8060,7 +8254,7 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
                 { opacity: 1, transform: 'translate(-50%,-8px) scale(1)', offset: .72 },
                 { opacity: 0, transform: 'translate(-50%,-24px) scale(.96)', offset: 1 }
             ],
-            { duration: 650, easing: 'cubic-bezier(.2,.88,.24,1)' }
+            { duration: this.isReducedMotion() ? 1 : 650, easing: 'cubic-bezier(.2,.88,.24,1)' }
         );
         anim.finished.finally(() => el.remove()).catch(() => el.remove());
     }
@@ -8078,7 +8272,7 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
                 { opacity: 1, transform: 'translate(-50%,-6px) scale(1)', offset: .7 },
                 { opacity: 0, transform: 'translate(-50%,-20px) scale(.96)' }
             ],
-            { duration: 720, easing: 'cubic-bezier(.2,.88,.24,1)' }
+            { duration: this.isReducedMotion() ? 1 : 720, easing: 'cubic-bezier(.2,.88,.24,1)' }
         );
         anim.finished.finally(() => el.remove()).catch(() => el.remove());
     }
@@ -8482,7 +8676,8 @@ Object.assign(Game.prototype, {
         const config = this.miniGameConfig(levelNumber);
         await this.preloadMiniGameArtwork(config.challenge);
         const scrambled = this.scrambleMiniGame(config);
-        const tiles = scrambled.tiles;
+        const solved = Array.from({length:config.cols * config.rows}, (_,i) => i);
+        const artwork = this.makeMiniGameArtwork(config.challenge);
 
         this.debugMiniGame = !!debug;
         this.miniGameDrag = null;
@@ -8492,21 +8687,39 @@ Object.assign(Game.prototype, {
             challenge:config.challenge,
             cols:config.cols,
             rows:config.rows,
-            tiles,
+            tiles:solved,
+            scrambledTiles:scrambled.tiles,
             blankValue:scrambled.blankValue,
             moves:0,
-            artwork:this.makeMiniGameArtwork(config.challenge)
+            artwork,
+            previewing:true,
+            peeking:false
         };
 
         const kicker = document.getElementById('mini-game-kicker');
         if (kicker) kicker.innerText = debug ? `DEBUG · LEVEL ${levelNumber} CHALLENGE` : `LEVEL ${levelNumber} CHALLENGE`;
         document.getElementById('mini-game-debug-solve-btn').hidden = !debug;
+        const peek = document.getElementById('mini-game-peek-btn');
+        if (peek) peek.hidden = config.cols < 4;
         this.renderMiniGame();
 
         const from = this.activePaperOverlay();
         const overlay = document.getElementById('mini-game-overlay');
         if (from && from !== overlay) this.swipeModalSwap(from, overlay, true);
         else this.panGameToSheet(overlay);
+
+        /* Give the player the reference image first, then briefly show the solved
+           tile grid, then reveal the legally scrambled board. */
+        const host = document.getElementById('slide-puzzle');
+        if (host) host.classList.add('show-preview');
+        await wait(this.isReducedMotion() ? 1 : 900);
+        if (!this.miniGameState) return;
+        if (host) host.classList.remove('show-preview');
+        await wait(this.isReducedMotion() ? 1 : 260);
+        if (!this.miniGameState) return;
+        this.miniGameState.tiles = this.miniGameState.scrambledTiles.slice();
+        this.miniGameState.previewing = false;
+        this.renderMiniGame();
     },
 
     renderMiniGame() {
@@ -8515,6 +8728,7 @@ Object.assign(Game.prototype, {
         if (!state || !host) return;
         host.style.setProperty('--puzzle-cols', state.cols);
         host.style.setProperty('--puzzle-rows', state.rows);
+        host.style.setProperty('--preview-art', state.artwork);
         document.getElementById('mini-game-moves').innerText = String(state.moves);
         document.getElementById('mini-game-size').innerText = `${state.cols} × ${state.rows}`;
         host.innerHTML = '';
@@ -8550,12 +8764,27 @@ Object.assign(Game.prototype, {
 
     miniGameMoveInfo(index) {
         const s = this.miniGameState;
-        if (!s || s.animating) return null;
+        if (!s || s.animating || s.previewing || s.peeking) return null;
         const blank = s.tiles.indexOf(s.blankValue);
         const br = Math.floor(blank / s.cols), bc = blank % s.cols;
         const tr = Math.floor(index / s.cols), tc = index % s.cols;
         if (Math.abs(br - tr) + Math.abs(bc - tc) !== 1) return null;
         return { blank, br, bc, tr, tc };
+    },
+
+    beginMiniGamePeek() {
+        const s = this.miniGameState;
+        const host = document.getElementById('slide-puzzle');
+        if (!s || !host || s.previewing || s.cols < 4) return;
+        s.peeking = true;
+        host.classList.add('show-preview');
+    },
+
+    endMiniGamePeek() {
+        const s = this.miniGameState;
+        const host = document.getElementById('slide-puzzle');
+        if (s) s.peeking = false;
+        if (host && !s?.previewing) host.classList.remove('show-preview');
     },
 
     beginMiniGameDrag(e, index, tileEl) {
@@ -8677,12 +8906,15 @@ Object.assign(Game.prototype, {
         requestAnimationFrame(() => {
             liveTile.style.transform = `translate3d(${dx}px,${dy}px,0)`;
         });
-        setTimeout(finish, 145);
+        setTimeout(finish, this.isReducedMotion() ? 1 : 145);
     },
 
     debugSolveMiniGame() {
         const s = this.miniGameState;
         if (!s) return;
+        s.previewing = false;
+        s.peeking = false;
+        document.getElementById('slide-puzzle')?.classList.remove('show-preview');
         s.tiles = Array.from({length:s.cols*s.rows}, (_,i) => i);
         this.renderMiniGame();
         setTimeout(() => this.completeMiniGame(), 120);
@@ -8703,14 +8935,37 @@ Object.assign(Game.prototype, {
         if (art) art.style.backgroundImage = s.artwork;
         const copy = document.getElementById('mini-reward-copy');
         if (copy) copy.innerText = debug
-            ? `Debug preview. This would award the Level ${s.level} puzzle stamp.`
+            ? `Debug preview. This would award the Level ${s.level} puzzle stamp and its bonus power-up.`
             : `You restored the artwork in ${s.moves} moves. The finished artwork is now part of your stamp collection.`;
+
+        const bonusBox = document.getElementById('mini-bonus-reward');
+        const bonusArt = document.getElementById('mini-bonus-art');
+        const bonusName = document.getElementById('mini-bonus-name');
+        let bonusType = s.bonusPowerUpType || null;
+        if (!bonusType) {
+            const types = Object.keys(POWER_UPS);
+            bonusType = types[Math.floor(Math.random() * types.length)] || null;
+            s.bonusPowerUpType = bonusType;
+        }
+        if (bonusType && bonusBox) {
+            const def = POWER_UPS[bonusType];
+            bonusBox.hidden = false;
+            if (bonusArt) bonusArt.innerHTML = this.buildCardIcon(def);
+            if (bonusName) bonusName.innerText = def.name;
+        } else if (bonusBox) bonusBox.hidden = true;
 
         if (!debug) {
             if (!this.collection.miniGameStamps) this.collection.miniGameStamps = [];
             const key = `sliding-${s.level}`;
             if (!this.collection.miniGameStamps.includes(key)) this.collection.miniGameStamps.push(key);
+            if (bonusType && !s.bonusPowerUpAwarded) {
+                this.inventory[bonusType] = (this.inventory[bonusType] || 0) + 1;
+                s.bonusPowerUpAwarded = true;
+                this.updatePowerUpTray();
+            }
             this.saveCollection();
+            this.persist();
+            this.sfx.reward();
         }
 
         document.getElementById('mini-game-reward-overlay').classList.add('active');
@@ -8727,11 +8982,7 @@ Object.assign(Game.prototype, {
             return;
         }
         this.miniGameState = null;
-        if (this.pendingPostMiniReward) {
-            this.pendingPostMiniReward = false;
-            this.showRewardPicker();
-            return;
-        }
+        this.pendingPostMiniReward = false;
         this.startLevel();
     }
 });
