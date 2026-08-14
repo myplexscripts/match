@@ -4889,13 +4889,11 @@ this.progressTrack = document.getElementById('progressTrack');
         this.defaultMusicKey = 'mindBender';
         this.puzzleMusicKey = 'puzzler';
         this.musicContext = 'main';
+        this.musicSessionActive = false;
         this.initAudioSettings();
 
         this.bindEvents();
         this.initColorScheme();
-        document.addEventListener('pointerdown', () => this.ensureAmbientMusic(), { once:true, capture:true });
-        document.addEventListener('touchstart', () => this.ensureAmbientMusic(), { once:true, capture:true, passive:true });
-        document.addEventListener('keydown', () => this.ensureAmbientMusic(), { once:true, capture:true });
         this.startIdleWatcher();
         this.startWatchdog();
         this.updatePowerUpTray();
@@ -5881,6 +5879,7 @@ this.progressTrack = document.getElementById('progressTrack');
     }
 
     async openMainMenuFromGame() {
+        this.pauseMusicSession();
         this.flushSave();
         const save = this.loadSave();
         const continueBtn = document.getElementById('menu-continue-btn');
@@ -5913,6 +5912,7 @@ this.progressTrack = document.getElementById('progressTrack');
     }
 
     async onMenuContinue() {
+        this.startMusicSession('main');
         const save = this.loadSave();
         if (!save) { await this.startLevel(); return; }
         this.currentLevelIdx = save.currentLevelIdx || 0;
@@ -5952,6 +5952,7 @@ this.progressTrack = document.getElementById('progressTrack');
     }
 
     beginNewGame() {
+        this.startMusicSession('main');
         this.clearSave();
         this.lastPresentedLevel = null;
         this.currentLevelIdx = 0;
@@ -6195,13 +6196,26 @@ document.getElementById('sfx-volume-slider')?.addEventListener('input', e => thi
     }
 
     ensureAmbientMusic() {
-        if (this.sfx.musicMuted) return;
+        if (!this.musicSessionActive || this.sfx.musicMuted) return;
         this.sfx.playMusic(this.desiredMusicKey()).catch(() => {});
+    }
+
+    startMusicSession(context = 'main') {
+        this.musicSessionActive = true;
+        this.musicContext = context === 'puzzle' ? 'puzzle' : 'main';
+        this.ensureAmbientMusic();
+    }
+
+    pauseMusicSession() {
+        this.musicSessionActive = false;
+        this.sfx.stopMusic();
     }
 
     setMusicContext(context) {
         this.musicContext = context === 'puzzle' ? 'puzzle' : 'main';
-        if (!this.sfx.musicMuted) this.sfx.playMusic(this.desiredMusicKey()).catch(() => {});
+        if (this.musicSessionActive && !this.sfx.musicMuted) {
+            this.sfx.playMusic(this.desiredMusicKey()).catch(() => {});
+        }
     }
 
     syncSettingsUI() {
@@ -6916,7 +6930,13 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
         const bSpin = b.inner.animate([{ transform: 'rotate(0deg)' }, { transform: 'rotate(-360deg)' }], spinOptions);
 
         await Promise.all([this.safeFinished(aa), this.safeFinished(bb), this.safeFinished(aSpin), this.safeFinished(bSpin)]);
-        a.el.style.transform = aEnd; b.el.style.transform = bEnd;
+        a.el.style.transform = aEnd;
+        b.el.style.transform = bEnd;
+        /* fill:forwards keeps a finished Web Animation attached to the element.
+           Clear it once the equivalent inline transform is committed so cascades do
+           not accumulate stale compositor effects over a long play session. */
+        try { aa.cancel(); } catch (e) {}
+        try { bb.cancel(); } catch (e) {}
     }
 
     async attemptSwap(p1, p2) {
@@ -7244,12 +7264,10 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
                 }
             }
 
-            if (toDestroy.size > 7) {
-                this.shell.animate(
-                    [{ transform: 'scale(1) rotate(0)' }, { transform: 'scale(1.014) rotate(-.25deg)' }, { transform: 'scale(.997) rotate(.18deg)' }, { transform: 'scale(1) rotate(0)' }],
-                    { duration: 250, easing: 'ease-out' }
-                );
-            }
+            /* Do not animate the entire shell during large cascades. On iOS Safari,
+               transforming this container while many tile layers are animating can make
+               the whole board briefly decompose/re-rasterise and appear to vanish. The
+               tile pops, particles, combo text and haptics already provide impact. */
 
             if (toDestroy.size > 0) {
                 this.sfx.pop(comboCount);
@@ -7428,6 +7446,7 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
         );
         await this.safeFinished(anim);
         tile.el.style.transform = end;
+        try { anim.cancel(); } catch (e) {}
     }
 
     async animateSpawnFall(tile, startRow, newRow, distance) {
@@ -7450,6 +7469,7 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
         await this.safeFinished(anim);
         tile.el.style.transform = end;
         tile.el.style.opacity = '1';
+        try { anim.cancel(); } catch (e) {}
     }
 
     /* ---------- Coins & Shop ---------- */
@@ -8457,7 +8477,8 @@ Object.assign(Game.prototype, {
     },
 
     async startMiniGame(levelNumber, debug = false) {
-        this.setMusicContext('puzzle');
+        if (!this.musicSessionActive) this.startMusicSession('puzzle');
+        else this.setMusicContext('puzzle');
         const config = this.miniGameConfig(levelNumber);
         await this.preloadMiniGameArtwork(config.challenge);
         const scrambled = this.scrambleMiniGame(config);
@@ -8722,18 +8743,14 @@ async function boot() {
     window.game = new Game();
     window.game.initMiniGameDebug();
 
-    /* The persistent music element has already been buffering during parsing.
-       Give the primary loop a chance to reach canplay before removing splash. */
-    const musicWarm = window.game.sfx.warmMusic().catch(() => false);
+    /* Music elements use preload="auto" so the browser may buffer them while
+       the menu is visible, but playback deliberately does not begin until the
+       player presses NEW or CONTINUE (or launches a debug mini-game). */
     await Promise.all([
         minDisplay,
-        Promise.race([fontsReady, wait(2000)]),
-        Promise.race([musicWarm, wait(5000)])
+        Promise.race([fontsReady, wait(2000)])
     ]);
     document.getElementById('splash')?.classList.add('hidden');
-
-    /* Mind-Bender is now silently primed. Audible playback begins on the
-       first pointer/key gesture, which satisfies browser autoplay policy. */
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, { once:true });
 else boot();
