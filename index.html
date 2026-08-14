@@ -3371,6 +3371,230 @@ html[data-reduced-motion="true"] *,html[data-reduced-motion="true"] *::before,ht
 }
 .debug-state span:last-child{color:var(--muted);font-size:.78rem;}
 
+
+
+/* ---------- Stamp catalogue upgrade ---------- */
+.stamp-album-controls{
+  width:100%;
+  display:grid;
+  gap:10px;
+  padding:12px 0 4px;
+}
+.stamp-filter-control,
+.stamp-sort-control{
+  width:100%;
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.stamp-filter-control button,
+.stamp-sort-control button{
+  min-height:44px;
+  flex:1 1 0;
+  padding:0 10px;
+  border:2px solid var(--border-color);
+  border-radius:0;
+  background:var(--neutral-50);
+  color:var(--ink);
+  font:800 .72rem/1 Manrope,sans-serif;
+  letter-spacing:.04em;
+  box-shadow:3px 3px 0 var(--shadow-color);
+}
+.stamp-filter-control button.active,
+.stamp-sort-control button.active{
+  background:var(--ink);
+  color:var(--neutral-50);
+  box-shadow:none;
+  transform:translate(2px,2px);
+}
+.stamp-sort-control span{
+  flex:0 0 auto;
+  padding-right:4px;
+  color:var(--muted);
+  font:800 .7rem/1 Manrope,sans-serif;
+  letter-spacing:.08em;
+}
+
+.sticker-grid-album{
+  align-items:start;
+  gap:26px 16px;
+  padding-top:20px;
+}
+.sticker-slot.stamp-catalog-entry{
+  appearance:none;
+  -webkit-appearance:none;
+  width:100%;
+  min-width:0;
+  aspect-ratio:auto;
+  min-height:230px;
+  padding:0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  gap:10px;
+  border:0;
+  background:transparent;
+  color:var(--ink);
+  box-shadow:none;
+  text-align:center;
+  overflow:visible;
+}
+button.sticker-slot.stamp-catalog-entry.earned{ cursor:pointer; }
+button.sticker-slot.stamp-catalog-entry.earned:active .stamp-slot-visual{ transform:scale(.97); }
+.stamp-slot-visual{
+  width:118px;
+  height:148px;
+  display:grid;
+  place-items:center;
+  flex:0 0 148px;
+  transition:transform .12s ease;
+}
+.sticker-slot .stamp-face,
+.sticker-slot .stamp-placeholder,
+.locked-stamp-placeholder{
+  width:112px!important;
+  max-width:112px!important;
+  transform:none!important;
+}
+.sticker-slot .stamp-face{ aspect-ratio:4 / 5; }
+.stamp-slot-copy{
+  width:100%;
+  min-width:0;
+  display:grid;
+  gap:5px;
+  justify-items:center;
+}
+.stamp-slot-number{
+  font:900 .72rem/1 Manrope,sans-serif;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+.stamp-slot-name{
+  max-width:100%;
+  font:800 .82rem/1.1 Manrope,sans-serif;
+  color:var(--ink);
+  text-transform:uppercase;
+}
+.stamp-slot-how{
+  margin:0;
+  max-width:150px;
+  color:var(--muted);
+  font:700 .74rem/1.3 Inter,sans-serif;
+  text-transform:none;
+}
+
+.locked-stamp-placeholder{
+  position:relative;
+  aspect-ratio:4 / 5;
+  border:3px solid var(--muted);
+  background:transparent;
+  overflow:hidden;
+  box-sizing:border-box;
+}
+.locked-stamp-placeholder::before,
+.locked-stamp-placeholder::after{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:72%;
+  height:3px;
+  background:var(--muted);
+  transform-origin:center;
+}
+.locked-stamp-placeholder::before{ transform:translate(-50%,-50%) rotate(45deg); }
+.locked-stamp-placeholder::after{ transform:translate(-50%,-50%) rotate(-45deg); }
+
+.album-slide-stamp{
+  width:112px!important;
+  max-width:112px!important;
+  transform:none!important;
+  box-shadow:none!important;
+}
+.stamp-album-empty{
+  grid-column:1 / -1;
+  margin:24px 0;
+  color:var(--muted);
+  font:700 .9rem/1.4 Inter,sans-serif;
+  text-align:center;
+}
+
+/* Keep collection pages aligned. Stamps no longer use decorative rotations. */
+.stamp-face,
+.punch-reward .stamp-face{
+  --stamp-rot:0deg!important;
+  transform:none!important;
+}
+.punch-card.ready .punch-reward .stamp-face{
+  animation:readyStampAligned 1.1s ease-in-out infinite alternate;
+}
+@keyframes readyStampAligned{
+  from{ transform:scale(1); }
+  to{ transform:scale(1.04); }
+}
+
+.stamp-detail-card{
+  width:min(100%,430px);
+  min-height:min(620px,90vh);
+  align-content:start;
+  text-align:center;
+}
+.stamp-detail-card h2{ margin-bottom:4px; }
+.stamp-detail-art{
+  width:100%;
+  min-height:250px;
+  display:grid;
+  place-items:center;
+  padding:12px 0;
+}
+.stamp-detail-art .stamp-face{
+  width:180px!important;
+  max-width:180px!important;
+  transform:none!important;
+}
+.detail-slide-stamp{
+  width:190px!important;
+  max-width:190px!important;
+  transform:none!important;
+  box-shadow:none!important;
+}
+.stamp-detail-description{
+  margin:0 auto;
+  max-width:330px;
+  color:var(--muted);
+  font:700 .95rem/1.45 Inter,sans-serif;
+}
+.stamp-detail-meta{
+  width:100%;
+  margin-top:14px;
+  padding:14px 0 0;
+  border-top:2px solid var(--border-color);
+  display:grid;
+  gap:5px;
+  text-align:left;
+}
+.stamp-detail-meta span{
+  color:var(--muted);
+  font:800 .7rem/1 Manrope,sans-serif;
+  letter-spacing:.08em;
+}
+.stamp-detail-meta b{
+  color:var(--ink);
+  font:800 .95rem/1.25 Inter,sans-serif;
+}
+
+@media (max-width:390px){
+  .stamp-filter-control button,
+  .stamp-sort-control button{ font-size:.66rem; padding-inline:6px; }
+  .stamp-slot-visual{ width:108px; height:136px; flex-basis:136px; }
+  .sticker-slot .stamp-face,
+  .sticker-slot .stamp-placeholder,
+  .locked-stamp-placeholder{ width:104px!important; max-width:104px!important; }
+  .album-slide-stamp{ width:104px!important; max-width:104px!important; }
+}
+
 </style>
 </head>
 
@@ -3814,10 +4038,36 @@ html[data-reduced-motion="true"] *,html[data-reduced-motion="true"] *::before,ht
     <h2>Stamp Album</h2>
     <div class="sticker-album-summary">
       <b>All stamps</b>
-      <span id="sticker-total-count">0 / 50</span>
+      <span id="sticker-total-count">0 / 60</span>
+    </div>
+    <div class="stamp-album-controls" aria-label="Stamp album controls">
+      <div class="stamp-filter-control" role="group" aria-label="Show stamps">
+        <button type="button" data-stamp-filter="all" class="active" aria-pressed="true">ALL</button>
+        <button type="button" data-stamp-filter="earned" aria-pressed="false">EARNED</button>
+        <button type="button" data-stamp-filter="locked" aria-pressed="false">LOCKED</button>
+      </div>
+      <div class="stamp-sort-control" role="group" aria-label="Sort stamps">
+        <span>SORT</span>
+        <button type="button" data-stamp-sort="number" class="active" aria-pressed="true">NUMBER</button>
+        <button type="button" data-stamp-sort="date" aria-pressed="false">DATE EARNED</button>
+      </div>
     </div>
     <div class="collection-scroll ui-scroll">
       <div class="sticker-grid sticker-grid-album" id="sticker-album-groups"></div>
+    </div>
+  </div>
+</div>
+
+<div class="overlay popup-overlay" id="stamp-detail-overlay">
+  <div class="overlay-card stamp-detail-card has-corner-close">
+    <button class="modal-corner-close" id="stamp-detail-close-btn" aria-label="Close stamp details"><span class="material-symbols-outlined">close</span></button>
+    <span class="collection-kicker" id="stamp-detail-number">No. 01</span>
+    <h2 id="stamp-detail-name">Stamp</h2>
+    <div class="stamp-detail-art" id="stamp-detail-art"></div>
+    <p class="stamp-detail-description" id="stamp-detail-description"></p>
+    <div class="stamp-detail-meta">
+      <span>DATE EARNED</span>
+      <b id="stamp-detail-date">-</b>
     </div>
   </div>
 </div>
@@ -4129,64 +4379,80 @@ const PUNCH_CARD_DEFS = {
 };
 
 const ACHIEVEMENTS = [
-    { id:'level-lover', name:'Level Lover', desc:'Clear 50 levels.', icon:'flag', colorId:2, rot:-2, test:s => s.levelsCleared >= 50 },
-    { id:'first-five', name:'First Five', desc:'Clear 5 levels.', icon:'looks_5', colorId:4, rot:1, test:s => s.levelsCleared >= 5 },
-    { id:'double-digits', name:'Double Digits', desc:'Clear 10 levels.', icon:'pin', colorId:3, rot:-1, test:s => s.levelsCleared >= 10 },
-    { id:'century-set', name:'Century Set', desc:'Clear 100 levels.', icon:'emoji_events', colorId:1, rot:2, test:s => s.levelsCleared >= 100 },
-    { id:'long-haul', name:'Long Haul', desc:'Clear 250 levels.', icon:'hiking', colorId:5, rot:-2, test:s => s.levelsCleared >= 250 },
-    { id:'star-starter', name:'Star Starter', desc:'Earn 25 stars.', icon:'star', colorId:1, rot:1, test:s => s.starsEarned >= 25 },
-    { id:'star-stack', name:'Star Stack', desc:'Earn 100 stars.', icon:'stars', colorId:3, rot:-1, test:s => s.starsEarned >= 100 },
-    { id:'triple-threat', name:'Triple Threat', desc:'Earn 3 stars on 25 levels.', icon:'workspace_premium', colorId:2, rot:2, test:s => s.threeStarLevels >= 25 },
-    { id:'tile-tally', name:'Tile Tally', desc:'Clear 1,000 tiles.', icon:'grid_view', colorId:3, rot:1, test:s => s.tilesCleared >= 1000 },
-    { id:'tile-tornado', name:'Tile Tornado', desc:'Clear 5,000 tiles.', icon:'tornado', colorId:4, rot:-2, test:s => s.tilesCleared >= 5000 },
-    { id:'tile-titan', name:'Tile Titan', desc:'Clear 25,000 tiles.', icon:'dataset', colorId:5, rot:1, test:s => s.tilesCleared >= 25000 },
-    { id:'match-maker', name:'Match Maker', desc:'Make 100 matches.', icon:'handshake', colorId:2, rot:-1, test:s => s.matchesMade >= 100 },
-    { id:'match-machine', name:'Match Machine', desc:'Make 1,000 matches.', icon:'precision_manufacturing', colorId:3, rot:2, test:s => s.matchesMade >= 1000 },
-    { id:'four-sure', name:'Four Sure', desc:'Make 50 matches of exactly 4 tiles.', icon:'filter_4', colorId:1, rot:-1, test:s => s.matches4 >= 50 },
-    { id:'high-five', name:'High Five', desc:'Make 25 matches of 5 tiles.', icon:'filter_5', colorId:4, rot:1, test:s => s.matches5 >= 25 },
-    { id:'shape-shifter', name:'Shape Shifter', desc:'Make 25 L or T shaped matches.', icon:'account_tree', colorId:5, rot:-2, test:s => s.shapeMatches >= 25 },
-    { id:'special-spark', name:'Special Spark', desc:'Make 20 special tiles.', icon:'mood', colorId:1, rot:-1, test:s => s.specialsMade >= 20 },
-    { id:'special-factory', name:'Special Factory', desc:'Make 100 special tiles.', icon:'factory', colorId:3, rot:2, test:s => s.specialsMade >= 100 },
-    { id:'side-swipe', name:'Side Swipe', desc:'Make 25 Horizontal Clear tiles.', icon:'swap_horiz', colorId:1, rot:1, test:s => s.horizontalMade >= 25 },
-    { id:'vertical-vision', name:'Vertical Vision', desc:'Make 25 Vertical Clear tiles.', icon:'swap_vert', colorId:2, rot:-1, test:s => s.verticalMade >= 25 },
-    { id:'burst-mode', name:'Burst Mode', desc:'Make 25 Burst Tiles.', icon:'blur_on', colorId:5, rot:2, test:s => s.burstMade >= 25 },
-    { id:'bomb-builder', name:'Bomb Builder', desc:'Make 10 Colour Bombs.', icon:'brightness_7', colorId:1, rot:-2, test:s => s.bombMade >= 10 },
-    { id:'full-set', name:'Full Set', desc:'Make all four kinds of special tile during one level.', icon:'category', colorId:4, rot:1, test:s => s.fullSetLevels >= 1 },
-    { id:'special-delivery', name:'Special Delivery', desc:'Activate 100 special tiles.', icon:'bolt', colorId:3, rot:-1, test:s => s.specialsActivated >= 100 },
-    { id:'clear-across', name:'Clear Across', desc:'Activate 50 Horizontal Clears.', icon:'east', colorId:1, rot:2, test:s => s.horizontalActivated >= 50 },
-    { id:'clear-down', name:'Clear Down', desc:'Activate 50 Vertical Clears.', icon:'south', colorId:2, rot:-2, test:s => s.verticalActivated >= 50 },
-    { id:'burst-streak', name:'Burst Streak', desc:'Activate 50 Burst Tiles.', icon:'blur_circular', colorId:5, rot:1, test:s => s.burstActivated >= 50 },
-    { id:'bomb-squad', name:'Bomb Squad', desc:'Activate 25 Colour Bombs.', icon:'radio_button_checked', colorId:1, rot:-1, test:s => s.bombActivated >= 25 },
-    { id:'cross-clear', name:'Cross Clear', desc:'Combine a Horizontal Clear with a Vertical Clear.', icon:'compare_arrows', colorId:4, rot:2, test:s => s.comboCrossClear >= 1 },
-    { id:'side-by-side', name:'Side by Side', desc:'Combine two Horizontal Clears.', icon:'horizontal_rule', colorId:1, rot:-2, test:s => s.comboHorizontalPair >= 1 },
-    { id:'double-down', name:'Double Down', desc:'Combine two Vertical Clears.', icon:'height', colorId:2, rot:1, test:s => s.comboVerticalPair >= 1 },
-    { id:'burst-pair', name:'Burst Pair', desc:'Combine two Burst Tiles.', icon:'join_inner', colorId:5, rot:-1, test:s => s.comboBurstPair >= 1 },
-    { id:'color-pop', name:'Colour Pop', desc:'Combine a Colour Bomb with a normal tile.', icon:'palette', colorId:1, rot:2, test:s => s.comboColorPop >= 1 },
-    { id:'loaded-bomb', name:'Loaded Bomb', desc:'Combine a Colour Bomb with another special tile.', icon:'extension', colorId:3, rot:-2, test:s => s.comboLoadedBomb >= 1 },
-    { id:'clean-slate', name:'Clean Slate', desc:'Combine two Colour Bombs.', icon:'done_all', colorId:4, rot:1, test:s => s.comboCleanSlate >= 1 },
-    { id:'combo-collector', name:'Combo Collector', desc:'Perform every type of special tile combination at least once.', icon:'all_inclusive', colorId:5, rot:-1, test:s => ['comboCrossClear','comboHorizontalPair','comboVerticalPair','comboBurstPair','comboColorPop','comboLoadedBomb','comboCleanSlate','comboStripeBurst'].every(k => s[k] >= 1) },
-    { id:'helping-hand', name:'Helping Hand', desc:'Use your first power-up.', icon:'volunteer_activism', colorId:2, rot:2, test:s => s.powerupsUsed >= 1 },
-    { id:'swap-meet', name:'Swap Meet', desc:'Use Swap 10 times.', icon:'sync', colorId:6, rot:-2, test:s => s.swapUsed >= 10 },
-    { id:'mix-it-up', name:'Mix It Up', desc:'Use Shuffle 10 times.', icon:'shuffle', colorId:3, rot:1, test:s => s.shuffleUsed >= 10 },
-    { id:'five-more', name:'Five More', desc:'Use +5 Moves 10 times.', icon:'add_circle', colorId:4, rot:-1, test:s => s.extraMovesUsed >= 10 },
-    { id:'bomb-drop', name:'Bomb Drop', desc:'Use the Colour Bomb power-up 10 times.', icon:'circle', colorId:1, rot:2, test:s => s.colorBombPowerupUsed >= 10 },
-    { id:'horizontal-help', name:'Horizontal Help', desc:'Use the Horizontal Clear power-up 10 times.', icon:'view_week', colorId:1, rot:-2, test:s => s.horizontalPowerupUsed >= 10 },
-    { id:'vertical-help', name:'Vertical Help', desc:'Use the Vertical Clear power-up 10 times.', icon:'view_column', colorId:2, rot:1, test:s => s.verticalPowerupUsed >= 10 },
-    { id:'power-player', name:'Power Player', desc:'Use 100 power-ups in total.', icon:'electric_bolt', colorId:3, rot:-1, test:s => s.powerupsUsed >= 100 },
-    { id:'close-call', name:'Close Call', desc:'Clear a level with exactly 1 move remaining.', icon:'warning', colorId:6, rot:2, test:s => s.closeCallLevels >= 1 },
-    { id:'last-move', name:'Last Move', desc:'Clear a level using your final move.', icon:'timer', colorId:2, rot:-2, test:s => s.lastMoveLevels >= 1 },
-    { id:'no-help-needed', name:'No Help Needed', desc:'Clear a level without using a power-up.', icon:'front_hand', colorId:4, rot:1, test:s => s.noPowerupLevels >= 1 },
-    { id:'perfect-run', name:'Perfect Run', desc:'Earn 3 stars without using a power-up.', icon:'verified', colorId:5, rot:-1, test:s => s.perfectRunLevels >= 1 },
-    { id:'coin-keeper', name:'Coin Keeper', desc:'Have 500 coins at one time.', icon:'savings', colorId:1, rot:2, test:s => s.maxCoins >= 500 },
-    { id:'big-spender', name:'Big Spender', desc:'Spend 1,000 coins in the shop.', icon:'shopping_cart', colorId:6, rot:-2, test:s => s.coinsSpent >= 1000 }
+    { id:'level-lover', no:1, name:'Level Lover', desc:'Clear 50 levels.', icon:'flag', colorId:2, rot:-2, test:s => s.levelsCleared >= 50 },
+    { id:'first-five', no:2, name:'First Five', desc:'Clear 5 levels.', icon:'looks_5', colorId:4, rot:1, test:s => s.levelsCleared >= 5 },
+    { id:'double-digits', no:3, name:'Double Digits', desc:'Clear 10 levels.', icon:'pin', colorId:3, rot:-1, test:s => s.levelsCleared >= 10 },
+    { id:'century-set', no:4, name:'Century Set', desc:'Clear 100 levels.', icon:'emoji_events', colorId:1, rot:2, test:s => s.levelsCleared >= 100 },
+    { id:'long-haul', no:5, name:'Long Haul', desc:'Clear 250 levels.', icon:'hiking', colorId:5, rot:-2, test:s => s.levelsCleared >= 250 },
+    { id:'star-starter', no:6, name:'Star Starter', desc:'Earn 25 stars.', icon:'star', colorId:1, rot:1, test:s => s.starsEarned >= 25 },
+    { id:'star-stack', no:7, name:'Star Stack', desc:'Earn 100 stars.', icon:'stars', colorId:3, rot:-1, test:s => s.starsEarned >= 100 },
+    { id:'triple-threat', no:8, name:'Triple Threat', desc:'Earn 3 stars on 25 levels.', icon:'workspace_premium', colorId:2, rot:2, test:s => s.threeStarLevels >= 25 },
+    { id:'tile-tally', no:9, name:'Tile Tally', desc:'Clear 1,000 tiles.', icon:'grid_view', colorId:3, rot:1, test:s => s.tilesCleared >= 1000 },
+    { id:'tile-tornado', no:10, name:'Tile Tornado', desc:'Clear 5,000 tiles.', icon:'tornado', colorId:4, rot:-2, test:s => s.tilesCleared >= 5000 },
+    { id:'tile-titan', no:11, name:'Tile Titan', desc:'Clear 25,000 tiles.', icon:'dataset', colorId:5, rot:1, test:s => s.tilesCleared >= 25000 },
+    { id:'match-maker', no:12, name:'Match Maker', desc:'Make 100 matches.', icon:'handshake', colorId:2, rot:-1, test:s => s.matchesMade >= 100 },
+    { id:'match-machine', no:13, name:'Match Machine', desc:'Make 1,000 matches.', icon:'precision_manufacturing', colorId:3, rot:2, test:s => s.matchesMade >= 1000 },
+    { id:'four-sure', no:14, name:'Four Sure', desc:'Make 50 matches of exactly 4 tiles.', icon:'filter_4', colorId:1, rot:-1, test:s => s.matches4 >= 50 },
+    { id:'high-five', no:15, name:'High Five', desc:'Make 25 matches of 5 tiles.', icon:'filter_5', colorId:4, rot:1, test:s => s.matches5 >= 25 },
+    { id:'shape-shifter', no:16, name:'Shape Shifter', desc:'Make 25 L or T shaped matches.', icon:'account_tree', colorId:5, rot:-2, test:s => s.shapeMatches >= 25 },
+    { id:'special-spark', no:17, name:'Special Spark', desc:'Make 20 special tiles.', icon:'mood', colorId:1, rot:-1, test:s => s.specialsMade >= 20 },
+    { id:'special-factory', no:18, name:'Special Factory', desc:'Make 100 special tiles.', icon:'factory', colorId:3, rot:2, test:s => s.specialsMade >= 100 },
+    { id:'side-swipe', no:19, name:'Side Swipe', desc:'Make 25 Horizontal Clear tiles.', icon:'swap_horiz', colorId:1, rot:1, test:s => s.horizontalMade >= 25 },
+    { id:'vertical-vision', no:20, name:'Vertical Vision', desc:'Make 25 Vertical Clear tiles.', icon:'swap_vert', colorId:2, rot:-1, test:s => s.verticalMade >= 25 },
+    { id:'burst-mode', no:21, name:'Burst Mode', desc:'Make 25 Burst Tiles.', icon:'blur_on', colorId:5, rot:2, test:s => s.burstMade >= 25 },
+    { id:'bomb-builder', no:22, name:'Bomb Builder', desc:'Make 10 Colour Bombs.', icon:'brightness_7', colorId:1, rot:-2, test:s => s.bombMade >= 10 },
+    { id:'full-set', no:23, name:'Full Set', desc:'Make all four kinds of special tile during one level.', icon:'category', colorId:4, rot:1, test:s => s.fullSetLevels >= 1 },
+    { id:'special-delivery', no:24, name:'Special Delivery', desc:'Activate 100 special tiles.', icon:'bolt', colorId:3, rot:-1, test:s => s.specialsActivated >= 100 },
+    { id:'clear-across', no:25, name:'Clear Across', desc:'Activate 50 Horizontal Clears.', icon:'east', colorId:1, rot:2, test:s => s.horizontalActivated >= 50 },
+    { id:'clear-down', no:26, name:'Clear Down', desc:'Activate 50 Vertical Clears.', icon:'south', colorId:2, rot:-2, test:s => s.verticalActivated >= 50 },
+    { id:'burst-streak', no:27, name:'Burst Streak', desc:'Activate 50 Burst Tiles.', icon:'blur_circular', colorId:5, rot:1, test:s => s.burstActivated >= 50 },
+    { id:'bomb-squad', no:28, name:'Bomb Squad', desc:'Activate 25 Colour Bombs.', icon:'radio_button_checked', colorId:1, rot:-1, test:s => s.bombActivated >= 25 },
+    { id:'cross-clear', no:29, name:'Cross Clear', desc:'Combine a Horizontal Clear with a Vertical Clear.', icon:'compare_arrows', colorId:4, rot:2, test:s => s.comboCrossClear >= 1 },
+    { id:'side-by-side', no:30, name:'Side by Side', desc:'Combine two Horizontal Clears.', icon:'horizontal_rule', colorId:1, rot:-2, test:s => s.comboHorizontalPair >= 1 },
+    { id:'double-down', no:31, name:'Double Down', desc:'Combine two Vertical Clears.', icon:'height', colorId:2, rot:1, test:s => s.comboVerticalPair >= 1 },
+    { id:'burst-pair', no:32, name:'Burst Pair', desc:'Combine two Burst Tiles.', icon:'join_inner', colorId:5, rot:-1, test:s => s.comboBurstPair >= 1 },
+    { id:'color-pop', no:33, name:'Colour Pop', desc:'Combine a Colour Bomb with a normal tile.', icon:'palette', colorId:1, rot:2, test:s => s.comboColorPop >= 1 },
+    { id:'loaded-bomb', no:34, name:'Loaded Bomb', desc:'Combine a Colour Bomb with another special tile.', icon:'extension', colorId:3, rot:-2, test:s => s.comboLoadedBomb >= 1 },
+    { id:'clean-slate', no:35, name:'Clean Slate', desc:'Combine two Colour Bombs.', icon:'done_all', colorId:4, rot:1, test:s => s.comboCleanSlate >= 1 },
+    { id:'combo-collector', no:36, name:'Combo Collector', desc:'Perform every type of special tile combination at least once.', icon:'all_inclusive', colorId:5, rot:-1, test:s => ['comboCrossClear','comboHorizontalPair','comboVerticalPair','comboBurstPair','comboColorPop','comboLoadedBomb','comboCleanSlate','comboStripeBurst'].every(k => s[k] >= 1) },
+    { id:'helping-hand', no:37, name:'Helping Hand', desc:'Use your first power-up.', icon:'volunteer_activism', colorId:2, rot:2, test:s => s.powerupsUsed >= 1 },
+    { id:'swap-meet', no:38, name:'Swap Meet', desc:'Use Swap 10 times.', icon:'sync', colorId:6, rot:-2, test:s => s.swapUsed >= 10 },
+    { id:'mix-it-up', no:39, name:'Mix It Up', desc:'Use Shuffle 10 times.', icon:'shuffle', colorId:3, rot:1, test:s => s.shuffleUsed >= 10 },
+    { id:'five-more', no:40, name:'Five More', desc:'Use +5 Moves 10 times.', icon:'add_circle', colorId:4, rot:-1, test:s => s.extraMovesUsed >= 10 },
+    { id:'bomb-drop', no:41, name:'Bomb Drop', desc:'Use the Colour Bomb power-up 10 times.', icon:'circle', colorId:1, rot:2, test:s => s.colorBombPowerupUsed >= 10 },
+    { id:'horizontal-help', no:42, name:'Horizontal Help', desc:'Use the Horizontal Clear power-up 10 times.', icon:'view_week', colorId:1, rot:-2, test:s => s.horizontalPowerupUsed >= 10 },
+    { id:'vertical-help', no:43, name:'Vertical Help', desc:'Use the Vertical Clear power-up 10 times.', icon:'view_column', colorId:2, rot:1, test:s => s.verticalPowerupUsed >= 10 },
+    { id:'power-player', no:44, name:'Power Player', desc:'Use 100 power-ups in total.', icon:'electric_bolt', colorId:3, rot:-1, test:s => s.powerupsUsed >= 100 },
+    { id:'close-call', no:45, name:'Close Call', desc:'Clear a level with exactly 1 move remaining.', icon:'warning', colorId:6, rot:2, test:s => s.closeCallLevels >= 1 },
+    { id:'last-move', no:46, name:'Last Move', desc:'Clear a level using your final move.', icon:'timer', colorId:2, rot:-2, test:s => s.lastMoveLevels >= 1 },
+    { id:'no-help-needed', no:47, name:'No Help Needed', desc:'Clear a level without using a power-up.', icon:'front_hand', colorId:4, rot:1, test:s => s.noPowerupLevels >= 1 },
+    { id:'perfect-run', no:48, name:'Perfect Run', desc:'Earn 3 stars without using a power-up.', icon:'verified', colorId:5, rot:-1, test:s => s.perfectRunLevels >= 1 },
+    { id:'coin-keeper', no:49, name:'Coin Keeper', desc:'Have 500 coins at one time.', icon:'savings', colorId:1, rot:2, test:s => s.maxCoins >= 500 },
+    { id:'big-spender', no:50, name:'Big Spender', desc:'Spend 1,000 coins in the shop.', icon:'shopping_cart', colorId:6, rot:-2, test:s => s.coinsSpent >= 1000 }
 ];
 
 const STICKER_SHEETS = ACHIEVEMENTS.map(a => ({
     id:a.id,
     name:a.name,
     reward:0,
-    stickers:[{ id:`${a.id}-stamp`, label:a.name.toUpperCase(), icon:a.icon, colorId:a.colorId, shape:'rect', rot:a.rot || 0 }]
+    stickers:[{
+        id:`${a.id}-stamp`,
+        label:a.name.toUpperCase(),
+        icon:a.icon,
+        colorId:a.colorId,
+        shape:'rect',
+        rot:0,
+        no:a.no,
+        desc:a.desc,
+        secret:!!a.secret,
+        achievementId:a.id
+    }]
 }));
+
+/* Catalogue numbering is permanent. Achievement stamps occupy No. 01-99.
+   Sliding challenge stamps use the 100-series, so adding new achievement
+   stamps later never renumbers a collectible the player already owns. */
+const SLIDING_STAMP_CATALOG_LEVELS = Array.from({ length:10 }, (_, i) => (i + 1) * 10);
 
 const wait = ms => new Promise(res => setTimeout(res, ms));
 
@@ -4943,6 +5209,9 @@ this.progressTrack = document.getElementById('progressTrack');
         this.punchCategoryIndex = 0;
         this.collectionReturnOverlay = null;
         this.lastStickerReveal = null;
+        this.stampFilter = 'all';
+        this.stampSort = 'number';
+        this.activeStampDetailKey = null;
         this.achievementQueue = [];
         this.activeAchievement = null;
         this.levelPowerUpsUsed = 0;
@@ -5097,7 +5366,9 @@ this.progressTrack = document.getElementById('progressTrack');
             }),
             cards,
             stickers: [],
-            completedSheets: []
+            completedSheets: [],
+            miniGameStamps: [],
+            stampEarnedAt: {}
         };
         this.ensurePunchCardRewards(data);
         return data;
@@ -5124,13 +5395,14 @@ this.progressTrack = document.getElementById('progressTrack');
 
             data.cards = nextCards;
 
-            /* The album now mirrors the three Punch Cards exactly. Keep only
-               stamp IDs that still exist in those three sets so old unrelated
-               album entries cannot inflate the collection count. */
+            /* Keep achievement stamp IDs that still exist in the current
+               catalogue so stale legacy entries cannot inflate collection totals. */
             const validStickerKeys = new Set(this.allStickerEntries().map(entry => entry.key));
             const validSheetIds = new Set(STICKER_SHEETS.map(sheet => sheet.id));
             data.stickers = (Array.isArray(data.stickers) ? data.stickers : []).filter(key => validStickerKeys.has(key));
             data.completedSheets = (Array.isArray(data.completedSheets) ? data.completedSheets : []).filter(id => validSheetIds.has(id));
+            data.miniGameStamps = Array.isArray(data.miniGameStamps) ? data.miniGameStamps : [];
+            data.stampEarnedAt = data.stampEarnedAt && typeof data.stampEarnedAt === 'object' ? data.stampEarnedAt : {};
             this.ensurePunchCardRewards(data);
             return data;
         } catch (e) { return this.defaultCollection(); }
@@ -5145,6 +5417,78 @@ this.progressTrack = document.getElementById('progressTrack');
     findStickerEntry(key) {
         if (!key) return null;
         return this.allStickerEntries().find(entry => entry.key === key) || null;
+    }
+
+    recordStampEarned(key, when = Date.now()) {
+        if (!this.collection || !key) return;
+        if (!this.collection.stampEarnedAt || typeof this.collection.stampEarnedAt !== 'object') this.collection.stampEarnedAt = {};
+        if (!this.collection.stampEarnedAt[key]) this.collection.stampEarnedAt[key] = Math.max(1, Number(when) || Date.now());
+    }
+
+    stampEarnedTimestamp(key) {
+        const value = Number(this.collection?.stampEarnedAt?.[key]);
+        return Number.isFinite(value) && value > 0 ? value : null;
+    }
+
+    formatStampNumber(value) {
+        const n = Math.max(0, Number(value) || 0);
+        return n < 100 ? String(n).padStart(2, '0') : String(n);
+    }
+
+    formatStampEarnedAt(value) {
+        const ts = Number(value);
+        if (!Number.isFinite(ts) || ts <= 0) return 'Earned before date tracking';
+        try {
+            return new Date(ts).toLocaleString('en-CA', {
+                year:'numeric', month:'short', day:'numeric', hour:'numeric', minute:'2-digit'
+            });
+        } catch (e) {
+            return new Date(ts).toLocaleDateString('en-CA');
+        }
+    }
+
+    allAlbumStampEntries() {
+        const ownedAchievements = new Set(this.collection?.stickers || []);
+        const achievementEntries = this.allStickerEntries().map(entry => {
+            const achievement = this.achievementById(entry.sheet.id);
+            return Object.assign({}, entry, {
+                albumKey:entry.key,
+                type:'achievement',
+                no:entry.sticker.no || achievement?.no || 0,
+                name:achievement?.name || entry.sheet.name || 'Stamp',
+                desc:achievement?.desc || entry.sticker.desc || '',
+                secret:!!(achievement?.secret || entry.sticker.secret),
+                owned:ownedAchievements.has(entry.key),
+                earnedAt:this.stampEarnedTimestamp(entry.key)
+            });
+        });
+
+        const earnedSlidingLevels = (this.collection?.miniGameStamps || [])
+            .map(key => Number(String(key).replace('sliding-','')))
+            .filter(level => Number.isFinite(level) && level >= 10);
+        const slidingLevels = Array.from(new Set([...SLIDING_STAMP_CATALOG_LEVELS, ...earnedSlidingLevels])).sort((a,b) => a - b);
+        const ownedSliding = new Set(this.collection?.miniGameStamps || []);
+        const slidingEntries = slidingLevels.map(level => {
+            const challenge = Math.max(1, Math.floor(level / 10));
+            const rawKey = `sliding-${level}`;
+            const albumKey = `mini:${rawKey}`;
+            return {
+                albumKey,
+                rawKey,
+                type:'sliding',
+                no:100 + challenge,
+                level,
+                challenge,
+                name:`Level ${level} Puzzle`,
+                desc:`Complete the Level ${level} sliding challenge.`,
+                secret:false,
+                artwork:this.makeMiniGameArtwork(challenge),
+                owned:ownedSliding.has(rawKey),
+                earnedAt:this.stampEarnedTimestamp(albumKey)
+            };
+        });
+
+        return achievementEntries.concat(slidingEntries);
     }
 
     chooseUnownedStickerFromSheet(sheetId, data = this.collection, excludeKeys = new Set()) {
@@ -5215,6 +5559,7 @@ this.progressTrack = document.getElementById('progressTrack');
             try { passed = !!a.test(this.collection.stats); } catch (e) { passed = false; }
             if (!passed) return;
             this.collection.stickers.push(key);
+            this.recordStampEarned(key);
             owned.add(key);
             unlocked.push(a);
             if (!silent) this.achievementQueue.push(a);
@@ -5307,13 +5652,17 @@ this.progressTrack = document.getElementById('progressTrack');
         const bg = COLORS[sticker.colorId] || COLORS[1];
         const light = COLORS_LIGHT[sticker.colorId] || COLORS_LIGHT[1];
         const icon = sticker.icon || 'local_post_office';
-        return `<div class="stamp-face" style="--stamp-bg:${bg};--stamp-light:${light};--stamp-rot:${sticker.rot || 0}deg">
+        return `<div class="stamp-face" style="--stamp-bg:${bg};--stamp-light:${light};--stamp-rot:0deg">
           <div class="stamp-art rect"><span class="material-symbols-outlined" aria-hidden="true">${icon}</span></div>
         </div>`;
     }
 
     buildStickerPlaceholder(sticker) {
-        return `<div class="stamp-placeholder" style="--stamp-rot:${sticker.rot || 0}deg" aria-label="Empty stamp slot"></div>`;
+        return `<div class="stamp-placeholder" style="--stamp-rot:0deg" aria-label="Empty stamp slot"></div>`;
+    }
+
+    buildLockedStampPlaceholder() {
+        return `<div class="locked-stamp-placeholder" aria-label="Locked stamp"><span aria-hidden="true"></span></div>`;
     }
 
     nextUnownedStickerEntry() {
@@ -5326,6 +5675,7 @@ this.progressTrack = document.getElementById('progressTrack');
         if (!next) return null;
         if (!this.collection.stickers.includes(next.key)) {
             this.collection.stickers.push(next.key);
+            this.recordStampEarned(next.key);
             this.saveCollection();
             this.updateCollectionMenuButtons();
         }
@@ -5668,6 +6018,7 @@ this.progressTrack = document.getElementById('progressTrack');
             sticker = reward.sticker;
             sheet = reward.sheet;
             this.collection.stickers.push(reward.key);
+            this.recordStampEarned(reward.key);
 
             const afterOwned = new Set(this.collection.stickers);
             sheetComplete = sheet.stickers.every(st => afterOwned.has(this.stickerKey(sheet, st)));
@@ -5769,41 +6120,131 @@ this.progressTrack = document.getElementById('progressTrack');
     }
 
     renderStickerBook() {
-        const owned = new Set(this.collection.stickers || []);
-        const allEntries = this.allStickerEntries();
-        const total = allEntries.length;
-        const totalOwned = allEntries.filter(entry => owned.has(entry.key)).length;
+        const entries = this.allAlbumStampEntries();
+        const total = entries.length;
+        const totalOwned = entries.filter(entry => entry.owned).length;
 
         const totalCount = document.getElementById('sticker-total-count');
         if (totalCount) totalCount.innerText = `${totalOwned} / ${total}`;
+
+        document.querySelectorAll('[data-stamp-filter]').forEach(btn => {
+            const active = btn.dataset.stampFilter === this.stampFilter;
+            btn.classList.toggle('active', active);
+            btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+        });
+        document.querySelectorAll('[data-stamp-sort]').forEach(btn => {
+            const active = btn.dataset.stampSort === this.stampSort;
+            btn.classList.toggle('active', active);
+            btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+        });
+
+        let visible = entries.filter(entry => {
+            if (this.stampFilter === 'earned') return entry.owned;
+            if (this.stampFilter === 'locked') return !entry.owned;
+            return true;
+        });
+
+        visible.sort((a, b) => {
+            if (this.stampSort === 'date') {
+                if (a.owned !== b.owned) return a.owned ? -1 : 1;
+                const ad = a.earnedAt || 0;
+                const bd = b.earnedAt || 0;
+                if (ad !== bd) return bd - ad;
+            }
+            return (a.no || 9999) - (b.no || 9999);
+        });
 
         const grid = document.getElementById('sticker-album-groups');
         if (!grid) return;
         grid.innerHTML = '';
 
-        allEntries.forEach(entry => {
-            const slot = document.createElement('div');
-            const has = owned.has(entry.key);
-            slot.className = 'sticker-slot' + (has ? '' : ' locked');
-            slot.innerHTML = has ? this.buildStickerFace(entry.sticker) : this.buildStickerPlaceholder(entry.sticker);
+        if (!visible.length) {
+            grid.innerHTML = `<p class="stamp-album-empty">No stamps in this view yet.</p>`;
+            return;
+        }
+
+        visible.forEach(entry => {
+            const slot = document.createElement(entry.owned ? 'button' : 'div');
+            if (entry.owned) slot.type = 'button';
+            slot.className = `sticker-slot stamp-catalog-entry ${entry.owned ? 'earned' : 'locked'}`;
+            if (entry.owned) {
+                slot.setAttribute('aria-label', `View No. ${this.formatStampNumber(entry.no)} ${entry.name}`);
+            }
+
+            let artwork = '';
+            if (entry.owned) {
+                artwork = entry.type === 'sliding'
+                    ? `<div class="mini-reward-stamp album-slide-stamp" aria-hidden="true"><div class="mini-reward-stamp-art" style="background-image:${entry.artwork}"></div></div>`
+                    : this.buildStickerFace(entry.sticker);
+            } else {
+                artwork = this.buildLockedStampPlaceholder();
+            }
+
+            const number = `No. ${this.formatStampNumber(entry.no)}`;
+            const lockedCopy = entry.secret ? '???' : entry.desc;
+            slot.innerHTML = `
+                <div class="stamp-slot-visual">${artwork}</div>
+                <div class="stamp-slot-copy">
+                  <span class="stamp-slot-number">${number}</span>
+                  ${entry.owned
+                    ? `<b class="stamp-slot-name">${entry.name}</b>`
+                    : `<p class="stamp-slot-how">${lockedCopy || 'Locked'}</p>`}
+                </div>`;
+
+            if (entry.owned) slot.addEventListener('click', () => this.openStampDetail(entry.albumKey));
             grid.appendChild(slot);
         });
+    }
 
-        const challengeStamps = this.collection.miniGameStamps || [];
-        if (challengeStamps.length) {
-            const heading = document.createElement('div');
-            heading.className = 'mini-album-heading';
-            heading.innerText = 'Sliding challenge stamps';
-            grid.appendChild(heading);
-            challengeStamps.forEach(key => {
-                const level = Number(String(key).replace('sliding-','')) || 10;
-                const challenge = Math.max(1, Math.floor(level / 10));
-                const slot = document.createElement('div');
-                slot.className = 'sticker-slot mini-game-stamp';
-                slot.innerHTML = `<div class="mini-reward-stamp" aria-label="Level ${level} sliding challenge stamp"><div class="mini-reward-stamp-art" style="background-image:${this.makeMiniGameArtwork(challenge)}"></div></div>`;
-                grid.appendChild(slot);
-            });
+    setStampFilter(filter) {
+        this.stampFilter = ['all','earned','locked'].includes(filter) ? filter : 'all';
+        this.renderStickerBook();
+    }
+
+    setStampSort(sort) {
+        this.stampSort = sort === 'date' ? 'date' : 'number';
+        this.renderStickerBook();
+    }
+
+    findAlbumStampEntry(albumKey) {
+        return this.allAlbumStampEntries().find(entry => entry.albumKey === albumKey) || null;
+    }
+
+    openStampDetail(albumKey) {
+        const entry = this.findAlbumStampEntry(albumKey);
+        if (!entry || !entry.owned) return;
+        this.activeStampDetailKey = albumKey;
+
+        const number = document.getElementById('stamp-detail-number');
+        const name = document.getElementById('stamp-detail-name');
+        const art = document.getElementById('stamp-detail-art');
+        const description = document.getElementById('stamp-detail-description');
+        const date = document.getElementById('stamp-detail-date');
+
+        if (number) number.textContent = `No. ${this.formatStampNumber(entry.no)}`;
+        if (name) name.textContent = entry.name;
+        if (description) description.textContent = entry.desc || 'Collected stamp.';
+        if (date) date.textContent = this.formatStampEarnedAt(entry.earnedAt);
+        if (art) {
+            art.innerHTML = entry.type === 'sliding'
+                ? `<div class="mini-reward-stamp detail-slide-stamp" aria-hidden="true"><div class="mini-reward-stamp-art" style="background-image:${entry.artwork}"></div></div>`
+                : this.buildStickerFace(entry.sticker);
         }
+
+        this.swipeModalSwap(
+            document.getElementById('sticker-overlay'),
+            document.getElementById('stamp-detail-overlay'),
+            true
+        );
+    }
+
+    closeStampDetail() {
+        this.activeStampDetailKey = null;
+        this.swipeModalSwap(
+            document.getElementById('stamp-detail-overlay'),
+            document.getElementById('sticker-overlay'),
+            false
+        );
     }
 
     updateCollectionMenuButtons() {
@@ -6041,14 +6482,15 @@ this.progressTrack = document.getElementById('progressTrack');
         const host = document.getElementById('stats-content');
         if (!host) return;
         const s = Object.assign(this.defaultLifetimeStats(), this.collection?.stats || {});
-        const stampCount = (this.collection?.stickers || []).filter(key => this.findStickerEntry(key)).length;
+        const albumStampEntries = this.allAlbumStampEntries();
+        const stampCount = albumStampEntries.filter(entry => entry.owned).length;
         const row = (label, value) => `<div class="stats-row"><span>${label}</span><b>${this.formatStat(value)}</b></div>`;
         host.innerHTML = `
           <div class="stats-hero">
             <div class="stats-hero-item"><b>${this.formatStat(s.levelsCleared)}</b><span>Levels cleared</span></div>
             <div class="stats-hero-item"><b>${this.formatStat(s.starsEarned)}</b><span>Stars earned</span></div>
             <div class="stats-hero-item"><b>${this.formatStat(s.tilesCleared)}</b><span>Tiles cleared</span></div>
-            <div class="stats-hero-item"><b>${stampCount} / ${ACHIEVEMENTS.length}</b><span>Stamps earned</span></div>
+            <div class="stats-hero-item"><b>${stampCount} / ${albumStampEntries.length}</b><span>Stamps earned</span></div>
           </div>
           <section class="stats-section"><h3>Matching</h3>
             ${row('Matches made', s.matchesMade)}
@@ -6155,6 +6597,9 @@ document.getElementById('menu-stickers-btn').addEventListener('click', () => thi
 document.getElementById('menu-stats-btn').addEventListener('click', () => this.onMenuStats());
 document.getElementById('stats-close-btn').addEventListener('click', () => this.closeStats());
 document.getElementById('sticker-close-btn').addEventListener('click', () => this.closeStickerBook());
+document.getElementById('stamp-detail-close-btn')?.addEventListener('click', () => this.closeStampDetail());
+document.querySelectorAll('[data-stamp-filter]').forEach(btn => btn.addEventListener('click', () => this.setStampFilter(btn.dataset.stampFilter)));
+document.querySelectorAll('[data-stamp-sort]').forEach(btn => btn.addEventListener('click', () => this.setStampSort(btn.dataset.stampSort)));
 document.getElementById('sticker-back-btn').addEventListener('click', () => this.closeStickerReveal());
 document.getElementById('sticker-view-btn').addEventListener('click', () => this.viewStickerBookFromReveal());
 document.getElementById('menu-continue-btn').addEventListener('click', () => this.onMenuContinue());
@@ -8957,7 +9402,10 @@ Object.assign(Game.prototype, {
         if (!debug) {
             if (!this.collection.miniGameStamps) this.collection.miniGameStamps = [];
             const key = `sliding-${s.level}`;
-            if (!this.collection.miniGameStamps.includes(key)) this.collection.miniGameStamps.push(key);
+            if (!this.collection.miniGameStamps.includes(key)) {
+                this.collection.miniGameStamps.push(key);
+                this.recordStampEarned(`mini:${key}`);
+            }
             if (bonusType && !s.bonusPowerUpAwarded) {
                 this.inventory[bonusType] = (this.inventory[bonusType] || 0) + 1;
                 s.bonusPowerUpAwarded = true;
