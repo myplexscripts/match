@@ -3882,7 +3882,7 @@ body.swipe-back-active{ cursor:grabbing; }
   background:var(--neutral-100);
   box-shadow:3px 3px 0 var(--shadow-color);
   color:var(--ink)!important;
-  font-family:'Material Symbols Rounded'!important;
+  font-family:'Material Symbols Outlined'!important;
   font-size:1.05rem!important;
   font-weight:normal!important;
   font-style:normal!important;
@@ -3950,6 +3950,182 @@ body.swipe-back-active{ cursor:grabbing; }
 .result-bonus-items{
   min-height:212px!important;
   max-height:290px!important;
+}
+
+
+/* ---------- Consistency fixes ---------- */
+
+/* 1) Remove the giant milestone ghost text over the board.
+   Milestone celebration now relies on the progress bar, particles,
+   haptics, and the moving star head instead of a large floating word. */
+.combo-text.progress-toast-muted{
+  display:none!important;
+}
+
+/* 2) Memory Match tiles should use the same soft neobrutalist tile language. */
+.memory-grid{
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+  padding:10px 4px 6px!important;
+}
+.memory-card-back,
+.memory-card-front{
+  border:3px solid var(--border-color)!important;
+  border-radius:24%!important;
+  box-shadow:4px 4px 0 var(--shadow-color)!important;
+}
+.memory-card-back{
+  background:var(--neutral-0)!important;
+  color:var(--muted)!important;
+}
+.memory-card-back::before,
+.memory-card-back::after{
+  width:38%!important;
+  height:4px!important;
+  border-radius:999px!important;
+}
+.memory-card-front{
+  transform:scale(.76) rotate(0deg)!important;
+}
+.memory-card-front use{
+  stroke:var(--border-color)!important;
+  stroke-width:5px!important;
+  paint-order:stroke fill!important;
+}
+
+/* 3) Mini-game success popup should follow the main popup language. */
+#mini-game-reward-overlay{
+  background:var(--neutral-50)!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+}
+#mini-game-reward-overlay .overlay-card{
+  position:relative!important;
+  width:min(100%,360px)!important;
+  max-width:360px!important;
+  min-height:0!important;
+  height:auto!important;
+  max-height:min(86dvh,700px)!important;
+  margin:0!important;
+  padding:28px 24px 24px!important;
+  border:var(--border-thick) solid var(--border-color)!important;
+  border-radius:24px!important;
+  box-shadow:var(--shadow-hard)!important;
+  background:var(--neutral-0)!important;
+  overflow:auto!important;
+  text-align:left!important;
+  display:block!important;
+}
+#mini-game-reward-overlay .mini-game-kicker{
+  text-align:left!important;
+}
+#mini-game-reward-overlay h2{
+  text-align:left!important;
+}
+#mini-game-reward-overlay .mini-reward-stamp{
+  margin:10px auto 0!important;
+  transform:none!important;
+  box-shadow:4px 4px 0 var(--shadow-color)!important;
+}
+#mini-game-reward-overlay .mini-reward-copy{
+  max-width:none!important;
+  text-align:left!important;
+}
+#mini-game-reward-overlay .mini-bonus-placeholder{
+  width:100%!important;
+  padding:12px 0 0!important;
+  border:0!important;
+  border-top:3px solid var(--border-color)!important;
+  color:var(--muted)!important;
+  letter-spacing:.08em!important;
+  text-transform:none!important;
+}
+#mini-game-reward-overlay .mini-bonus-placeholder + .mini-bonus-placeholder{
+  margin-top:12px!important;
+}
+#mini-game-reward-overlay .mini-bonus-kicker{
+  margin-bottom:10px!important;
+  font:800 .72rem/1 Inter,sans-serif!important;
+  letter-spacing:.09em!important;
+  text-transform:uppercase!important;
+}
+#mini-game-reward-overlay .mini-bonus-content{
+  justify-content:flex-start!important;
+  gap:12px!important;
+}
+#mini-game-reward-overlay .mini-bonus-art{
+  width:52px!important;
+  height:52px!important;
+  flex:0 0 52px!important;
+}
+#mini-game-reward-overlay .mini-bonus-content b{
+  font:800 1rem/1.15 Manrope,sans-serif!important;
+}
+
+
+/* ---------- Later-level clear objectives ---------- */
+.objective-pill{
+  position:relative;
+  min-width:0;
+  height:46px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  padding:4px 7px;
+  border-radius:14px;
+  background:var(--neutral-0);
+  border:var(--border-thick) solid var(--border-color);
+  box-shadow:var(--shadow-small);
+  color:var(--ink);
+}
+.objective-pill[hidden]{display:none!important;}
+.objective-mini-tile{
+  --objective-bg:var(--color-pink-base);
+  --objective-shape:var(--color-pink-light);
+  flex:0 0 30px;
+  width:30px;
+  height:30px;
+  display:grid;
+  place-items:center;
+  border-radius:24%;
+  background:var(--objective-bg);
+  border:2px solid var(--border-color);
+  box-shadow:2px 2px 0 var(--shadow-color);
+}
+.objective-mini-tile svg{
+  width:58%;
+  height:58%;
+  overflow:visible;
+}
+.objective-mini-tile use{
+  fill:var(--objective-shape);
+  stroke:var(--neutral-800);
+  stroke-width:19.2;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+.objective-copy{
+  min-width:0;
+  display:grid;
+  align-content:center;
+  gap:3px;
+  text-align:left;
+}
+.objective-copy b{
+  font:800 .72rem/1 Manrope,sans-serif;
+  white-space:nowrap;
+}
+.objective-copy span{
+  font:800 .52rem/1 Inter,sans-serif;
+  letter-spacing:.07em;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+.objective-pill.complete{
+  outline:3px solid var(--ink);
+  outline-offset:2px;
 }
 
 </style>
@@ -4101,6 +4277,12 @@ body.swipe-back-active{ cursor:grabbing; }
     <span>level</span>
   </div>
   <div class="pill"><b id="moves-txt">0</b><span>moves left</span></div>
+  <div class="objective-pill" id="objective-pill" hidden aria-live="polite">
+    <span class="objective-mini-tile" id="objective-mini-tile" aria-hidden="true">
+      <svg viewBox="0 0 480 480"><use id="objective-icon-use" href="#piece-circle"></use></svg>
+    </span>
+    <span class="objective-copy"><b id="objective-count">0 / 0</b><span>clear</span></span>
+  </div>
 </header>
 
   <main class="stage">
@@ -4260,7 +4442,7 @@ body.swipe-back-active{ cursor:grabbing; }
     <button class="modal-corner-close" id="howto-close-btn" aria-label="Close How To Play"><span class="material-symbols-outlined">close</span></button>
     <h2>How To Play</h2>
     <div class="howto-sheet ui-scroll">
-      <p class="howto-intro">Reach the first progress marker to clear the level. Any moves you have left become bonus row and column busters, which can raise your final score and star rating.</p>
+      <p class="howto-intro">Early levels are score challenges. Later levels can add a second target, such as clearing a certain number of one tile colour. Finish every active goal before your moves run out. Any moves left become bonus row and column busters.</p>
 
       <div class="howto-section">
         <h3 class="howto-section-title">The basics</h3>
@@ -4282,6 +4464,16 @@ body.swipe-back-active{ cursor:grabbing; }
             <div class="howto-step-copy">
               <b>Fill the meter</b>
               <span>Every match adds score. Reach the level goal before your moves run out to clear the level and bank your stars.</span>
+            </div>
+          </div>
+
+          <div class="howto-step">
+            <div class="howto-icon-tile" style="--icon-base:var(--color-pink-base);--icon-light:var(--color-pink-light)">
+              <svg viewBox="0 0 480 480" aria-hidden="true"><use href="#piece-sparkle"></use></svg>
+            </div>
+            <div class="howto-step-copy">
+              <b>Later levels add targets</b>
+              <span>Some later rounds also ask you to clear a set number of a specific tile. The target appears beside your moves. Complete both the score goal and the tile target to finish.</span>
             </div>
           </div>
 
@@ -5150,7 +5342,7 @@ function generateLevel(levelNumber) {
     let colors;
     if (levelNumber <= 2) colors = 4;
     else if (levelNumber <= 10) colors = 5;
-    else colors = Math.min(7, 5 + Math.floor(tier / 2));
+    else colors = Math.min(6, 5 + Math.floor(tier / 2));
     if (levelNumber > 10 && (constrained > 0.16 || cramped > 0.08)) colors = Math.max(5, colors - 1);
 
     let moves = 16 + Math.min(10, tier) + Math.round(playable / 12);
@@ -5171,13 +5363,34 @@ function generateLevel(levelNumber) {
         levelNumber <= 6 ? 4 :
         levelNumber <= 10 ? 3 : 2;
 
+    let objective = null;
+
+    /* From Level 15 onward, selected levels add a concrete collection goal.
+       These are deliberately periodic rather than constant so the later game
+       alternates between pure score rounds and more Royal-Match-like target
+       rounds. The player must satisfy BOTH the score goal and this clear goal. */
+    if (levelNumber >= 15 && (levelNumber - 15) % 3 === 0) {
+        const objectiveColor = 1 + Math.floor(rng() * colors);
+        const colourDifficulty = colors >= 6 ? 0.54 : 0.62;
+        const clearTarget = Math.max(
+            10,
+            Math.min(28, Math.round(moves * colourDifficulty))
+        );
+        objective = {
+            type:'clearColour',
+            color:objectiveColor,
+            target:clearTarget
+        };
+    }
+
     return {
         id: levelNumber,
         rows, cols, blocked, moves, target, colors,
         desc: SHAPE_DESCS[shape],
         shape,
         difficultyRelief:targetRelief,
-        minOpeningMoves
+        minOpeningMoves,
+        objective
     };
 }
 
@@ -5571,6 +5784,10 @@ this.levelEl = document.getElementById('level-txt');
 this.progressFill = document.getElementById('progressFill');
 this.progressHead = document.getElementById('progressHead');
 this.progressTrack = document.getElementById('progressTrack');
+        this.objectivePillEl = document.getElementById('objective-pill');
+        this.objectiveCountEl = document.getElementById('objective-count');
+        this.objectiveMiniTileEl = document.getElementById('objective-mini-tile');
+        this.objectiveIconUseEl = document.getElementById('objective-icon-use');
         this.mileEls = [document.getElementById('mile1'), document.getElementById('mile2'), document.getElementById('mile3')];
         this.textLayer = document.getElementById('textLayer');
         this.flashEl = document.getElementById('screenFlash');
@@ -5602,6 +5819,8 @@ this.progressTrack = document.getElementById('progressTrack');
         this.levelElapsedMs = 0;
         this.levelRunStartedAt = null;
         this.levelMovesAllotted = 0;
+        this.levelObjective = null;
+        this.levelObjectiveProgress = 0;
         this.resultStatusAnim = null;
         this.coinRewardAnim = null;
         this.reachedMilestones = new Set();
@@ -6796,6 +7015,8 @@ this.progressTrack = document.getElementById('progressTrack');
                         powerUpsUsed: this.levelPowerUpsUsed || 0,
                         specialTypesMade: Array.from(this.levelSpecialTypesMade || []),
                         fullSetCredited: !!this.levelFullSetCredited,
+                        objective: this.levelObjective,
+                        objectiveProgress: this.levelObjectiveProgress || 0,
                         grid: this.snapshotBoard().grid
                     } : null)
             };
@@ -6842,7 +7063,9 @@ this.progressTrack = document.getElementById('progressTrack');
             const lvl = save.level;
             ROWS = lvl.rows; COLS = lvl.cols;
             this.blocked = lvl.blocked;
-            this.levelConfig = { shape: lvl.shape, rows: lvl.rows, cols: lvl.cols, blocked: lvl.blocked };
+            this.levelConfig = { shape: lvl.shape, rows: lvl.rows, cols: lvl.cols, blocked: lvl.blocked, objective:lvl.objective || null };
+            this.levelObjective = lvl.objective || null;
+            this.levelObjectiveProgress = Math.max(0, Number(lvl.objectiveProgress) || 0);
             this.moves = lvl.moves;
             this.levelMovesAllotted = Math.max(Number(lvl.allottedMoves) || 0, Number(lvl.moves) || 0);
             this.levelElapsedMs = Math.max(0, Number(lvl.elapsedMs) || 0);
@@ -7261,15 +7484,6 @@ document.getElementById('music-volume-slider')?.addEventListener('input', e => t
 document.getElementById('sfx-volume-slider')?.addEventListener('input', e => this.setSfxVolumeFromUI(e.target.value));
 document.getElementById('haptics-toggle-btn')?.addEventListener('click', () => this.toggleHaptics());
 document.getElementById('reduced-motion-toggle-btn')?.addEventListener('click', () => this.toggleReducedMotion());
-const peekBtn = document.getElementById('mini-game-peek-btn');
-if (peekBtn) {
-    const beginPeek = e => { e.preventDefault(); this.beginMiniGamePeek(); };
-    const endPeek = e => { e.preventDefault(); this.endMiniGamePeek(); };
-    peekBtn.addEventListener('pointerdown', beginPeek);
-    peekBtn.addEventListener('pointerup', endPeek);
-    peekBtn.addEventListener('pointercancel', endPeek);
-    peekBtn.addEventListener('pointerleave', e => { if (e.buttons) endPeek(e); });
-}
     }
 
     /* Lets a mouse pointer drag the shop row horizontally; touch/pen use the
@@ -7661,7 +7875,7 @@ if (peekBtn) {
         this.startLevel();
     }
 
-    async coverLevelWipe(levelNumber, config = null) {
+    async coverLevelWipe(levelNumber, config = null, labelText = null) {
         const wipe = this.levelWipeEl;
         const label = this.levelWipeNumberEl;
         if (!wipe || !label) return;
@@ -7678,7 +7892,7 @@ if (peekBtn) {
         const colour = palette[Math.abs(levelNumber * 7 + 3) % palette.length];
         wipe.style.background = colour;
         wipe.style.transform = 'translate3d(-105%,0,0)';
-        label.innerText = `LEVEL ${levelNumber}`;
+        label.innerText = labelText || `LEVEL ${levelNumber}`;
         label.classList.remove('visible');
         wipe.getAnimations().forEach(anim => anim.cancel());
 
@@ -7740,6 +7954,8 @@ if (peekBtn) {
         this.levelPowerUpsUsed = 0;
         this.levelSpecialTypesMade = new Set();
         this.levelFullSetCredited = false;
+        this.levelObjective = config.objective || null;
+        this.levelObjectiveProgress = 0;
         this.targetScore = config.target;
         this.starMax = config.target * 1.35;
         this.numColors = config.colors;
@@ -7885,6 +8101,62 @@ if (peekBtn) {
 
     bumpEl(el) { el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); }
 
+    updateObjectiveHUD() {
+        const objective = this.levelObjective;
+        const pill = this.objectivePillEl;
+        if (!pill) return;
+
+        if (!objective || objective.type !== 'clearColour') {
+            pill.hidden = true;
+            pill.classList.remove('complete');
+            return;
+        }
+
+        const target = Math.max(1, Number(objective.target) || 1);
+        const progress = Math.max(0, Number(this.levelObjectiveProgress) || 0);
+        const colour = Math.max(1, Math.min(6, Number(objective.color) || 1));
+        const token = COLOR_TOKEN_NAMES[colour] || COLOR_TOKEN_NAMES[1];
+
+        pill.hidden = false;
+        pill.classList.toggle('complete', progress >= target);
+        if (this.objectiveCountEl) this.objectiveCountEl.innerText = `${Math.min(progress, target)} / ${target}`;
+        if (this.objectiveIconUseEl) {
+            const href = `#${SHAPES[colour] || SHAPES[1]}`;
+            this.objectiveIconUseEl.setAttribute('href', href);
+            this.objectiveIconUseEl.setAttributeNS('http://www.w3.org/1999/xlink', 'href', href);
+        }
+        if (this.objectiveMiniTileEl) {
+            this.objectiveMiniTileEl.style.setProperty('--objective-bg', `var(--color-${token}-base)`);
+            this.objectiveMiniTileEl.style.setProperty('--objective-shape', `var(--color-${token}-light)`);
+        }
+        pill.setAttribute('aria-label', `Clear ${target} ${token.replace('-', ' ')} tiles. ${Math.min(progress, target)} cleared.`);
+    }
+
+    recordObjectiveClears(tiles) {
+        const objective = this.levelObjective;
+        if (!objective || objective.type !== 'clearColour' || !Array.isArray(tiles)) return 0;
+
+        const colour = Number(objective.color) || 1;
+        const gained = tiles.reduce((sum, tile) => sum + (tile && tile.color === colour ? 1 : 0), 0);
+        if (!gained) return 0;
+
+        this.levelObjectiveProgress = Math.max(0, (this.levelObjectiveProgress || 0) + gained);
+        this.updateObjectiveHUD();
+        if (this.objectivePillEl && !this.isReducedMotion()) this.bumpEl(this.objectivePillEl);
+        this.markDirty();
+        return gained;
+    }
+
+    isLevelGoalComplete() {
+        const scoreComplete = this.score >= this.targetScore;
+        const objective = this.levelObjective;
+        if (!objective) return scoreComplete;
+        if (objective.type === 'clearColour') {
+            return scoreComplete && (this.levelObjectiveProgress || 0) >= (objective.target || 0);
+        }
+        return scoreComplete;
+    }
+
     updateHUD(celebrate = true) {
         this.movesEl.innerText = this.moves;
         this.levelEl.innerText = this.replayLevelNumber || (this.currentLevelIdx + 1);
@@ -7924,6 +8196,7 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
             if (Math.random() > 0.55) this.particleBurst(x, y, banked + 3, 4);
         }
         this.lastProgress = progress;
+        this.updateObjectiveHUD();
         this.markDirty();
     }
 
@@ -8636,6 +8909,7 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
                 }
 
                 const destroyList = Array.from(toDestroy);
+                this.recordObjectiveClears(destroyList);
                 this.bumpCollectionStat('tilesCleared', destroyList.length);
                 const stagger = Math.min(18, 160 / Math.max(1, destroyList.length)) / cascadeSpeed;
                 const pops = destroyList.map((p, i) => this.popTile(p, i * stagger, cascadeSpeed));
@@ -9334,7 +9608,7 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
 
     async checkWinLoss() {
         if (this.levelEnding) return;
-        const success = this.score >= this.targetScore;
+        const success = this.isLevelGoalComplete();
         const done = this.moves <= 0 || success;
         if (!done) { this.isProcessing = false; setTimeout(() => this.maybeShowAchievement(), 0); return; }
 
@@ -9349,9 +9623,9 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
         const playedLevel = this.replayLevelNumber || (this.currentLevelIdx + 1);
 
         if (success) {
-            /* Reaching the normal target ends play immediately. Any unused moves
-               convert into a short score bonus that can still lift the result
-               from one star toward two or three stars. */
+            /* Score-only levels finish at the score goal. Later objective rounds
+               finish only after BOTH the score goal and the clear target are met.
+               Any unused moves then become the end-of-level bonus. */
             await this.runRemainingMovesBonus(remainingAtFinish);
             this.sfx.win();
             const stars = this.computeStars();
@@ -9643,21 +9917,10 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
     }
 
     progressToast(text) {
-        const el = document.createElement('div');
-        el.className = 'combo-text';
-        el.style.top = '2%';
-        el.textContent = text;
-        this.textLayer.appendChild(el);
-        const anim = el.animate(
-            [
-                { opacity: 0, transform: 'translate(-50%,10px) scale(.72)' },
-                { opacity: 1, transform: 'translate(-50%,-2px) scale(1.08)', offset: .3 },
-                { opacity: 1, transform: 'translate(-50%,-6px) scale(1)', offset: .7 },
-                { opacity: 0, transform: 'translate(-50%,-20px) scale(.96)' }
-            ],
-            { duration: this.isReducedMotion() ? 1 : 720, easing: 'cubic-bezier(.2,.88,.24,1)' }
-        );
-        anim.finished.finally(() => el.remove()).catch(() => el.remove());
+        /* Intentionally quiet. The milestone itself is already obvious from the
+           progress bar, particles, haptics, and the star head, and the large
+           floating text felt like ghost writing across the board. */
+        return;
     }
 
     floatingScore(shellX, shellY, text) {
@@ -9965,11 +10228,21 @@ Object.assign(Game.prototype, {
         const kicker = document.getElementById('mini-game-kicker');
         if (kicker) kicker.innerText = debug ? `DEBUG · LEVEL ${levelNumber} CHALLENGE` : `LEVEL ${levelNumber} CHALLENGE`;
         document.getElementById('mini-game-debug-solve-btn').hidden = !debug;
+        /* Memory Match gets the same physical wipe language as level changes,
+           but with its own title. The next screen is prepared while fully covered. */
+        await this.coverLevelWipe(levelNumber, null, 'MEMORY MATCH');
+
         this.renderMiniGame();
         const from = this.activePaperOverlay();
         const overlay = document.getElementById('mini-game-overlay');
-        if (from && from !== overlay) this.swipeModalSwap(from, overlay, true);
-        else this.panGameToSheet(overlay);
+        if (from && from !== overlay) {
+            this.swipeModalSwap(from, overlay, true);
+            await wait(this.isReducedMotion() ? 1 : 470);
+        } else {
+            await this.panGameToSheet(overlay);
+        }
+
+        await this.revealLevelWipe();
 
         /* A short memory preview makes the challenge about remembering positions,
            not blind guessing. The player cannot interact until the cards flip down. */
