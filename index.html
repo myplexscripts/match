@@ -26,12 +26,10 @@
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 
-<!-- Start fetching the first puzzle art and both long music loops as early as
-     possible. The persistent <audio> elements below can stream these files
-     instead of waiting for an entire loop to download and decode first. -->
-<link rel="preload" href="art/slide/slide_art_01.png" as="image">
-<link rel="preload" href="audio/Mind-Bender.ogg" as="audio" type="audio/ogg">
-<link rel="preload" href="audio/8-Bit-Puzzler.ogg" as="audio" type="audio/ogg">
+<!-- Fetch the first sliding-puzzle image as early as possible. Music is
+     warmed by the persistent <audio preload="auto"> elements instead of
+     rel=preload, which some browsers ignore for audio. -->
+<link rel="preload" href="art/slide/slide_puzzle_01.png" as="image" type="image/png">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -4475,6 +4473,9 @@ class SFX {
         this.activeSources = new Set();
         this.currentMusicKey = null;
         this.musicRequestId = 0;
+        this.musicPrimedKey = null;
+        this.musicAudibleStarted = false;
+        this.sfxWarmStarted = false;
 
         this.musicEls = {
             mindBender: document.getElementById('bgm-mind-bender'),
@@ -4496,10 +4497,9 @@ class SFX {
             try { audio.load(); } catch (e) {}
         });
 
-        /* SFX are tiny, so fetching them into buffers up front is still useful. */
-        Object.entries(this.files).forEach(([key, src]) => {
-            this.preloadData[key] = this.fetchAudio(src, key);
-        });
+        /* Do not fetch every SFX during the splash. Give the background music
+           first priority on mobile data, then warm common effects after the
+           first real user gesture. Optional sounds are loaded only when used. */
 
         /* iOS/Safari may suspend Web Audio after backgrounding. Any real user
            interaction gets another chance to resume the SFX engine. */
@@ -4556,7 +4556,10 @@ class SFX {
                 return false;
             }
         }
-        this.loadAllSfx();
+        if (!this.sfxWarmStarted) {
+            this.sfxWarmStarted = true;
+            setTimeout(() => this.loadAllSfx(), 180);
+        }
         return ctx.state === 'running';
     }
 
@@ -4609,9 +4612,11 @@ class SFX {
     }
 
     loadAllSfx() {
-        Object.keys(this.sfxFiles).forEach(key => {
-            this.load(key).catch(err => console.warn(`[audio] failed loading ${key}:`, err));
-        });
+        Object.keys(this.sfxFiles)
+            .filter(key => key !== 'milestoneHit')
+            .forEach(key => {
+                this.load(key).catch(err => console.warn(`[audio] failed loading ${key}:`, err));
+            });
     }
 
     async waitForMusicReady(key = 'mindBender', timeoutMs = 5000) {
@@ -4641,9 +4646,23 @@ class SFX {
     }
 
     async warmMusic() {
-        /* Prioritise the menu/gameplay track. The puzzle track continues
-           buffering independently in its persistent audio element. */
-        return this.waitForMusicReady('mindBender', 5000);
+        const audio = this.musicEls.mindBender;
+        if (!audio) return false;
+
+        /* A muted media element is allowed to begin in browsers that block
+           audible autoplay. Starting it silently during the splash forces the
+           browser to open the stream and buffer/decode the beginning of the
+           track. The first real user gesture then restarts it at 0 and unmutes
+           it, so there is no several-second cold-start delay. */
+        audio.muted = true;
+        audio.volume = 0;
+        try {
+            const start = audio.play();
+            if (start && typeof start.catch === 'function') start.catch(() => {});
+            this.musicPrimedKey = 'mindBender';
+        } catch (e) { /* muted priming is best-effort */ }
+
+        return this.waitForMusicReady('mindBender', 6500);
     }
 
     setSfxMuted(value) {
@@ -4651,13 +4670,14 @@ class SFX {
         if (this.sfxGain && this.ctx) {
             this.sfxGain.gain.setTargetAtTime(this.sfxMuted ? 0 : this.masterVolume, this.ctx.currentTime, 0.012);
         }
-        if (!this.sfxMuted) this.unlock();
     }
 
     setMusicMuted(value) {
         this.musicMuted = !!value;
         Object.values(this.musicEls).forEach(audio => {
-            if (audio) audio.volume = this.musicMuted ? 0 : this.musicVolume;
+            if (!audio) return;
+            audio.volume = this.musicMuted ? 0 : this.musicVolume;
+            if (this.musicAudibleStarted) audio.muted = this.musicMuted;
         });
     }
 
@@ -4709,20 +4729,32 @@ class SFX {
         if (!next || this.musicMuted) return false;
         const requestId = ++this.musicRequestId;
 
+        /* The first audible start should happen from a genuine user gesture.
+           If the menu track was silently primed during the splash, restart it
+           from the beginning while that gesture is still active. */
+        const firstAudibleStart = !this.musicAudibleStarted;
+        if (firstAudibleStart && this.musicPrimedKey === key) {
+            try { next.currentTime = 0; } catch (e) {}
+        }
+
+        next.muted = false;
+        next.volume = this.musicVolume;
+
         if (this.currentMusicKey === key && !next.paused) {
-            next.volume = this.musicVolume;
+            this.musicAudibleStarted = true;
+            this.musicPrimedKey = null;
             return true;
         }
 
-        /* Start the new stream first. On iPhone this must happen in response to
-           a real user gesture the first time audio is used. Because the element
-           has already been buffering, playback should begin as soon as Safari
-           permits it instead of waiting for a full OGG decode. */
         try {
-            next.volume = this.musicVolume;
-            await next.play();
+            const started = next.play();
+            if (started && typeof started.then === 'function') await started;
         } catch (err) {
-            console.warn(`[audio] music ${key} could not start yet:`, err);
+            /* Autoplay denial before a gesture is normal. Do not spam the
+               console: the next pointer/key gesture will try again. */
+            if (err?.name !== 'NotAllowedError') {
+                console.warn(`[audio] music ${key} could not start:`, err);
+            }
             return false;
         }
 
@@ -4736,6 +4768,8 @@ class SFX {
             try { audio.pause(); } catch (e) {}
         });
         this.currentMusicKey = key;
+        this.musicAudibleStarted = true;
+        this.musicPrimedKey = null;
         return true;
     }
 
@@ -4860,6 +4894,7 @@ this.progressTrack = document.getElementById('progressTrack');
         this.bindEvents();
         this.initColorScheme();
         document.addEventListener('pointerdown', () => this.ensureAmbientMusic(), { once:true, capture:true });
+        document.addEventListener('touchstart', () => this.ensureAmbientMusic(), { once:true, capture:true, passive:true });
         document.addEventListener('keydown', () => this.ensureAmbientMusic(), { once:true, capture:true });
         this.startIdleWatcher();
         this.startWatchdog();
@@ -6235,6 +6270,7 @@ document.getElementById('sfx-volume-slider')?.addEventListener('input', e => thi
         this.sfx.setSfxMuted(!this.sfx.sfxMuted);
         this.persistAudioSettings();
         this.syncSettingsUI();
+        if (!this.sfx.sfxMuted) this.sfx.unlock();
     }
 
     setMusicVolumeFromUI(value) {
@@ -8137,7 +8173,7 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
 
 /* ---------- Sliding challenge + debug tooling ---------- */
 const MINI_GAME_CUSTOM_ART = {
-    1: 'art/slide/slide_art_01.png'
+    1: 'art/slide/slide_puzzle_01.png'
 };
 const __originalOnRewardContinue = Game.prototype.onRewardContinue;
 const __originalCloseAchievementPopup = Game.prototype.closeAchievementPopup;
@@ -8696,9 +8732,8 @@ async function boot() {
     ]);
     document.getElementById('splash')?.classList.add('hidden');
 
-    /* Browsers that permit playback without another gesture can start now.
-       iOS will harmlessly reject this attempt and the first tap will start it. */
-    window.game.ensureAmbientMusic();
+    /* Mind-Bender is now silently primed. Audible playback begins on the
+       first pointer/key gesture, which satisfies browser autoplay policy. */
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, { once:true });
 else boot();
