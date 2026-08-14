@@ -851,31 +851,29 @@ symbol{
   background:var(--color-blue-base);
   transform:translate3d(-105%,0,0);
   will-change:transform;
-  display:grid;
-  place-items:center;
   overflow:hidden;
 }
-.level-wipe-copy{display:grid;place-items:center;gap:14px;text-align:center;padding:24px;}
+.level-wipe-copy{
+  position:absolute;
+  top:calc(24px + env(safe-area-inset-top));
+  left:max(20px, calc((100vw - 480px) / 2 + 20px));
+  right:max(20px, calc((100vw - 480px) / 2 + 20px));
+}
 .level-wipe-number{
   margin:0;
   color:var(--ink-fixed);
-  font:800 clamp(2.6rem,14vw,5.25rem)/.9 Manrope,sans-serif;
-  letter-spacing:-.055em;
+  font:800 2rem/1.05 Manrope,sans-serif;
+  letter-spacing:-.03em;
   text-transform:uppercase;
-  transform:scale(.92);
+  transform:translateY(5px);
   opacity:0;
   will-change:transform,opacity;
 }
-.level-wipe-detail{
-  color:var(--ink-fixed);
-  font:800 clamp(.78rem,3.8vw,1rem)/1 Inter,sans-serif;
-  letter-spacing:.085em;
-  text-transform:uppercase;
-  opacity:0;
-  transform:translateY(7px);
+.level-wipe-number.visible{
+  opacity:1;
+  transform:translateY(0);
+  transition:opacity .16s ease,transform .26s cubic-bezier(.16,.84,.22,1);
 }
-.level-wipe-number.visible{opacity:1;transform:scale(1);transition:opacity .16s ease,transform .28s cubic-bezier(.16,.84,.22,1);}
-.level-wipe-number.visible + .level-wipe-detail{opacity:.82;transform:translateY(0);transition:opacity .18s .08s ease,transform .28s .05s cubic-bezier(.16,.84,.22,1);}
 
 .bottom-bar{
   flex:0 0 auto;
@@ -3443,15 +3441,22 @@ html[data-reduced-motion="true"] *,html[data-reduced-motion="true"] *::before,ht
 button.sticker-slot.stamp-catalog-entry.earned{ cursor:pointer; }
 button.sticker-slot.stamp-catalog-entry.earned:active .stamp-slot-visual{ transform:scale(.97); }
 .stamp-slot-visual{
-  width:118px;
-  height:148px;
+  width:124px;
+  height:155px;
   display:grid;
   place-items:center;
-  flex:0 0 148px;
+  flex:0 0 155px;
   transition:transform .12s ease;
 }
+/* Every catalogue position has the same footprint. Earned stamps are given a
+   small optical oversize because the perforated silhouette reads smaller than
+   the plain locked rectangle at equal mathematical dimensions. */
 .sticker-slot .stamp-face,
-.sticker-slot .stamp-placeholder,
+.sticker-slot .stamp-placeholder{
+  width:120px!important;
+  max-width:120px!important;
+  transform:none!important;
+}
 .locked-stamp-placeholder{
   width:112px!important;
   max-width:112px!important;
@@ -3508,8 +3513,8 @@ button.sticker-slot.stamp-catalog-entry.earned:active .stamp-slot-visual{ transf
 .locked-stamp-placeholder::after{ transform:translate(-50%,-50%) rotate(-45deg); }
 
 .album-slide-stamp{
-  width:112px!important;
-  max-width:112px!important;
+  width:120px!important;
+  max-width:120px!important;
   transform:none!important;
   box-shadow:none!important;
 }
@@ -3588,12 +3593,97 @@ button.sticker-slot.stamp-catalog-entry.earned:active .stamp-slot-visual{ transf
 @media (max-width:390px){
   .stamp-filter-control button,
   .stamp-sort-control button{ font-size:.66rem; padding-inline:6px; }
-  .stamp-slot-visual{ width:108px; height:136px; flex-basis:136px; }
+  .stamp-slot-visual{ width:116px; height:145px; flex-basis:145px; }
   .sticker-slot .stamp-face,
-  .sticker-slot .stamp-placeholder,
+  .sticker-slot .stamp-placeholder{ width:112px!important; max-width:112px!important; }
   .locked-stamp-placeholder{ width:104px!important; max-width:104px!important; }
-  .album-slide-stamp{ width:104px!important; max-width:104px!important; }
+  .album-slide-stamp{ width:112px!important; max-width:112px!important; }
 }
+
+
+/* ---------- Level select ---------- */
+#level-select-overlay .overlay-card{
+  width:min(100%,520px);
+}
+.level-select-summary{
+  width:100%;
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:12px;
+  padding:4px 2px 12px;
+  border-bottom:2px solid var(--border-color);
+}
+.level-select-summary b{
+  font:800 1rem/1 Manrope,sans-serif;
+  text-transform:uppercase;
+}
+.level-select-summary span{
+  color:var(--muted);
+  font:800 .75rem/1 Inter,sans-serif;
+}
+.level-select-grid{
+  width:100%;
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:12px;
+  padding:16px 2px 10px;
+}
+.level-select-tile{
+  min-width:0;
+  min-height:96px;
+  padding:12px 8px;
+  border:2px solid var(--border-color);
+  border-radius:0;
+  background:var(--neutral-50);
+  color:var(--ink);
+  box-shadow:4px 4px 0 var(--shadow-color);
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:8px;
+  text-align:left;
+}
+.level-select-tile:active{
+  transform:translate(2px,2px);
+  box-shadow:2px 2px 0 var(--shadow-color);
+}
+.level-select-tile .level-no{
+  font:900 1.45rem/1 Manrope,sans-serif;
+}
+.level-select-tile .level-best{
+  width:100%;
+  display:grid;
+  gap:3px;
+}
+.level-select-tile .level-best b{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font:800 .76rem/1 Inter,sans-serif;
+}
+.level-select-tile .level-best span{
+  color:var(--muted);
+  font:750 .62rem/1.1 Inter,sans-serif;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+}
+.level-select-empty{
+  grid-column:1 / -1;
+  margin:12px 0;
+  color:var(--muted);
+  font:700 .9rem/1.4 Inter,sans-serif;
+  text-align:center;
+}
+@media(max-width:390px){
+  .level-select-grid{ gap:10px; }
+  .level-select-tile{ min-height:90px; padding:10px 7px; }
+  .level-select-tile .level-no{ font-size:1.3rem; }
+}
+
+/* Edge swipe-back feedback. */
+body.swipe-back-active{ cursor:grabbing; }
 
 </style>
 </head>
@@ -3801,6 +3891,7 @@ button.sticker-slot.stamp-catalog-entry.earned:active .stamp-slot-visual{ transf
       <button class="secondary" id="menu-newgame-btn">NEW</button>
       <button class="secondary" id="menu-howto-btn">HOW TO PLAY</button>
       <button class="secondary" id="menu-stickers-btn">ALBUM</button>
+      <button class="secondary" id="menu-levels-btn">LEVEL SELECT</button>
       <button class="secondary" id="menu-stats-btn">STATS</button>
       <button class="secondary" id="menu-debug-btn">DEBUG</button>
       <button class="secondary" id="menu-settings-btn">SETTINGS</button>
@@ -3892,7 +3983,7 @@ button.sticker-slot.stamp-catalog-entry.earned:active .stamp-slot-visual{ transf
     <button class="modal-corner-close" id="howto-close-btn" aria-label="Close How To Play"><span class="material-symbols-outlined">close</span></button>
     <h2>How To Play</h2>
     <div class="howto-sheet ui-scroll">
-      <p class="howto-intro">The goal is simple. Make matches and reach the first star before you run out of moves. Any moves left over become bonus points that can push you toward two or three stars.</p>
+      <p class="howto-intro">The goal is simple. Make matches and reach the first star before you run out of moves. Finish early and your unused moves turn into row and column busters for a final score-boosting cascade.</p>
 
       <div class="howto-section">
         <h3 class="howto-section-title">The basics</h3>
@@ -3989,6 +4080,22 @@ button.sticker-slot.stamp-catalog-entry.earned:active .stamp-slot-visual{ transf
   </div>
 </div>
 
+
+
+<div class="overlay" id="level-select-overlay">
+  <div class="overlay-card collection-card has-corner-close">
+    <button class="modal-corner-close" id="level-select-close-btn" aria-label="Close Level Select"><span class="material-symbols-outlined">close</span></button>
+    <span class="collection-kicker">Replay</span>
+    <h2>Level Select</h2>
+    <div class="level-select-summary">
+      <b>Completed levels</b>
+      <span id="level-select-count">0</span>
+    </div>
+    <div class="collection-scroll ui-scroll">
+      <div class="level-select-grid" id="level-select-grid"></div>
+    </div>
+  </div>
+</div>
 
 <div class="overlay" id="stats-overlay">
   <div class="overlay-card stats-card has-corner-close">
@@ -4198,6 +4305,13 @@ button.sticker-slot.stamp-catalog-entry.earned:active .stamp-slot-visual{ transf
       <span class="mini-bonus-kicker">BONUS POWER-UP</span>
       <div class="mini-bonus-content"><span class="mini-bonus-art" id="mini-bonus-art"></span><b id="mini-bonus-name">Power-Up</b></div>
     </div>
+    <div class="mini-bonus-placeholder" id="mini-coin-reward">
+      <span class="mini-bonus-kicker">CHALLENGE BONUS</span>
+      <div class="mini-bonus-content">
+        <svg class="coin-icon" viewBox="0 0 256 256" aria-hidden="true"><use href="#icon-coins"></use></svg>
+        <b>+500 COINS</b>
+      </div>
+    </div>
     <button class="primary" id="mini-reward-continue-btn">CONTINUE</button>
   </div>
 </div>
@@ -4216,7 +4330,7 @@ button.sticker-slot.stamp-catalog-entry.earned:active .stamp-slot-visual{ transf
         <button class="secondary" data-debug-action="jump10">JUMP TO 10</button>
         <button class="secondary" data-debug-action="jump20">JUMP TO 20</button>
         <button class="secondary" data-debug-action="jump50">JUMP TO 50</button>
-        <button class="secondary" data-debug-action="coins">+500 COINS</button>
+        <button class="secondary" data-debug-action="coins">+5,000 COINS</button>
         <button class="secondary" data-debug-action="powerups">+5 ALL POWER-UPS</button>
         <button class="secondary" data-debug-action="clear-save">CLEAR LEVEL SAVE</button>
       </div>
@@ -4245,7 +4359,7 @@ button.sticker-slot.stamp-catalog-entry.earned:active .stamp-slot-visual{ transf
   </div>
 </div>
 
-<div class="level-wipe" id="levelWipe" aria-hidden="true"><div class="level-wipe-copy"><div class="level-wipe-number" id="levelWipeNumber">LEVEL 1</div><div class="level-wipe-detail" id="levelWipeDetail">1,000 POINTS · 20 MOVES</div></div></div>
+<div class="level-wipe" id="levelWipe" aria-hidden="true"><div class="level-wipe-copy"><div class="level-wipe-number" id="levelWipeNumber">LEVEL 1</div></div></div>
 
 <script src="lib/lottie-light.min.js"></script>
 <script>
@@ -4262,12 +4376,12 @@ const SPECIALS = { NONE: 0, H_STRIPE: 1, V_STRIPE: 2, BURST: 3, BOMB: 4 };
    SVG piece referenced by SPECIAL_SHAPES) instead of icon, so the tray/shop
    icon always matches the tile the power-up actually produces. */
 const POWER_UPS = {
-    swap: { pieceIcon: 'pu-swap-new', iconViewBox: '0 0 256 256', exactIcon: true, iconScale: 1.18, name: 'Swap', desc: 'Swap any two tiles on the board.', colorId: 6, cost: 20 },
-    shuffle: { pieceIcon: 'pu-shuffle-new', iconViewBox: '0 0 256 256', exactIcon: true, iconScale: 1.14, name: 'Shuffle', desc: 'Reshuffle the whole board.', colorId: 3, cost: 25 },
-    extraMoves: { pieceIcon: 'pu-five-new', iconViewBox: '0 0 256 256', exactIcon: true, iconScale: 1.08, name: '+5 Moves', desc: 'Adds 5 extra moves to spend.', colorId: 4, cost: 20 },
-    colorBomb: { pieceIcon: 'pu-bomb-new', iconViewBox: '0 0 256 256', exactIcon: true, iconScale: 1.06, name: 'Colour Bomb', desc: 'Drops a colour bomb onto the board.', colorId: 1, cost: 35 },
-    rowRocket: { pieceIcon: 'pu-row-new', iconViewBox: '0 0 256 256', exactIcon: true, iconScale: 1.16, name: 'Horizontal Clear', desc: 'Drops a special tile that clears a whole row when matched.', colorId: 1, cost: 25 },
-    colRocket: { pieceIcon: 'pu-col-new', iconViewBox: '0 0 256 256', exactIcon: true, iconScale: 1.16, name: 'Vertical Clear', desc: 'Drops a special tile that clears a whole column when matched.', colorId: 2, cost: 25 }
+    swap: { pieceIcon: 'pu-swap-new', iconViewBox: '0 0 256 256', exactIcon: true, iconScale: 1.18, name: 'Swap', desc: 'Swap any two tiles on the board.', colorId: 6, cost: 600 },
+    shuffle: { pieceIcon: 'pu-shuffle-new', iconViewBox: '0 0 256 256', exactIcon: true, iconScale: 1.14, name: 'Shuffle', desc: 'Reshuffle the whole board.', colorId: 3, cost: 800 },
+    extraMoves: { pieceIcon: 'pu-five-new', iconViewBox: '0 0 256 256', exactIcon: true, iconScale: 1.08, name: '+5 Moves', desc: 'Adds 5 extra moves to spend.', colorId: 4, cost: 700 },
+    colorBomb: { pieceIcon: 'pu-bomb-new', iconViewBox: '0 0 256 256', exactIcon: true, iconScale: 1.06, name: 'Colour Bomb', desc: 'Drops a colour bomb onto the board.', colorId: 1, cost: 1200 },
+    rowRocket: { pieceIcon: 'pu-row-new', iconViewBox: '0 0 256 256', exactIcon: true, iconScale: 1.16, name: 'Horizontal Clear', desc: 'Drops a special tile that clears a whole row when matched.', colorId: 1, cost: 900 },
+    colRocket: { pieceIcon: 'pu-col-new', iconViewBox: '0 0 256 256', exactIcon: true, iconScale: 1.16, name: 'Vertical Clear', desc: 'Drops a special tile that clears a whole column when matched.', colorId: 2, cost: 900 }
 };
 
 const BOARD_SPECIAL_INFO = {
@@ -4427,8 +4541,8 @@ const ACHIEVEMENTS = [
     { id:'last-move', no:46, name:'Last Move', desc:'Clear a level using your final move.', icon:'timer', colorId:2, rot:-2, test:s => s.lastMoveLevels >= 1 },
     { id:'no-help-needed', no:47, name:'No Help Needed', desc:'Clear a level without using a power-up.', icon:'front_hand', colorId:4, rot:1, test:s => s.noPowerupLevels >= 1 },
     { id:'perfect-run', no:48, name:'Perfect Run', desc:'Earn 3 stars without using a power-up.', icon:'verified', colorId:5, rot:-1, test:s => s.perfectRunLevels >= 1 },
-    { id:'coin-keeper', no:49, name:'Coin Keeper', desc:'Have 500 coins at one time.', icon:'savings', colorId:1, rot:2, test:s => s.maxCoins >= 500 },
-    { id:'big-spender', no:50, name:'Big Spender', desc:'Spend 1,000 coins in the shop.', icon:'shopping_cart', colorId:6, rot:-2, test:s => s.coinsSpent >= 1000 }
+    { id:'coin-keeper', no:49, name:'Coin Keeper', desc:'Have 5,000 coins at one time.', icon:'savings', colorId:1, rot:2, test:s => s.maxCoins >= 5000 },
+    { id:'big-spender', no:50, name:'Big Spender', desc:'Spend 10,000 coins in the shop.', icon:'shopping_cart', colorId:6, rot:-2, test:s => s.coinsSpent >= 10000 }
 ];
 
 const STICKER_SHEETS = ACHIEVEMENTS.map(a => ({
@@ -4723,10 +4837,20 @@ function generateLevel(levelNumber) {
     const rng = mulberry32(levelNumber * 104729 + 17);
     const tier = Math.floor((levelNumber - 1) / 3);
 
+    /* The first ten levels are onboarding, not a difficulty test. Complexity is
+       introduced deliberately: board silhouettes first, then a sixth colour
+       beginning at Level 11. This keeps Level 7 meaningful without making it a
+       sudden wall caused by several difficulty knobs rising together. */
+    const earlyShapePool =
+        levelNumber <= 3 ? ['classic'] :
+        levelNumber <= 6 ? ['classic', 'classic', 'notched'] :
+        levelNumber <= 10 ? ['classic', 'classic', 'notched', 'pockets'] :
+        BOARD_SHAPES;
+
     const dimPool = BOARD_DIMS.slice(0, Math.min(BOARD_DIMS.length, 1 + Math.ceil(tier / 2)));
     const { rows, cols } = levelNumber <= 2 ? BOARD_DIMS[0] : dimPool[Math.floor(rng() * dimPool.length)];
 
-    let shape = levelNumber <= 2 ? 'classic' : BOARD_SHAPES[Math.floor(rng() * BOARD_SHAPES.length)];
+    let shape = earlyShapePool[Math.floor(rng() * earlyShapePool.length)];
     let blocked = buildShapeMask(rows, cols, shape, rng);
     let playable = countPlayable(blocked, rows, cols);
     let runSlots = countRunSlots(blocked, rows, cols);
@@ -4738,25 +4862,43 @@ function generateLevel(levelNumber) {
         runSlots = countRunSlots(blocked, rows, cols);
     }
 
-    /* Difficulty budget: board shape, colour count, target pressure, and move
-       pressure should not all spike on the same level. Tight/gappy silhouettes
-       automatically get a little compensation instead of becoming surprise walls. */
     const playableRatio = playable / Math.max(1, rows * cols);
     const runDensity = runSlots / Math.max(1, playable);
     const constrained = Math.max(0, 1 - playableRatio);
     const cramped = Math.max(0, 0.72 - runDensity);
 
-    let colors = Math.min(7, 5 + Math.floor(tier / 2));
-    if (levelNumber > 2 && (constrained > 0.16 || cramped > 0.08)) colors = Math.max(5, colors - 1);
+    let colors;
+    if (levelNumber <= 2) colors = 4;
+    else if (levelNumber <= 10) colors = 5;
+    else colors = Math.min(7, 5 + Math.floor(tier / 2));
+    if (levelNumber > 10 && (constrained > 0.16 || cramped > 0.08)) colors = Math.max(5, colors - 1);
 
     let moves = 16 + Math.min(10, tier) + Math.round(playable / 12);
+    const onboardingMoveBonus = [3,3,2,2,1,1,1,0,0,0][levelNumber - 1] || 0;
+    moves += onboardingMoveBonus;
     if (constrained > 0.2 || cramped > 0.12) moves += 1;
 
     const perCell = 27 + Math.min(14, tier * 1.6);
     const targetRelief = Math.max(0.84, 1 - constrained * 0.24 - cramped * 0.22 - Math.max(0, colors - 6) * 0.025);
-    const target = Math.round((playable * perCell * targetRelief) / 10) * 10;
+    const onboardingTargetScale = [0.78,0.84,0.88,0.92,0.95,0.97,0.98,1,1,1][levelNumber - 1] || 1;
+    const target = Math.max(
+        100,
+        Math.round((playable * perCell * targetRelief * onboardingTargetScale) / 10) * 10
+    );
 
-    return { id: levelNumber, rows, cols, blocked, moves, target, colors, desc: SHAPE_DESCS[shape], shape, difficultyRelief:targetRelief };
+    const minOpeningMoves =
+        levelNumber <= 3 ? 5 :
+        levelNumber <= 6 ? 4 :
+        levelNumber <= 10 ? 3 : 2;
+
+    return {
+        id: levelNumber,
+        rows, cols, blocked, moves, target, colors,
+        desc: SHAPE_DESCS[shape],
+        shape,
+        difficultyRelief:targetRelief,
+        minOpeningMoves
+    };
 }
 
 /* ---------- Lottie confetti ---------- */
@@ -5170,6 +5312,8 @@ this.progressTrack = document.getElementById('progressTrack');
         this.score = 0;
         this.moves = 0;
         this.currentLevelIdx = 0;
+        this.replayLevelNumber = null;
+        this.levelRecords = {};
         this.isProcessing = true;
         this.selected = null;
         this.drag = null;
@@ -5204,6 +5348,7 @@ this.progressTrack = document.getElementById('progressTrack');
         this.pendingPowerUpConfirm = null;
         this.coins = 0;
         this.collection = this.loadCollection();
+        this.levelRecords = this.collection.levelRecords || (this.collection.levelRecords = {});
         this.saveCollection();
         this.stickerBookPage = this.firstIncompleteStickerSheet();
         this.punchCategoryIndex = 0;
@@ -5239,6 +5384,7 @@ this.progressTrack = document.getElementById('progressTrack');
         this.initQoLSettings();
 
         this.bindEvents();
+        this.initBackSwipeGestures();
         this.initColorScheme();
         this.startIdleWatcher();
         this.startWatchdog();
@@ -5255,6 +5401,70 @@ this.progressTrack = document.getElementById('progressTrack');
         this.showMainMenu();
 
         requestAnimationFrame(now => this.fxLoop(now));
+    }
+
+
+    initBackSwipeGestures() {
+        const EDGE = 34;
+        const TRIGGER = 74;
+        let gesture = null;
+
+        document.addEventListener('pointerdown', e => {
+            if (e.pointerType !== 'touch' || e.clientX > EDGE) return;
+            const active = this.activePaperOverlay();
+            if (!active || active.id === 'menu-overlay') return;
+            gesture = {
+                id:e.pointerId,
+                x:e.clientX,
+                y:e.clientY,
+                time:performance.now(),
+                overlayId:active.id
+            };
+        }, { passive:true });
+
+        document.addEventListener('pointermove', e => {
+            if (!gesture || e.pointerId !== gesture.id) return;
+            const dx = e.clientX - gesture.x;
+            const dy = Math.abs(e.clientY - gesture.y);
+            if (dx > 18 && dy < 44) document.body.classList.add('swipe-back-active');
+        }, { passive:true });
+
+        const finish = e => {
+            if (!gesture || e.pointerId !== gesture.id) return;
+            const dx = e.clientX - gesture.x;
+            const dy = Math.abs(e.clientY - gesture.y);
+            const dt = Math.max(1, performance.now() - gesture.time);
+            const velocity = dx / dt;
+            const overlayId = gesture.overlayId;
+            gesture = null;
+            document.body.classList.remove('swipe-back-active');
+            if (dy > 58 || dx < TRIGGER || velocity < .18) return;
+            this.performSwipeBack(overlayId);
+        };
+        document.addEventListener('pointerup', finish, { passive:true });
+        document.addEventListener('pointercancel', e => {
+            if (gesture && e.pointerId === gesture.id) {
+                gesture = null;
+                document.body.classList.remove('swipe-back-active');
+            }
+        }, { passive:true });
+    }
+
+    performSwipeBack(overlayId) {
+        const actions = {
+            'settings-overlay': () => this.closeSettings(),
+            'stats-overlay': () => this.closeStats(),
+            'sticker-overlay': () => this.closeStickerBook(),
+            'stamp-detail-overlay': () => this.closeStampDetail(),
+            'howto-overlay': () => this.onHowToClose(),
+            'punch-overlay': () => this.closePunchCards(),
+            'shop-overlay': () => this.closeShop(),
+            'debug-overlay': () => this.closeDebugPanel(),
+            'level-select-overlay': () => this.closeLevelSelect(),
+            'confirm-overlay': () => this.onConfirmNo()
+        };
+        const action = actions[overlayId];
+        if (action) action();
     }
 
     /* ---------- Geometry & background ---------- */
@@ -5368,7 +5578,9 @@ this.progressTrack = document.getElementById('progressTrack');
             stickers: [],
             completedSheets: [],
             miniGameStamps: [],
-            stampEarnedAt: {}
+            stampEarnedAt: {},
+            levelRecords: {},
+            levelLossStreaks: {}
         };
         this.ensurePunchCardRewards(data);
         return data;
@@ -5403,6 +5615,8 @@ this.progressTrack = document.getElementById('progressTrack');
             data.completedSheets = (Array.isArray(data.completedSheets) ? data.completedSheets : []).filter(id => validSheetIds.has(id));
             data.miniGameStamps = Array.isArray(data.miniGameStamps) ? data.miniGameStamps : [];
             data.stampEarnedAt = data.stampEarnedAt && typeof data.stampEarnedAt === 'object' ? data.stampEarnedAt : {};
+            data.levelRecords = data.levelRecords && typeof data.levelRecords === 'object' ? data.levelRecords : {};
+            data.levelLossStreaks = data.levelLossStreaks && typeof data.levelLossStreaks === 'object' ? data.levelLossStreaks : {};
             this.ensurePunchCardRewards(data);
             return data;
         } catch (e) { return this.defaultCollection(); }
@@ -6029,7 +6243,7 @@ this.progressTrack = document.getElementById('progressTrack');
             }
             this.stickerBookPage = reward.sheetIndex;
         } else {
-            bonus = 75;
+            bonus = 750;
             this.creditPersistentCoins(bonus);
         }
 
@@ -6275,24 +6489,26 @@ this.progressTrack = document.getElementById('progressTrack');
                 currentLevelIdx: this.currentLevelIdx,
                 coins: this.coins,
                 inventory: this.inventory,
-                level: this.isLevelActive ? {
-                    rows: ROWS, cols: COLS,
-                    blocked: this.blocked,
-                    shape: this.levelConfig ? this.levelConfig.shape : 'classic',
-                    moves: this.moves,
-                    allottedMoves: this.levelMovesAllotted || this.moves,
-                    elapsedMs: this.getLevelElapsedMs(),
-                    score: this.score,
-                    targetScore: this.targetScore,
-                    starMax: this.starMax,
-                    numColors: this.numColors,
-                    lastProgress: this.lastProgress,
-                    reachedMilestones: Array.from(this.reachedMilestones),
-                    powerUpsUsed: this.levelPowerUpsUsed || 0,
-                    specialTypesMade: Array.from(this.levelSpecialTypesMade || []),
-                    fullSetCredited: !!this.levelFullSetCredited,
-                    grid: this.snapshotBoard().grid
-                } : null
+                level: this.replayLevelNumber
+                    ? (this.loadSave()?.level || null)
+                    : (this.isLevelActive ? {
+                        rows: ROWS, cols: COLS,
+                        blocked: this.blocked,
+                        shape: this.levelConfig ? this.levelConfig.shape : 'classic',
+                        moves: this.moves,
+                        allottedMoves: this.levelMovesAllotted || this.moves,
+                        elapsedMs: this.getLevelElapsedMs(),
+                        score: this.score,
+                        targetScore: this.targetScore,
+                        starMax: this.starMax,
+                        numColors: this.numColors,
+                        lastProgress: this.lastProgress,
+                        reachedMilestones: Array.from(this.reachedMilestones),
+                        powerUpsUsed: this.levelPowerUpsUsed || 0,
+                        specialTypesMade: Array.from(this.levelSpecialTypesMade || []),
+                        fullSetCredited: !!this.levelFullSetCredited,
+                        grid: this.snapshotBoard().grid
+                    } : null)
             };
             localStorage.setItem(SAVE_KEY, JSON.stringify(payload));
             this.saveCollection();
@@ -6395,6 +6611,12 @@ this.progressTrack = document.getElementById('progressTrack');
         const save = this.loadSave();
         this.updateContinueButton(save);
         this.updateCollectionMenuButtons();
+        const levelsBtn = document.getElementById('menu-levels-btn');
+        if (levelsBtn) {
+            const completed = this.getCompletedLevelCount();
+            levelsBtn.disabled = completed < 1;
+            levelsBtn.setAttribute('aria-disabled', completed < 1 ? 'true' : 'false');
+        }
         this.setPaperUnderlay(true);
         document.getElementById('menu-overlay').classList.add('active');
     }
@@ -6421,6 +6643,7 @@ this.progressTrack = document.getElementById('progressTrack');
     }
 
     async onMenuContinue() {
+        this.replayLevelNumber = null;
         this.startMusicSession('main');
         const save = this.loadSave();
         if (!save) { await this.startLevel(); return; }
@@ -6465,6 +6688,11 @@ this.progressTrack = document.getElementById('progressTrack');
         this.clearSave();
         this.lastPresentedLevel = null;
         this.currentLevelIdx = 0;
+        this.replayLevelNumber = null;
+        this.collection.levelRecords = {};
+        this.levelRecords = this.collection.levelRecords;
+        this.collection.levelLossStreaks = {};
+        this.saveCollection();
         this.coins = 0;
         this.inventory = {
             swap: 0, shuffle: 0, extraMoves: 0, colorBomb: 0, rowRocket: 0, colRocket: 0
@@ -6472,6 +6700,131 @@ this.progressTrack = document.getElementById('progressTrack');
         this.updateCoinDisplay();
         this.updatePowerUpTray();
         this.startLevel();
+    }
+
+
+
+    getLevelLossStreak(levelNumber) {
+        return Math.max(0, Number(this.collection?.levelLossStreaks?.[String(levelNumber)]) || 0);
+    }
+
+    noteLevelLoss(levelNumber) {
+        if (!this.collection.levelLossStreaks || typeof this.collection.levelLossStreaks !== 'object') {
+            this.collection.levelLossStreaks = {};
+        }
+        const key = String(Math.max(1, Number(levelNumber) || 1));
+        this.collection.levelLossStreaks[key] = this.getLevelLossStreak(levelNumber) + 1;
+        this.saveCollection();
+    }
+
+    clearLevelLossStreak(levelNumber) {
+        const streaks = this.collection?.levelLossStreaks;
+        if (!streaks) return;
+        delete streaks[String(Math.max(1, Number(levelNumber) || 1))];
+        this.saveCollection();
+    }
+
+    applyLossAssist(config, levelNumber) {
+        const losses = this.getLevelLossStreak(levelNumber);
+        config.lossAssist = losses;
+
+        /* Two misses make the next opening richer. Only repeated frustration
+           changes the actual move/target budget, and even then only slightly. */
+        if (losses >= 2) config.minOpeningMoves = Math.max(config.minOpeningMoves || 2, 5);
+        if (losses >= 3) {
+            config.moves += 1;
+            config.target = Math.round(config.target * 0.97 / 10) * 10;
+        }
+        if (losses >= 4) {
+            config.moves += 1;
+            config.target = Math.round(config.target * 0.97 / 10) * 10;
+            if (config.colors > 5) config.colors -= 1;
+        }
+        return config;
+    }
+
+    getCompletedLevelCount() {
+        const save = this.loadSave();
+        return Math.max(0, Number(save?.currentLevelIdx ?? this.currentLevelIdx) || 0);
+    }
+
+    recordLevelResult(levelNumber, score, stars, elapsedMs) {
+        const n = Math.max(1, Number(levelNumber) || 1);
+        if (!this.collection.levelRecords || typeof this.collection.levelRecords !== 'object') {
+            this.collection.levelRecords = {};
+        }
+        const key = String(n);
+        const previous = this.collection.levelRecords[key] || {};
+        const nextScore = Math.max(0, Number(score) || 0);
+        const previousScore = Math.max(0, Number(previous.bestScore) || 0);
+        const next = Object.assign({}, previous, {
+            bestScore: Math.max(previousScore, nextScore),
+            bestStars: Math.max(Number(previous.bestStars) || 0, Number(stars) || 0),
+            plays: Math.max(0, Number(previous.plays) || 0) + 1,
+            lastPlayedAt: Date.now()
+        });
+        if (!previous.bestTimeMs || (elapsedMs > 0 && elapsedMs < previous.bestTimeMs)) {
+            next.bestTimeMs = Math.max(0, Number(elapsedMs) || 0);
+        }
+        this.collection.levelRecords[key] = next;
+        this.levelRecords = this.collection.levelRecords;
+        this.saveCollection();
+        return next;
+    }
+
+    renderLevelSelect() {
+        const count = this.getCompletedLevelCount();
+        const countEl = document.getElementById('level-select-count');
+        const grid = document.getElementById('level-select-grid');
+        if (countEl) countEl.innerText = this.formatStat(count);
+        if (!grid) return;
+        grid.innerHTML = '';
+        if (!count) {
+            grid.innerHTML = '<p class="level-select-empty">Complete a level first, then you can replay it here.</p>';
+            return;
+        }
+        for (let level = 1; level <= count; level++) {
+            const record = this.collection?.levelRecords?.[String(level)] || null;
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'level-select-tile';
+            const stars = record ? Math.max(0, Math.min(3, Number(record.bestStars) || 0)) : 0;
+            const starText = record ? `${'★'.repeat(stars)}${'☆'.repeat(3 - stars)}` : '☆☆☆';
+            const scoreText = record && record.bestScore
+                ? `BEST ${this.formatStat(record.bestScore)}`
+                : 'BEST NOT SAVED';
+            btn.innerHTML = `
+              <span class="level-no">${level}</span>
+              <span class="level-best">
+                <b>${scoreText}</b>
+                <span>${starText}</span>
+              </span>`;
+            btn.setAttribute('aria-label', `Replay Level ${level}${record?.bestScore ? `, best score ${this.formatStat(record.bestScore)}` : ''}`);
+            btn.addEventListener('click', () => this.startReplayLevel(level));
+            grid.appendChild(btn);
+        }
+    }
+
+    openLevelSelect() {
+        const menu = document.getElementById('menu-overlay');
+        const overlay = document.getElementById('level-select-overlay');
+        this.renderLevelSelect();
+        this.swipeModalSwap(menu, overlay, true);
+    }
+
+    closeLevelSelect() {
+        const overlay = document.getElementById('level-select-overlay');
+        const menu = document.getElementById('menu-overlay');
+        this.swipeModalSwap(overlay, menu, false);
+    }
+
+    async startReplayLevel(levelNumber) {
+        const max = this.getCompletedLevelCount();
+        const level = Math.max(1, Math.min(max, Number(levelNumber) || 1));
+        if (!max || level > max) return;
+        this.startMusicSession('main');
+        this.replayLevelNumber = level;
+        await this.startLevel(level, true);
     }
 
     formatStat(n) {
@@ -6594,6 +6947,8 @@ document.getElementById('achievement-ok-btn').addEventListener('click', () => th
 document.getElementById('achievement-album-btn').addEventListener('click', () => this.openAlbumFromAchievement());
 document.getElementById('board-menu-btn').addEventListener('click', () => this.openMainMenuFromGame());
 document.getElementById('menu-stickers-btn').addEventListener('click', () => this.openStickerBook());
+document.getElementById('menu-levels-btn')?.addEventListener('click', () => this.openLevelSelect());
+document.getElementById('level-select-close-btn')?.addEventListener('click', () => this.closeLevelSelect());
 document.getElementById('menu-stats-btn').addEventListener('click', () => this.onMenuStats());
 document.getElementById('stats-close-btn').addEventListener('click', () => this.closeStats());
 document.getElementById('sticker-close-btn').addEventListener('click', () => this.closeStickerBook());
@@ -6931,13 +7286,26 @@ if (peekBtn) {
             this.openDebugPanel(true);
             return;
         }
+        if (this.screenAction === 'levelSelect') {
+            this.replayLevelNumber = null;
+            this.renderLevelSelect();
+            const overlay = document.getElementById('level-select-overlay');
+            overlay.classList.add('active');
+            this.setPaperUnderlay(true);
+            return;
+        }
+        if (this.screenAction === 'replay') {
+            const replayLevel = this.replayLevelNumber;
+            this.startLevel(replayLevel, true);
+            return;
+        }
+        this.replayLevelNumber = null;
         this.startLevel();
     }
 
     async coverLevelWipe(levelNumber, config = null) {
         const wipe = this.levelWipeEl;
         const label = this.levelWipeNumberEl;
-        const detail = this.levelWipeDetailEl;
         if (!wipe || !label) return;
 
         const palette = [
@@ -6953,8 +7321,6 @@ if (peekBtn) {
         wipe.style.background = colour;
         wipe.style.transform = 'translate3d(-105%,0,0)';
         label.innerText = `LEVEL ${levelNumber}`;
-        if (detail && config) detail.innerText = `${this.formatStat(config.target)} POINTS · ${config.moves} MOVES`;
-        else if (detail) detail.innerText = '';
         label.classList.remove('visible');
         wipe.getAnimations().forEach(anim => anim.cancel());
 
@@ -6992,14 +7358,16 @@ if (peekBtn) {
         label.classList.remove('visible');
     }
 
-    async startLevel() {
+    async startLevel(levelNumber = null, replay = false) {
         this.isProcessing = true;
         this.levelEnding = false;
         this.hintStage = 0;
         this.hintMove = null;
         const fromSheet = this.activePaperOverlay();
-        const nextLevelNumber = this.currentLevelIdx + 1;
+        const nextLevelNumber = Math.max(1, Number(levelNumber) || (this.currentLevelIdx + 1));
+        this.replayLevelNumber = replay ? nextLevelNumber : null;
         const config = generateLevel(nextLevelNumber);
+        if (!replay) this.applyLossAssist(config, nextLevelNumber);
         const showLevelWipe = this.lastPresentedLevel !== null && this.lastPresentedLevel !== nextLevelNumber;
         if (showLevelWipe) await this.coverLevelWipe(nextLevelNumber, config);
         this.levelConfig = config;
@@ -7022,7 +7390,7 @@ if (peekBtn) {
         this.canUndo = false;
         this.undoSnapshot = null;
 
-        this.applyTheme(this.currentLevelIdx);
+        this.applyTheme(nextLevelNumber - 1);
         this.progressTrack.classList.remove('tier-2', 'tier-3', 'full');
         this.pendingPowerUp = null;
         this.pendingPowerUpConfirm = null;
@@ -7035,6 +7403,7 @@ if (peekBtn) {
         this.refreshGeometry();
         this.renderSockets();
         this.fillBoardInitial();
+        this.improveOpeningBoard(config.minOpeningMoves || 2);
 
         await this.ensureSolvable();
         this.isProcessing = false;
@@ -7160,7 +7529,7 @@ if (peekBtn) {
 
     updateHUD(celebrate = true) {
         this.movesEl.innerText = this.moves;
-        this.levelEl.innerText = this.currentLevelIdx + 1;
+        this.levelEl.innerText = this.replayLevelNumber || (this.currentLevelIdx + 1);
         this.scoreEl.innerText = this.score;
 
         const progress = Math.max(0, Math.min(100, (this.score / this.starMax) * 100));
@@ -7607,6 +7976,43 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
         return hasMatch;
     }
 
+
+    countPossibleMoves(stopAt = Infinity) {
+        let count = 0;
+        for (let r = 0; r < ROWS; r++) {
+            for (let c = 0; c < COLS; c++) {
+                const p = this.board[r][c];
+                if (!p) continue;
+                if (c < COLS - 1) {
+                    const q = this.board[r][c + 1];
+                    if (q && (this.checkSpecialCombo(p, q).isCombo || this.simulateSwapHasMatch(r, c, r, c + 1))) {
+                        count++;
+                        if (count >= stopAt) return count;
+                    }
+                }
+                if (r < ROWS - 1) {
+                    const q = this.board[r + 1][c];
+                    if (q && (this.checkSpecialCombo(p, q).isCombo || this.simulateSwapHasMatch(r, c, r + 1, c))) {
+                        count++;
+                        if (count >= stopAt) return count;
+                    }
+                }
+            }
+        }
+        return count;
+    }
+
+    improveOpeningBoard(minMoves = 2) {
+        const target = Math.max(1, Number(minMoves) || 1);
+        let attempts = 0;
+        while (this.countPossibleMoves(target) < target && attempts < 10) {
+            this.allTiles().forEach(tile => tile.el.remove());
+            this.board = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
+            this.fillBoardInitial();
+            attempts++;
+        }
+    }
+
     hasPossibleMove() {
         for (let r = 0; r < ROWS; r++) {
             for (let c = 0; c < COLS; c++) {
@@ -7948,6 +8354,7 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
 
         /* Audio language:
            - special made by a match -> tile_swap_special.mp3
+           - free end-of-level buster created by the game -> tile_swap_special.mp3
            - special placed by a player power-up -> power_up.mp3 */
         if (source === 'powerUp') this.sfx.powerUp();
         else this.sfx.special();
@@ -7963,7 +8370,7 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
                 { transform:'scale(.96,1.07) rotate(2deg)', offset:.76 },
                 { transform:'scale(1) rotate(0deg)', offset:1 }
             ],
-            { duration:this.isReducedMotion() ? 1 : 620, easing:'cubic-bezier(.16,.84,.22,1)' }
+            { duration:this.isReducedMotion() ? 1 : (source === 'finale' ? 330 : 620), easing:'cubic-bezier(.16,.84,.22,1)' }
         );
         announce.addEventListener('finish', () => { tile.el.style.zIndex = ''; }, { once:true });
         announce.addEventListener('cancel', () => { tile.el.style.zIndex = ''; }, { once:true });
@@ -8409,27 +8816,139 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
     async runRemainingMovesBonus(remainingMoves) {
         const count = Math.max(0, Math.floor(remainingMoves || 0));
         if (!count) return 0;
-        const perMove = Math.max(20, Math.round((this.targetScore * 0.025) / 10) * 10);
-        let total = 0;
-        const reduced = this.isReducedMotion();
 
-        for (let i = 0; i < count; i++) {
+        const reduced = this.isReducedMotion();
+        const candidates = this.allTiles().filter(tile => tile.special === SPECIALS.NONE);
+        if (!candidates.length) {
+            this.moves = 0;
+            this.movesEl.innerText = '0';
+            return 0;
+        }
+
+        /* Cap simultaneous bonus busters for readability and mobile rendering.
+           Extra unused moves still matter by strengthening the finale score. */
+        const busterCount = Math.min(8, count, candidates.length);
+        const overflowMoves = Math.max(0, count - busterCount);
+        const shuffled = candidates.slice().sort(() => Math.random() - 0.5).slice(0, busterCount);
+        const placed = [];
+        const firstVertical = Math.random() < 0.5;
+
+        this.comboFeedback(`${count} MOVE${count === 1 ? '' : 'S'} LEFT!`);
+        await wait(reduced ? 1 : 180);
+
+        for (let i = 0; i < shuffled.length; i++) {
+            const oldTile = shuffled[i];
+            const special = ((i + (firstVertical ? 1 : 0)) % 2 === 0)
+                ? SPECIALS.H_STRIPE
+                : SPECIALS.V_STRIPE;
+            const live = this.board?.[oldTile.r]?.[oldTile.c];
+            if (!live || live.special !== SPECIALS.NONE) continue;
+
+            const tile = this.spawnSpecial(live.r, live.c, live.color, special, 'finale');
+            placed.push(tile);
             this.moves = Math.max(0, this.moves - 1);
-            const room = Math.max(0, this.starMax - this.score);
-            const bonus = Math.min(perMove, room);
-            if (bonus > 0) {
-                total += bonus;
-                this.addScore(bonus);
-                if (!reduced) this.comboFeedback(`MOVE BONUS +${this.formatStat(bonus)}`);
-            }
             this.movesEl.innerText = this.moves;
             if (!reduced) {
                 this.bumpEl(this.movesEl.closest('.pill'));
-                await wait(62);
+                await wait(92);
             }
         }
-        if (reduced && total > 0) this.comboFeedback(`MOVE BONUS +${this.formatStat(total)}`);
-        return total;
+
+        if (overflowMoves > 0) {
+            this.moves = 0;
+            this.movesEl.innerText = '0';
+            if (!reduced) {
+                const power = 1 + overflowMoves * 0.10;
+                this.comboFeedback(`BONUS x${power.toFixed(1)}`);
+                await wait(180);
+            }
+        } else {
+            this.moves = 0;
+            this.movesEl.innerText = '0';
+        }
+
+        if (!placed.length) return 0;
+        await wait(reduced ? 1 : 300);
+
+        /* All busters fire on the same beat. Existing specials caught in their
+           paths can chain normally, but the free finale busters themselves do
+           not count toward "specials made" achievements. */
+        const finaleSet = new Set(placed);
+        const toDestroy = new Set();
+        placed.forEach(tile => {
+            const p = this.shellPointForCell(tile.r, tile.c);
+            this.beamLine(p.x, p.y, COLORS[tile.color] || COLORS[1], tile.special === SPECIALS.V_STRIPE);
+            if (tile.special === SPECIALS.H_STRIPE) {
+                for (let c = 0; c < COLS; c++) if (this.board[tile.r][c]) toDestroy.add(this.board[tile.r][c]);
+            } else {
+                for (let r = 0; r < ROWS; r++) if (this.board[r][tile.c]) toDestroy.add(this.board[r][tile.c]);
+            }
+        });
+
+        let queue = Array.from(toDestroy);
+        const done = new Set();
+        while (queue.length) {
+            const tile = queue.shift();
+            if (!tile || done.has(tile)) continue;
+            done.add(tile);
+            toDestroy.add(tile);
+
+            if (tile.special !== SPECIALS.NONE && !finaleSet.has(tile)) {
+                this.recordSpecialActivated(tile.special);
+            }
+
+            if (tile.special === SPECIALS.H_STRIPE) {
+                for (let c = 0; c < COLS; c++) {
+                    const next = this.board[tile.r][c];
+                    if (next && !done.has(next)) queue.push(next);
+                }
+            } else if (tile.special === SPECIALS.V_STRIPE) {
+                for (let r = 0; r < ROWS; r++) {
+                    const next = this.board[r][tile.c];
+                    if (next && !done.has(next)) queue.push(next);
+                }
+            } else if (tile.special === SPECIALS.BURST) {
+                for (let r = Math.max(0, tile.r - 1); r <= Math.min(ROWS - 1, tile.r + 1); r++) {
+                    for (let c = Math.max(0, tile.c - 1); c <= Math.min(COLS - 1, tile.c + 1); c++) {
+                        const next = this.board[r][c];
+                        if (next && !done.has(next)) queue.push(next);
+                    }
+                }
+            } else if (tile.special === SPECIALS.BOMB) {
+                const targetColour = Math.floor(Math.random() * this.numColors) + 1;
+                this.allTiles().forEach(next => {
+                    if (next.color === targetColour && !done.has(next)) queue.push(next);
+                });
+            }
+        }
+
+        this.sfx.pop(3);
+        this.vibrate(26);
+
+        const scoreMultiplier = 1 + overflowMoves * 0.10;
+        const cleared = Array.from(toDestroy);
+        const bonus = Math.max(0, Math.round((cleared.length * 12 * scoreMultiplier) / 10) * 10);
+        if (bonus > 0) {
+            this.addScore(bonus);
+            const centre = this.shellPointForCell((ROWS - 1) / 2, (COLS - 1) / 2);
+            this.floatingScore(centre.x, centre.y, `+${this.formatStat(bonus)} BONUS`);
+        }
+
+        this.bumpCollectionStat('tilesCleared', cleared.length);
+        await Promise.all(cleared.map(tile => this.popTile(tile, reduced ? 0 : Math.random() * 20, 1.25)));
+        cleared.forEach(tile => {
+            if (this.board?.[tile.r]?.[tile.c] === tile) this.board[tile.r][tile.c] = null;
+        });
+
+        await this.applyGravity(1.15);
+
+        const cascadeGroups = this.findMatches();
+        if (cascadeGroups.length) {
+            this.lastSwap = null;
+            await this.resolveBoard(cascadeGroups, null);
+        }
+
+        return bonus;
     }
 
     async checkWinLoss() {
@@ -8446,6 +8965,7 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
         const movesAllotted = Math.max(0, this.levelMovesAllotted || 0);
         const remainingAtFinish = Math.max(0, this.moves);
         const movesUsed = Math.max(0, movesAllotted - remainingAtFinish);
+        const playedLevel = this.replayLevelNumber || (this.currentLevelIdx + 1);
 
         if (success) {
             /* Reaching the normal target ends play immediately. Any unused moves
@@ -8454,33 +8974,49 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
             await this.runRemainingMovesBonus(remainingAtFinish);
             this.sfx.win();
             const stars = this.computeStars();
-            this.bumpCollectionStat('starsEarned', stars);
-            if (stars === 3) this.bumpCollectionStat('threeStarLevels', 1);
-            if (movesUsed === movesAllotted - 1) this.bumpCollectionStat('closeCallLevels', 1);
-            if (movesUsed === movesAllotted) this.bumpCollectionStat('lastMoveLevels', 1);
-            if ((this.levelPowerUpsUsed || 0) === 0) {
-                this.bumpCollectionStat('noPowerupLevels', 1);
-                if (stars === 3) this.bumpCollectionStat('perfectRunLevels', 1);
+            this.recordLevelResult(playedLevel, this.score, stars, elapsedMs);
+            if (!this.replayLevelNumber) this.clearLevelLossStreak(playedLevel);
+
+            if (this.replayLevelNumber) {
+                /* Replays are for improving a personal best. They never farm
+                   progression rewards, coins, stamps, or lifetime clear counts. */
+                this.showScreen('Replay Complete!', 'LEVEL SELECT', stars, 'levelSelect', false, {
+                    coinsEarned:0,
+                    elapsedMs,
+                    score:this.score,
+                    movesUsed,
+                    movesAllotted
+                });
+            } else {
+                this.bumpCollectionStat('starsEarned', stars);
+                if (stars === 3) this.bumpCollectionStat('threeStarLevels', 1);
+                if (movesUsed === movesAllotted - 1) this.bumpCollectionStat('closeCallLevels', 1);
+                if (movesUsed === movesAllotted) this.bumpCollectionStat('lastMoveLevels', 1);
+                if ((this.levelPowerUpsUsed || 0) === 0) {
+                    this.bumpCollectionStat('noPowerupLevels', 1);
+                    if (stars === 3) this.bumpCollectionStat('perfectRunLevels', 1);
+                }
+                let coinsEarned = stars * 100;
+                if (this.coinDoublerActive) { coinsEarned *= 2; this.coinDoublerActive = false; }
+                this.addCoins(coinsEarned);
+                this.bumpCollectionStat('levelsCleared', 1);
+                this.currentLevelIdx++;
+                const rewardMilestone = this.currentLevelIdx % 5 === 0;
+                const miniGameMilestone = this.currentLevelIdx % 10 === 0;
+                this.pendingPostMiniReward = false;
+                const title = (rewardMilestone || miniGameMilestone) ? `${this.currentLevelIdx} LEVELS CLEARED!` : 'Level Clear!';
+                this.showScreen(title, 'CONTINUE', stars, miniGameMilestone ? 'minigame' : (rewardMilestone ? 'reward' : 'play'), true, {
+                    coinsEarned,
+                    elapsedMs,
+                    score:this.score,
+                    movesUsed,
+                    movesAllotted
+                });
             }
-            let coinsEarned = stars * 15;
-            if (this.coinDoublerActive) { coinsEarned *= 2; this.coinDoublerActive = false; }
-            this.addCoins(coinsEarned);
-            this.bumpCollectionStat('levelsCleared', 1);
-            this.currentLevelIdx++;
-            const rewardMilestone = this.currentLevelIdx % 5 === 0;
-            const miniGameMilestone = this.currentLevelIdx % 10 === 0;
-            this.pendingPostMiniReward = false;
-            const title = (rewardMilestone || miniGameMilestone) ? `${this.currentLevelIdx} LEVELS CLEARED!` : 'Level Clear!';
-            this.showScreen(title, 'CONTINUE', stars, miniGameMilestone ? 'minigame' : (rewardMilestone ? 'reward' : 'play'), true, {
-                coinsEarned,
-                elapsedMs,
-                score:this.score,
-                movesUsed,
-                movesAllotted
-            });
         } else {
+            if (!this.replayLevelNumber) this.noteLevelLoss(playedLevel);
             this.sfx.lose();
-            this.showScreen('Out of Moves', 'TRY AGAIN', null, 'play', true, {
+            this.showScreen('Out of Moves', 'TRY AGAIN', null, this.replayLevelNumber ? 'replay' : 'play', !this.replayLevelNumber, {
                 coinsEarned:0,
                 elapsedMs,
                 score:this.score,
@@ -8768,6 +9304,21 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
         [-Math.PI / 2, Math.PI / 2].forEach(angle => this.beams.push({ x: shellX + off.x, y: shellY + off.y, angle, length: extent, life: 0, ttl: .22, color }));
     }
 
+    beamLine(shellX, shellY, color, vertical = false) {
+        const off = this.canvasOffset();
+        const extent = Math.max(this.shell.clientWidth, this.shell.clientHeight) * 1.15;
+        const angles = vertical ? [-Math.PI / 2, Math.PI / 2] : [0, Math.PI];
+        angles.forEach(angle => this.beams.push({
+            x:shellX + off.x,
+            y:shellY + off.y,
+            angle,
+            length:extent,
+            life:0,
+            ttl:.25,
+            color
+        }));
+    }
+
     drawFx(dt) {
         const rect = this.canvas.getBoundingClientRect();
         this.ctx.clearRect(0, 0, rect.width, rect.height);
@@ -8908,7 +9459,7 @@ Object.assign(Game.prototype, {
     runDebugAction(action) {
         if (!action) return;
         if (action === 'coins') {
-            this.addCoins(500);
+            this.addCoins(5000);
             this.updateDebugReadout();
             return;
         }
@@ -8939,7 +9490,7 @@ Object.assign(Game.prototype, {
                 success ? 3 : null,
                 'debugReturn',
                 true,
-                { coinsEarned:success ? 45 : 0, elapsedMs:61000, score:success ? 1100 : 640, movesUsed:18, movesAllotted:20 }
+                { coinsEarned:success ? 300 : 0, elapsedMs:61000, score:success ? 1100 : 640, movesUsed:18, movesAllotted:20 }
             ), 30);
             return;
         }
@@ -9380,7 +9931,7 @@ Object.assign(Game.prototype, {
         if (art) art.style.backgroundImage = s.artwork;
         const copy = document.getElementById('mini-reward-copy');
         if (copy) copy.innerText = debug
-            ? `Debug preview. This would award the Level ${s.level} puzzle stamp and its bonus power-up.`
+            ? `Debug preview. This would award the Level ${s.level} puzzle stamp, 500 coins and its bonus power-up.`
             : `You restored the artwork in ${s.moves} moves. The finished artwork is now part of your stamp collection.`;
 
         const bonusBox = document.getElementById('mini-bonus-reward');
@@ -9410,6 +9961,10 @@ Object.assign(Game.prototype, {
                 this.inventory[bonusType] = (this.inventory[bonusType] || 0) + 1;
                 s.bonusPowerUpAwarded = true;
                 this.updatePowerUpTray();
+            }
+            if (!s.bonusCoinsAwarded) {
+                this.addCoins(500);
+                s.bonusCoinsAwarded = true;
             }
             this.saveCollection();
             this.persist();
