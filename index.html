@@ -393,10 +393,24 @@ button{touch-action:manipulation}
 
 .topbar{
   display:grid;
-  grid-template-columns:44px repeat(3,minmax(0,1fr));
+  grid-template-columns:44px 1fr minmax(94px,118px) minmax(102px,126px);
   align-items:center;
   gap:8px;
 }
+.topbar > .board-menu-btn{grid-column:1;grid-row:1;}
+.topbar > .brand-card{grid-column:3;grid-row:1;justify-self:stretch;}
+.topbar > .moves-pill{grid-column:4;grid-row:1;justify-self:stretch;}
+.objective-row{
+  grid-column:1 / -1;
+  grid-row:2;
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  padding-top:6px;
+}
+.objective-row[hidden]{display:none!important;}
 
 .board-menu-btn{
   width:44px;
@@ -4064,29 +4078,28 @@ body.swipe-back-active{ cursor:grabbing; }
 }
 
 
-/* ---------- Later-level clear objectives ---------- */
+/* ---------- Later-level targeted-tile objectives ---------- */
 .objective-pill{
   position:relative;
-  min-width:0;
-  height:46px;
+  min-width:118px;
+  height:48px;
   display:flex;
   align-items:center;
   justify-content:center;
-  gap:7px;
-  padding:4px 7px;
+  gap:8px;
+  padding:4px 10px 4px 7px;
   border-radius:14px;
   background:var(--neutral-0);
   border:var(--border-thick) solid var(--border-color);
   box-shadow:var(--shadow-small);
   color:var(--ink);
 }
-.objective-pill[hidden]{display:none!important;}
 .objective-mini-tile{
   --objective-bg:var(--color-pink-base);
   --objective-shape:var(--color-pink-light);
-  flex:0 0 30px;
-  width:30px;
-  height:30px;
+  flex:0 0 32px;
+  width:32px;
+  height:32px;
   display:grid;
   place-items:center;
   border-radius:24%;
@@ -4114,8 +4127,12 @@ body.swipe-back-active{ cursor:grabbing; }
   text-align:left;
 }
 .objective-copy b{
-  font:800 .72rem/1 Manrope,sans-serif;
+  font:800 .76rem/1 Manrope,sans-serif;
   white-space:nowrap;
+}
+.objective-copy b.objective-done{
+  font-size:1.15rem;
+  line-height:.8;
 }
 .objective-copy span{
   font:800 .52rem/1 Inter,sans-serif;
@@ -4123,9 +4140,335 @@ body.swipe-back-active{ cursor:grabbing; }
   text-transform:uppercase;
   color:var(--muted);
 }
-.objective-pill.complete{
-  outline:3px solid var(--ink);
-  outline-offset:2px;
+
+/* ---------- Memory Match size consistency ----------
+   Hidden and revealed tiles should occupy the exact same visual size. */
+.memory-card-front{
+  transform:scale(1) rotate(0deg)!important;
+}
+.memory-card.revealed .memory-card-back,
+.memory-card.matched .memory-card-back{
+  opacity:0;
+  transform:scale(1)!important;
+}
+.memory-card.revealed .memory-card-front,
+.memory-card.matched .memory-card-front{
+  opacity:1;
+  transform:scale(1) rotate(0deg)!important;
+}
+
+
+.level-wipe-objective{
+  margin-top:22px;
+  max-width:360px;
+}
+.level-wipe-objective[hidden]{display:none!important;}
+.level-wipe-rule{
+  width:100%;
+  height:3px;
+  background:var(--ink-fixed);
+  margin-bottom:13px;
+}
+.level-wipe-objective-label{
+  font:800 .78rem/1 Manrope,sans-serif;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--ink-fixed);
+}
+.level-wipe-targets{
+  display:flex;
+  align-items:center;
+  gap:16px;
+  margin-top:13px;
+}
+.level-wipe-target{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  color:var(--ink-fixed);
+  font:800 1.05rem/1 Manrope,sans-serif;
+}
+.level-wipe-target-tile{
+  --objective-bg:var(--color-pink-base);
+  --objective-shape:var(--color-pink-light);
+  width:42px;
+  height:42px;
+  display:grid;
+  place-items:center;
+  border:3px solid var(--ink-fixed);
+  border-radius:24%;
+  background:var(--objective-bg);
+  box-shadow:4px 4px 0 var(--ink-fixed);
+}
+.level-wipe-target-tile svg{width:58%;height:58%;overflow:visible;}
+.level-wipe-target-tile use{
+  fill:var(--objective-shape);
+  stroke:var(--ink-fixed);
+  stroke-width:19.2;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+
+
+/* ---------- Memory Match result popup ----------
+   Same popup shell as level results, with compact reward rows that fit. */
+#mini-game-reward-overlay.popup-overlay{
+  position:fixed!important;
+  inset:0!important;
+  z-index:230!important;
+  display:flex!important;
+  align-items:flex-start!important;
+  justify-content:center!important;
+  padding:calc(18px + env(safe-area-inset-top)) 18px 18px!important;
+  background:var(--neutral-50)!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+  transform:none!important;
+  transition:opacity .18s ease,visibility .18s ease!important;
+}
+#mini-game-reward-overlay.popup-overlay.active{
+  opacity:1!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+  transform:none!important;
+}
+#mini-game-reward-overlay.popup-overlay .overlay-card{
+  width:min(100%,370px)!important;
+  max-width:370px!important;
+  min-height:0!important;
+  height:auto!important;
+  max-height:min(92dvh,760px)!important;
+  margin:0!important;
+  padding:26px 24px 22px!important;
+  border:var(--border-thick) solid var(--border-color)!important;
+  border-radius:26px!important;
+  background:var(--neutral-0)!important;
+  box-shadow:6px 6px 0 var(--shadow-color)!important;
+  overflow-y:auto!important;
+  text-align:left!important;
+  display:block!important;
+  transform:none!important;
+}
+#mini-game-reward-overlay .mini-game-kicker{margin-bottom:8px!important;}
+#mini-game-reward-overlay h2{
+  margin:0!important;
+  text-align:left!important;
+  font-size:2rem!important;
+}
+#mini-game-reward-overlay .mini-reward-stamp{
+  width:94px!important;
+  margin:14px auto!important;
+  transform:none!important;
+  box-shadow:4px 4px 0 var(--shadow-color)!important;
+}
+#mini-game-reward-overlay .mini-reward-copy{
+  margin:0 0 14px!important;
+  max-width:none!important;
+  text-align:left!important;
+  font-size:.88rem!important;
+  line-height:1.4!important;
+}
+#mini-game-reward-overlay .mini-bonus-placeholder{
+  width:100%!important;
+  min-height:64px!important;
+  padding:12px 0!important;
+  border:0!important;
+  border-top:3px solid var(--border-color)!important;
+  text-transform:none!important;
+  letter-spacing:normal!important;
+}
+#mini-game-reward-overlay .mini-bonus-kicker{
+  margin-bottom:8px!important;
+  font:800 .67rem/1 Inter,sans-serif!important;
+  letter-spacing:.09em!important;
+  text-transform:uppercase!important;
+}
+#mini-game-reward-overlay .mini-bonus-content{
+  justify-content:flex-start!important;
+  gap:12px!important;
+}
+#mini-game-reward-overlay .mini-bonus-art{
+  width:46px!important;
+  height:46px!important;
+  flex:0 0 46px!important;
+}
+#mini-game-reward-overlay .mini-bonus-content b{
+  min-width:0!important;
+  font:800 .95rem/1.15 Manrope,sans-serif!important;
+}
+#mini-game-reward-overlay #mini-reward-continue-btn{
+  width:100%!important;
+  margin-top:14px!important;
+}
+
+
+/* ---------- Memory Match reward popup final polish ---------- */
+#mini-game-reward-overlay.popup-overlay .overlay-card{
+  padding:24px 22px 20px!important;
+}
+#mini-game-reward-overlay .mini-game-kicker{
+  margin-bottom:6px!important;
+}
+#mini-game-reward-overlay h2{
+  font-size:1.9rem!important;
+  line-height:.98!important;
+}
+#mini-game-reward-overlay .mini-reward-stamp{
+  width:108px!important;
+  margin:12px auto 14px!important;
+}
+#mini-game-reward-overlay .mini-reward-copy{
+  margin:0 0 14px!important;
+  color:var(--muted)!important;
+  font:700 .84rem/1.35 Inter,sans-serif!important;
+}
+#mini-game-reward-overlay .mini-bonus-placeholder{
+  min-height:0!important;
+  padding:10px 0 12px!important;
+}
+#mini-game-reward-overlay .mini-bonus-content{
+  min-width:0!important;
+  align-items:center!important;
+}
+#mini-game-reward-overlay .mini-bonus-art{
+  width:52px!important;
+  height:52px!important;
+  flex:0 0 52px!important;
+}
+#mini-game-reward-overlay .mini-bonus-art .tray-card,
+#mini-game-reward-overlay .mini-bonus-art .powerup-card,
+#mini-game-reward-overlay .mini-bonus-art .power-up-card{
+  transform:scale(.92);
+  transform-origin:center;
+}
+#mini-game-reward-overlay .mini-bonus-content b{
+  min-width:0!important;
+  display:block!important;
+  font:800 .92rem/1.12 Manrope,sans-serif!important;
+  white-space:normal!important;
+  overflow-wrap:anywhere!important;
+}
+#mini-game-reward-overlay #mini-reward-continue-btn{
+  margin-top:12px!important;
+}
+
+
+/* ---------- Round rewards should show two stamps without scroll ---------- */
+.result-bonus-items.fit-two{
+  min-height:0!important;
+  max-height:none!important;
+  overflow-y:visible!important;
+  padding-right:0!important;
+}
+.result-bonus-items.fit-two::-webkit-scrollbar{
+  width:0!important;
+  height:0!important;
+}
+
+
+/* ---------- Memory Match reward popup: power-up spacing + square stamp ----------
+   The reward rows need more breathing room, and the earned Memory Match stamp
+   should read as a stamp, not a plain framed picture. */
+#mini-game-reward-overlay .mini-bonus-placeholder{
+  padding:12px 0 14px!important;
+}
+#mini-game-reward-overlay .mini-bonus-content{
+  display:grid!important;
+  grid-template-columns:48px minmax(0,1fr)!important;
+  align-items:center!important;
+  column-gap:14px!important;
+  row-gap:0!important;
+}
+#mini-game-reward-overlay .mini-bonus-art{
+  width:48px!important;
+  height:48px!important;
+  flex:none!important;
+  display:grid!important;
+  place-items:center!important;
+}
+#mini-game-reward-overlay .mini-bonus-content .coin-icon{
+  width:28px!important;
+  height:28px!important;
+  justify-self:center!important;
+}
+#mini-game-reward-overlay .mini-bonus-content b{
+  font:800 .98rem/1.18 Manrope,sans-serif!important;
+}
+
+/* Square 1:1 memory stamp with scalloped stamp edges */
+#mini-game-reward-overlay .mini-reward-stamp{
+  --memory-stamp-bg:var(--color-yellow-orange-base);
+  --memory-stamp-cutout:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cg fill='white'%3E%3Crect x='9' y='9' width='82' height='82'/%3E%3Ccircle cx='9' cy='18' r='5'/%3E%3Ccircle cx='9' cy='29' r='5'/%3E%3Ccircle cx='9' cy='40' r='5'/%3E%3Ccircle cx='9' cy='51' r='5'/%3E%3Ccircle cx='9' cy='62' r='5'/%3E%3Ccircle cx='9' cy='73' r='5'/%3E%3Ccircle cx='9' cy='84' r='5'/%3E%3Ccircle cx='18' cy='9' r='5'/%3E%3Ccircle cx='29' cy='9' r='5'/%3E%3Ccircle cx='40' cy='9' r='5'/%3E%3Ccircle cx='51' cy='9' r='5'/%3E%3Ccircle cx='62' cy='9' r='5'/%3E%3Ccircle cx='73' cy='9' r='5'/%3E%3Ccircle cx='84' cy='9' r='5'/%3E%3Ccircle cx='91' cy='18' r='5'/%3E%3Ccircle cx='91' cy='29' r='5'/%3E%3Ccircle cx='91' cy='40' r='5'/%3E%3Ccircle cx='91' cy='51' r='5'/%3E%3Ccircle cx='91' cy='62' r='5'/%3E%3Ccircle cx='91' cy='73' r='5'/%3E%3Ccircle cx='91' cy='84' r='5'/%3E%3Ccircle cx='18' cy='91' r='5'/%3E%3Ccircle cx='29' cy='91' r='5'/%3E%3Ccircle cx='40' cy='91' r='5'/%3E%3Ccircle cx='51' cy='91' r='5'/%3E%3Ccircle cx='62' cy='91' r='5'/%3E%3Ccircle cx='73' cy='91' r='5'/%3E%3Ccircle cx='84' cy='91' r='5'/%3E%3C/g%3E%3C/svg%3E");
+  position:relative!important;
+  width:118px!important;
+  aspect-ratio:1 / 1!important;
+  margin:12px auto 14px!important;
+  padding:0!important;
+  background:none!important;
+  border:0!important;
+  box-shadow:none!important;
+  isolation:isolate;
+}
+#mini-game-reward-overlay .mini-reward-stamp::before,
+#mini-game-reward-overlay .mini-reward-stamp::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  -webkit-mask:var(--memory-stamp-cutout) center / 100% 100% no-repeat;
+  mask:var(--memory-stamp-cutout) center / 100% 100% no-repeat;
+}
+#mini-game-reward-overlay .mini-reward-stamp::before{
+  background:var(--shadow-color);
+  transform:translate(4px,4px);
+  z-index:0;
+}
+#mini-game-reward-overlay .mini-reward-stamp::after{
+  background:var(--memory-stamp-bg);
+  z-index:1;
+}
+#mini-game-reward-overlay .mini-reward-stamp-art{
+  position:relative;
+  z-index:2;
+  width:73%!important;
+  height:73%!important;
+  margin:auto;
+  margin-top:14%;
+  background-size:cover!important;
+  background-position:center!important;
+  border:2px solid var(--border-color)!important;
+  box-shadow:none!important;
+}
+
+
+/* ---------- Memory Match reward popup spacing fix ----------
+   Give the power-up row a true icon column and size the embedded card icon
+   to that column so the title never crowds or overlaps it. */
+#mini-game-reward-overlay .mini-bonus-content{
+  grid-template-columns:64px minmax(0,1fr)!important;
+  column-gap:18px!important;
+}
+#mini-game-reward-overlay .mini-bonus-art{
+  width:64px!important;
+  height:64px!important;
+}
+#mini-game-reward-overlay .mini-bonus-art .rc-icon{
+  width:52px!important;
+  height:52px!important;
+  margin:0!important;
+}
+#mini-game-reward-overlay .mini-bonus-art .material-symbols-outlined{
+  font-size:1.55rem!important;
+}
+#mini-game-reward-overlay .mini-bonus-art .rc-piece{
+  width:56%!important;
+  height:56%!important;
+}
+#mini-game-reward-overlay .mini-bonus-content b{
+  line-height:1.14!important;
 }
 
 </style>
@@ -4276,13 +4619,8 @@ body.swipe-back-active{ cursor:grabbing; }
     <b id="level-txt">1</b>
     <span>level</span>
   </div>
-  <div class="pill"><b id="moves-txt">0</b><span>moves left</span></div>
-  <div class="objective-pill" id="objective-pill" hidden aria-live="polite">
-    <span class="objective-mini-tile" id="objective-mini-tile" aria-hidden="true">
-      <svg viewBox="0 0 480 480"><use id="objective-icon-use" href="#piece-circle"></use></svg>
-    </span>
-    <span class="objective-copy"><b id="objective-count">0 / 0</b><span>clear</span></span>
-  </div>
+  <div class="pill moves-pill"><b id="moves-txt">0</b><span>moves left</span></div>
+  <div class="objective-row" id="objective-row" hidden aria-live="polite"></div>
 </header>
 
   <main class="stage">
@@ -4442,7 +4780,7 @@ body.swipe-back-active{ cursor:grabbing; }
     <button class="modal-corner-close" id="howto-close-btn" aria-label="Close How To Play"><span class="material-symbols-outlined">close</span></button>
     <h2>How To Play</h2>
     <div class="howto-sheet ui-scroll">
-      <p class="howto-intro">Early levels are score challenges. Later levels can add a second target, such as clearing a certain number of one tile colour. Finish every active goal before your moves run out. Any moves left become bonus row and column busters.</p>
+      <p class="howto-intro">Early levels are score challenges. Later levels add Targeted Tiles, asking you to clear specific tile types as well as reaching the score goal. Finish every active goal before your moves run out. Any moves left become bonus row and column busters.</p>
 
       <div class="howto-section">
         <h3 class="howto-section-title">The basics</h3>
@@ -4473,7 +4811,7 @@ body.swipe-back-active{ cursor:grabbing; }
             </div>
             <div class="howto-step-copy">
               <b>Later levels add targets</b>
-              <span>Some later rounds also ask you to clear a set number of a specific tile. The target appears beside your moves. Complete both the score goal and the tile target to finish.</span>
+              <span>Some later rounds add Targeted Tiles. Clear the requested number of each shown tile as well as reaching the score goal. Later challenges can have two Targeted Tiles at once.</span>
             </div>
           </div>
 
@@ -4831,7 +5169,16 @@ body.swipe-back-active{ cursor:grabbing; }
   </div>
 </div>
 
-<div class="level-wipe" id="levelWipe" aria-hidden="true"><div class="level-wipe-copy"><div class="level-wipe-number" id="levelWipeNumber">LEVEL 1</div></div></div>
+<div class="level-wipe" id="levelWipe" aria-hidden="true">
+  <div class="level-wipe-copy">
+    <div class="level-wipe-number" id="levelWipeNumber">LEVEL 1</div>
+    <div class="level-wipe-objective" id="levelWipeObjective" hidden>
+      <div class="level-wipe-rule"></div>
+      <div class="level-wipe-objective-label">TARGETED TILES</div>
+      <div class="level-wipe-targets" id="levelWipeTargets"></div>
+    </div>
+  </div>
+</div>
 
 <script src="lib/lottie-light.min.js"></script>
 <script>
@@ -5365,21 +5712,33 @@ function generateLevel(levelNumber) {
 
     let objective = null;
 
-    /* From Level 15 onward, selected levels add a concrete collection goal.
-       These are deliberately periodic rather than constant so the later game
-       alternates between pure score rounds and more Royal-Match-like target
-       rounds. The player must satisfy BOTH the score goal and this clear goal. */
+    /* Selected later levels add targeted-tile objectives. Level 15 begins with
+       one target colour. From Level 30 onward, objective rounds can ask for two
+       different colours, using smaller per-colour counts so the combined demand
+       stays fair. The player must complete the score goal AND every target. */
     if (levelNumber >= 15 && (levelNumber - 15) % 3 === 0) {
-        const objectiveColor = 1 + Math.floor(rng() * colors);
-        const colourDifficulty = colors >= 6 ? 0.54 : 0.62;
-        const clearTarget = Math.max(
-            10,
-            Math.min(28, Math.round(moves * colourDifficulty))
-        );
+        const targetCount = levelNumber >= 30 ? 2 : 1;
+        const availableColours = Array.from({length:colors}, (_, i) => i + 1);
+        for (let i = availableColours.length - 1; i > 0; i--) {
+            const j = Math.floor(rng() * (i + 1));
+            [availableColours[i], availableColours[j]] = [availableColours[j], availableColours[i]];
+        }
+
+        const factor = targetCount === 1
+            ? (colors >= 6 ? 0.54 : 0.62)
+            : (colors >= 6 ? 0.38 : 0.42);
+
+        const targets = availableColours.slice(0, targetCount).map(color => ({
+            color,
+            target:Math.max(
+                targetCount === 1 ? 10 : 8,
+                Math.min(targetCount === 1 ? 28 : 20, Math.round(moves * factor))
+            )
+        }));
+
         objective = {
-            type:'clearColour',
-            color:objectiveColor,
-            target:clearTarget
+            type:'targetedTiles',
+            targets
         };
     }
 
@@ -5784,15 +6143,14 @@ this.levelEl = document.getElementById('level-txt');
 this.progressFill = document.getElementById('progressFill');
 this.progressHead = document.getElementById('progressHead');
 this.progressTrack = document.getElementById('progressTrack');
-        this.objectivePillEl = document.getElementById('objective-pill');
-        this.objectiveCountEl = document.getElementById('objective-count');
-        this.objectiveMiniTileEl = document.getElementById('objective-mini-tile');
-        this.objectiveIconUseEl = document.getElementById('objective-icon-use');
+        this.objectiveRowEl = document.getElementById('objective-row');
         this.mileEls = [document.getElementById('mile1'), document.getElementById('mile2'), document.getElementById('mile3')];
         this.textLayer = document.getElementById('textLayer');
         this.flashEl = document.getElementById('screenFlash');
         this.levelWipeEl = document.getElementById('levelWipe');
         this.levelWipeNumberEl = document.getElementById('levelWipeNumber');
+        this.levelWipeObjectiveEl = document.getElementById('levelWipeObjective');
+        this.levelWipeTargetsEl = document.getElementById('levelWipeTargets');
         this.levelWipeDetailEl = document.getElementById('levelWipeDetail');
         this.lastPresentedLevel = null;
         this.hintAnimation = null;
@@ -5820,7 +6178,7 @@ this.progressTrack = document.getElementById('progressTrack');
         this.levelRunStartedAt = null;
         this.levelMovesAllotted = 0;
         this.levelObjective = null;
-        this.levelObjectiveProgress = 0;
+        this.levelObjectiveProgress = {};
         this.resultStatusAnim = null;
         this.coinRewardAnim = null;
         this.reachedMilestones = new Set();
@@ -7016,7 +7374,7 @@ this.progressTrack = document.getElementById('progressTrack');
                         specialTypesMade: Array.from(this.levelSpecialTypesMade || []),
                         fullSetCredited: !!this.levelFullSetCredited,
                         objective: this.levelObjective,
-                        objectiveProgress: this.levelObjectiveProgress || 0,
+                        objectiveProgress: this.levelObjectiveProgress || {},
                         grid: this.snapshotBoard().grid
                     } : null)
             };
@@ -7065,7 +7423,13 @@ this.progressTrack = document.getElementById('progressTrack');
             this.blocked = lvl.blocked;
             this.levelConfig = { shape: lvl.shape, rows: lvl.rows, cols: lvl.cols, blocked: lvl.blocked, objective:lvl.objective || null };
             this.levelObjective = lvl.objective || null;
-            this.levelObjectiveProgress = Math.max(0, Number(lvl.objectiveProgress) || 0);
+            if (lvl.objectiveProgress && typeof lvl.objectiveProgress === 'object') {
+                this.levelObjectiveProgress = Object.assign({}, lvl.objectiveProgress);
+            } else {
+                const legacyTargets = this.objectiveTargets(this.levelObjective);
+                this.levelObjectiveProgress = {};
+                if (legacyTargets[0]) this.levelObjectiveProgress[String(legacyTargets[0].color)] = Math.max(0, Number(lvl.objectiveProgress) || 0);
+            }
             this.moves = lvl.moves;
             this.levelMovesAllotted = Math.max(Number(lvl.allottedMoves) || 0, Number(lvl.moves) || 0);
             this.levelElapsedMs = Math.max(0, Number(lvl.elapsedMs) || 0);
@@ -7770,6 +8134,7 @@ document.getElementById('reduced-motion-toggle-btn')?.addEventListener('click', 
         if (!stack || !items) return;
         items.innerHTML = '';
         const list = Array.isArray(extras) ? extras.filter(Boolean) : [];
+        items.classList.toggle('fit-two', list.length <= 2);
         stack.hidden = !list.length;
         if (!list.length) return;
 
@@ -7894,8 +8259,28 @@ document.getElementById('reduced-motion-toggle-btn')?.addEventListener('click', 
         wipe.style.transform = 'translate3d(-105%,0,0)';
         label.innerText = labelText || `LEVEL ${levelNumber}`;
         label.classList.remove('visible');
-        wipe.getAnimations().forEach(anim => anim.cancel());
 
+        const objectiveWrap = this.levelWipeObjectiveEl;
+        const targetsHost = this.levelWipeTargetsEl;
+        const targets = !labelText && config ? this.objectiveTargets(config.objective) : [];
+        if (objectiveWrap && targetsHost) {
+            targetsHost.innerHTML = '';
+            objectiveWrap.hidden = targets.length === 0;
+            targets.forEach(target => {
+                const token = COLOR_TOKEN_NAMES[target.color] || COLOR_TOKEN_NAMES[1];
+                const item = document.createElement('div');
+                item.className = 'level-wipe-target';
+                item.innerHTML = `
+                  <span class="level-wipe-target-tile"
+                        style="--objective-bg:var(--color-${token}-base);--objective-shape:var(--color-${token}-light)">
+                    <svg viewBox="0 0 480 480" aria-hidden="true"><use href="#${SHAPES[target.color] || SHAPES[1]}"></use></svg>
+                  </span>
+                  <span>× ${target.target}</span>`;
+                targetsHost.appendChild(item);
+            });
+        }
+
+        wipe.getAnimations().forEach(anim => anim.cancel());
         const reduced = this.isReducedMotion();
         const duration = reduced ? 1 : 330;
         const anim = wipe.animate(
@@ -7908,7 +8293,10 @@ document.getElementById('reduced-motion-toggle-btn')?.addEventListener('click', 
         await this.safeFinished(anim);
         wipe.style.transform = 'translate3d(0%,0,0)';
         requestAnimationFrame(() => label.classList.add('visible'));
-        await wait(reduced ? 1 : 430);
+
+        /* Level cards remain fully visible for 2.5 seconds. Memory Match uses
+           the same wipe language but a shorter title hold. */
+        await wait(reduced ? 1 : (labelText ? 900 : 2500));
     }
 
     async revealLevelWipe() {
@@ -7928,6 +8316,8 @@ document.getElementById('reduced-motion-toggle-btn')?.addEventListener('click', 
         await this.safeFinished(anim);
         wipe.style.transform = 'translate3d(-105%,0,0)';
         label.classList.remove('visible');
+        if (this.levelWipeObjectiveEl) this.levelWipeObjectiveEl.hidden = true;
+        if (this.levelWipeTargetsEl) this.levelWipeTargetsEl.innerHTML = '';
     }
 
     async startLevel(levelNumber = null, replay = false) {
@@ -7955,7 +8345,7 @@ document.getElementById('reduced-motion-toggle-btn')?.addEventListener('click', 
         this.levelSpecialTypesMade = new Set();
         this.levelFullSetCredited = false;
         this.levelObjective = config.objective || null;
-        this.levelObjectiveProgress = 0;
+        this.levelObjectiveProgress = {};
         this.targetScore = config.target;
         this.starMax = config.target * 1.35;
         this.numColors = config.colors;
@@ -8101,60 +8491,83 @@ document.getElementById('reduced-motion-toggle-btn')?.addEventListener('click', 
 
     bumpEl(el) { el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); }
 
+    objectiveTargets(objective = this.levelObjective) {
+        if (!objective) return [];
+        if (objective.type === 'targetedTiles' && Array.isArray(objective.targets)) {
+            return objective.targets
+                .map(t => ({ color:Math.max(1, Math.min(6, Number(t.color) || 1)), target:Math.max(1, Number(t.target) || 1) }))
+                .slice(0, 2);
+        }
+        /* Compatibility with saves created by the first single-target build. */
+        if (objective.type === 'clearColour') {
+            return [{ color:Math.max(1, Math.min(6, Number(objective.color) || 1)), target:Math.max(1, Number(objective.target) || 1) }];
+        }
+        return [];
+    }
+
     updateObjectiveHUD() {
-        const objective = this.levelObjective;
-        const pill = this.objectivePillEl;
-        if (!pill) return;
+        const row = this.objectiveRowEl;
+        if (!row) return;
+        const targets = this.objectiveTargets();
 
-        if (!objective || objective.type !== 'clearColour') {
-            pill.hidden = true;
-            pill.classList.remove('complete');
-            return;
-        }
+        row.innerHTML = '';
+        row.hidden = targets.length === 0;
+        if (!targets.length) return;
 
-        const target = Math.max(1, Number(objective.target) || 1);
-        const progress = Math.max(0, Number(this.levelObjectiveProgress) || 0);
-        const colour = Math.max(1, Math.min(6, Number(objective.color) || 1));
-        const token = COLOR_TOKEN_NAMES[colour] || COLOR_TOKEN_NAMES[1];
+        targets.forEach(target => {
+            const colour = target.color;
+            const token = COLOR_TOKEN_NAMES[colour] || COLOR_TOKEN_NAMES[1];
+            const progress = Math.max(0, Number(this.levelObjectiveProgress?.[String(colour)]) || 0);
+            const done = progress >= target.target;
 
-        pill.hidden = false;
-        pill.classList.toggle('complete', progress >= target);
-        if (this.objectiveCountEl) this.objectiveCountEl.innerText = `${Math.min(progress, target)} / ${target}`;
-        if (this.objectiveIconUseEl) {
-            const href = `#${SHAPES[colour] || SHAPES[1]}`;
-            this.objectiveIconUseEl.setAttribute('href', href);
-            this.objectiveIconUseEl.setAttributeNS('http://www.w3.org/1999/xlink', 'href', href);
-        }
-        if (this.objectiveMiniTileEl) {
-            this.objectiveMiniTileEl.style.setProperty('--objective-bg', `var(--color-${token}-base)`);
-            this.objectiveMiniTileEl.style.setProperty('--objective-shape', `var(--color-${token}-light)`);
-        }
-        pill.setAttribute('aria-label', `Clear ${target} ${token.replace('-', ' ')} tiles. ${Math.min(progress, target)} cleared.`);
+            const pill = document.createElement('div');
+            pill.className = 'objective-pill';
+            pill.setAttribute('aria-label', done
+                ? `${token.replace('-', ' ')} targeted tiles complete`
+                : `Clear ${target.target} ${token.replace('-', ' ')} tiles. ${Math.min(progress, target.target)} cleared.`);
+
+            pill.innerHTML = `
+              <span class="objective-mini-tile" aria-hidden="true"
+                    style="--objective-bg:var(--color-${token}-base);--objective-shape:var(--color-${token}-light)">
+                <svg viewBox="0 0 480 480"><use href="#${SHAPES[colour] || SHAPES[1]}"></use></svg>
+              </span>
+              <span class="objective-copy">
+                <b class="${done ? 'objective-done' : ''}">${done ? '✓' : `${Math.min(progress, target.target)} / ${target.target}`}</b>
+                <span>targeted</span>
+              </span>`;
+            row.appendChild(pill);
+        });
     }
 
     recordObjectiveClears(tiles) {
-        const objective = this.levelObjective;
-        if (!objective || objective.type !== 'clearColour' || !Array.isArray(tiles)) return 0;
+        const targets = this.objectiveTargets();
+        if (!targets.length || !Array.isArray(tiles)) return 0;
+        if (!this.levelObjectiveProgress || typeof this.levelObjectiveProgress !== 'object') this.levelObjectiveProgress = {};
 
-        const colour = Number(objective.color) || 1;
-        const gained = tiles.reduce((sum, tile) => sum + (tile && tile.color === colour ? 1 : 0), 0);
-        if (!gained) return 0;
+        let totalGained = 0;
+        targets.forEach(target => {
+            const key = String(target.color);
+            const gained = tiles.reduce((sum, tile) => sum + (tile && tile.color === target.color ? 1 : 0), 0);
+            if (!gained) return;
+            this.levelObjectiveProgress[key] = Math.max(0, (Number(this.levelObjectiveProgress[key]) || 0) + gained);
+            totalGained += gained;
+        });
 
-        this.levelObjectiveProgress = Math.max(0, (this.levelObjectiveProgress || 0) + gained);
-        this.updateObjectiveHUD();
-        if (this.objectivePillEl && !this.isReducedMotion()) this.bumpEl(this.objectivePillEl);
-        this.markDirty();
-        return gained;
+        if (totalGained) {
+            this.updateObjectiveHUD();
+            if (this.objectiveRowEl && !this.isReducedMotion()) this.bumpEl(this.objectiveRowEl);
+            this.markDirty();
+        }
+        return totalGained;
     }
 
     isLevelGoalComplete() {
         const scoreComplete = this.score >= this.targetScore;
-        const objective = this.levelObjective;
-        if (!objective) return scoreComplete;
-        if (objective.type === 'clearColour') {
-            return scoreComplete && (this.levelObjectiveProgress || 0) >= (objective.target || 0);
-        }
-        return scoreComplete;
+        const targets = this.objectiveTargets();
+        if (!targets.length) return scoreComplete;
+        return scoreComplete && targets.every(target =>
+            (Number(this.levelObjectiveProgress?.[String(target.color)]) || 0) >= target.target
+        );
     }
 
     updateHUD(celebrate = true) {
@@ -8785,6 +9198,7 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
         while (groups.length > 0 || combo?.isCombo) {
             let toDestroy = new Set(), spawnQ = [];
             let matchColor = null;
+            let rippleOrigin = combo?.origin ? { r:combo.origin.r, c:combo.origin.c } : null;
             comboCount++;
 
             if (combo?.isCombo) {
@@ -8872,7 +9286,24 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
                 } else if (groups.length > 1) {
                     primary = groups.reduce((a, b) => (b.length > a.length ? b : a), groups[0]);
                 }
-                if (primary[0]) matchColor = primary[0].color;
+                if (primary[0]) {
+                    matchColor = primary[0].color;
+                    if (!rippleOrigin) {
+                        let anchor = null;
+                        if (this.lastSwap) {
+                            if (primary.includes(this.lastSwap.p1)) anchor = this.lastSwap.p1;
+                            else if (primary.includes(this.lastSwap.p2)) anchor = this.lastSwap.p2;
+                        }
+                        if (!anchor) {
+                            const avgR = primary.reduce((sum, p) => sum + p.r, 0) / primary.length;
+                            const avgC = primary.reduce((sum, p) => sum + p.c, 0) / primary.length;
+                            anchor = primary.slice().sort((a,b) =>
+                                Math.hypot(a.r - avgR, a.c - avgC) - Math.hypot(b.r - avgR, b.c - avgC)
+                            )[0];
+                        }
+                        rippleOrigin = { r:anchor.r, c:anchor.c };
+                    }
+                }
             }
             if (matchColor) this.applyMatchColor(matchColor);
 
@@ -8911,8 +9342,16 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
                 const destroyList = Array.from(toDestroy);
                 this.recordObjectiveClears(destroyList);
                 this.bumpCollectionStat('tilesCleared', destroyList.length);
-                const stagger = Math.min(18, 160 / Math.max(1, destroyList.length)) / cascadeSpeed;
-                const pops = destroyList.map((p, i) => this.popTile(p, i * stagger, cascadeSpeed));
+
+                const origin = rippleOrigin || (destroyList[0] ? {r:destroyList[0].r,c:destroyList[0].c} : {r:0,c:0});
+                destroyList.sort((a,b) =>
+                    Math.hypot(a.r - origin.r, a.c - origin.c) - Math.hypot(b.r - origin.r, b.c - origin.c)
+                );
+                const pops = destroyList.map(tile => {
+                    const distance = Math.hypot(tile.r - origin.r, tile.c - origin.c);
+                    const delay = this.isReducedMotion() ? 0 : Math.min(260, distance * 54) / cascadeSpeed;
+                    return this.popTile(tile, delay, cascadeSpeed);
+                });
                 await Promise.all(pops);
                 for (const p of destroyList) { this.board[p.r][p.c] = null; }
             }
@@ -8971,7 +9410,12 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
         const p = this.shellPointForCell(tile.r, tile.c);
         const big = tile.special !== SPECIALS.NONE;
         await wait(delay);
-        this.particleBurst(p.x, p.y, tile.special === SPECIALS.BOMB ? (Math.floor(Math.random() * 6) + 1) : tile.color, big ? 14 : 8);
+        this.particleBurst(
+            p.x,
+            p.y,
+            tile.special === SPECIALS.BOMB ? (Math.floor(Math.random() * 6) + 1) : tile.color,
+            big ? 22 : 14
+        );
         const anim = tile.inner.animate(
             [{ transform: 'scale(1)', opacity: 1, offset: 0 }, { transform: 'scale(1.18)', opacity: 1, offset: .38 }, { transform: 'scale(.18)', opacity: 0, offset: 1 }],
             { duration: this.isReducedMotion() ? 1 : Math.max(120, 190 / speed), easing: 'cubic-bezier(.3,.82,.35,1)', fill: 'forwards' }
@@ -9020,8 +9464,14 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
         announce.addEventListener('cancel', () => { tile.el.style.zIndex = ''; }, { once:true });
 
         const p = this.shellPointForCell(r, c);
-        this.ringBurst(p.x, p.y, special === SPECIALS.BOMB ? COLORS[1] : COLORS[color], 48);
-        this.particleBurst(p.x, p.y, color || 1, 14);
+        const finaleImpact = source === 'finale';
+        this.ringBurst(
+            p.x,
+            p.y,
+            special === SPECIALS.BOMB ? COLORS[1] : COLORS[color],
+            finaleImpact ? 78 : 48
+        );
+        this.particleBurst(p.x, p.y, color || 1, finaleImpact ? 26 : 14);
         return tile;
     }
 
@@ -9504,10 +9954,7 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
 
             const tile = this.spawnSpecial(live.r, live.c, live.color, special, 'finale');
             placed.push(tile);
-            const impactPoint = this.shellPointForCell(tile.r, tile.c);
-            this.ringBurst(impactPoint.x, impactPoint.y, COLORS[tile.color] || COLORS[1], 58);
-            this.particleBurst(impactPoint.x, impactPoint.y, tile.color || 1, 10);
-            this.vibrate(11);
+            this.vibrate(16);
             this.moves = Math.max(0, this.moves - 1);
             this.movesEl.innerText = this.moves;
             if (!reduced) {
@@ -9945,14 +10392,19 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
         const off = this.canvasOffset();
         const x = shellX + off.x, y = shellY + off.y;
         const color = COLORS[((colorIdx - 1 + 600) % 6) + 1] || COLORS[1];
-        const adaptive = this.perf.frame > 13 ? .65 : this.perf.frame > 10 ? .82 : 1;
-        const n = Math.max(4, Math.round(count * adaptive));
+        const adaptive = this.perf.frame > 13 ? .72 : this.perf.frame > 10 ? .88 : 1;
+        const n = Math.max(6, Math.round(count * adaptive));
         for (let i = 0; i < n; i++) {
-            const angle = Math.PI * 2 * (i / n) + Math.random() * .45;
-            const speed = 55 + Math.random() * 95;
+            const angle = Math.PI * 2 * (i / n) + Math.random() * .42;
+            const speed = 72 + Math.random() * 118;
             this.particles.push({
-                x, y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed - 18,
-                life: 0, ttl: .42 + Math.random() * .24, size: 2.4 + Math.random() * 3.2, color
+                x, y,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed - 24,
+                life:0,
+                ttl:.50 + Math.random() * .28,
+                size:3.4 + Math.random() * 3.8,
+                color
             });
         }
     }
@@ -10008,7 +10460,7 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
             const t = r.life / r.ttl;
             this.ctx.globalAlpha = 1 - t;
             this.ctx.strokeStyle = r.color;
-            this.ctx.lineWidth = 3 * (1 - t) + .5;
+            this.ctx.lineWidth = 4.5 * (1 - t) + .8;
             this.ctx.beginPath();
             this.ctx.arc(r.x, r.y, r.maxRadius * (.18 + .82 * t), 0, Math.PI * 2);
             this.ctx.stroke();
@@ -10343,10 +10795,14 @@ Object.assign(Game.prototype, {
         const s = this.miniGameState || {level:10,challenge:1,pairs:4,matchedPairs:4,turns:5,artwork:this.makeMemoryStampArtwork(1)};
         const art = document.getElementById('mini-reward-art');
         if (art) art.style.backgroundImage = s.artwork;
+
         const copy = document.getElementById('mini-reward-copy');
-        if (copy) copy.innerText = debug
-            ? `Debug preview. This would award the Level ${s.level} Memory Match stamp, 500 coins and its bonus power-up.`
-            : `You found all ${s.pairs} pairs in ${s.turns} turns. This Memory Match stamp is now part of your collection.`;
+        if (copy) {
+            const baseCopy = `You found all ${s.pairs} pairs in ${s.turns} turns. This Memory Match stamp is now part of your collection.`;
+            copy.innerText = debug
+                ? `${baseCopy} Preview only. Rewards will not be saved from debug mode.`
+                : baseCopy;
+        }
 
         const bonusBox = document.getElementById('mini-bonus-reward');
         const bonusArt = document.getElementById('mini-bonus-art');
@@ -10362,7 +10818,11 @@ Object.assign(Game.prototype, {
             bonusBox.hidden = false;
             if (bonusArt) bonusArt.innerHTML = this.buildCardIcon(def);
             if (bonusName) bonusName.innerText = def.name;
-        } else if (bonusBox) bonusBox.hidden = true;
+        } else if (bonusBox) {
+            bonusBox.hidden = true;
+            if (bonusArt) bonusArt.innerHTML = '';
+            if (bonusName) bonusName.innerText = '';
+        }
 
         if (!debug) {
             if (!this.collection.memoryGameStamps) this.collection.memoryGameStamps = [];
@@ -10377,7 +10837,9 @@ Object.assign(Game.prototype, {
                 this.updatePowerUpTray();
             }
             if (!s.bonusCoinsAwarded) { this.addCoins(500); s.bonusCoinsAwarded = true; }
-            this.saveCollection(); this.persist(); this.sfx.reward();
+            this.saveCollection();
+            this.persist();
+            this.sfx.reward();
         }
 
         document.getElementById('mini-game-reward-overlay').classList.add('active');
