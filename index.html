@@ -3712,46 +3712,54 @@ button.sticker-slot.stamp-catalog-entry.earned:active .stamp-slot-visual{ transf
 body.swipe-back-active{ cursor:grabbing; }
 
 
+
 /* ============================================================
-   POPUP SHAPE LANGUAGE
-   ============================================================
-   Popups share the same border/shadow system, but not the exact same box.
-   The asymmetric radii make them feel like pieces from the game's shape
-   language instead of generic modal rectangles. */
-#screen-overlay.popup-overlay .overlay-card{
-  border-radius:38px 38px 14px 38px;
-}
-#reward-overlay.popup-overlay .overlay-card{
-  border-radius:38px 14px 38px 38px;
-}
-#special-confirm-overlay.popup-overlay .overlay-card{
-  border-radius:14px 38px 38px 38px;
-}
-#achievement-overlay.popup-overlay .overlay-card{
-  border-radius:38px 38px 38px 14px;
+   UI RECOVERY OVERRIDES
+   Intentionally narrow. Gameplay geometry is left untouched.
+   ============================================================ */
+
+/* Only the board owns a dynamic coloured page background.
+   Transient results/reward/achievement screens use neutral paper. */
+#screen-overlay.popup-overlay,
+#reward-overlay.popup-overlay,
+#special-confirm-overlay.popup-overlay,
+#achievement-overlay.popup-overlay{
+  background:var(--neutral-50)!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
 }
 
-/* Reward/result cards get a little more breathing room and a softer,
-   squarer footprint so they read as game objects rather than web dialogs. */
+/* One popup card, one border, one hard neobrutalist shadow.
+   No duplicate/backing card and no decorative popup colour. */
 #screen-overlay.popup-overlay .overlay-card,
 #reward-overlay.popup-overlay .overlay-card,
+#special-confirm-overlay.popup-overlay .overlay-card,
 #achievement-overlay.popup-overlay .overlay-card{
-  width:min(100%,374px);
-  max-width:374px;
+  width:min(100%,370px);
+  max-width:370px;
   padding:30px 26px 26px;
+  border:var(--border-thick) solid var(--border-color);
+  border-radius:26px;
+  background:var(--neutral-0);
+  box-shadow:6px 6px 0 var(--shadow-color);
+  overflow:visible;
+}
+#screen-overlay.popup-overlay .overlay-card::before,
+#reward-overlay.popup-overlay .overlay-card::before,
+#special-confirm-overlay.popup-overlay .overlay-card::before,
+#achievement-overlay.popup-overlay .overlay-card::before{
+  content:none!important;
 }
 
-/* A quick physical entrance helps the popup feel separate from the board,
-   without making the result sequence feel rushed. */
+/* Keep the entrance physical but restrained. */
 #screen-overlay.popup-overlay.active .overlay-card,
 #reward-overlay.popup-overlay.active .overlay-card,
 #special-confirm-overlay.popup-overlay.active .overlay-card,
 #achievement-overlay.popup-overlay.active .overlay-card{
-  animation:popupSettle .28s cubic-bezier(.16,.84,.22,1) both;
+  animation:popupRecoverySettle .24s cubic-bezier(.16,.84,.22,1) both;
 }
-@keyframes popupSettle{
-  0%{ transform:translate3d(0,14px,0) scale(.96)!important; opacity:.35; }
-  72%{ transform:translate3d(0,-2px,0) scale(1.01)!important; opacity:1; }
+@keyframes popupRecoverySettle{
+  0%{ transform:translate3d(0,10px,0) scale(.97)!important; opacity:.45; }
   100%{ transform:translate3d(0,0,0) scale(1)!important; opacity:1; }
 }
 @media(prefers-reduced-motion:reduce){
@@ -3761,6 +3769,187 @@ body.swipe-back-active{ cursor:grabbing; }
   #achievement-overlay.popup-overlay.active .overlay-card{
     animation:none!important;
   }
+}
+
+
+/* ---------- Settings icon rows ---------- */
+.settings-row-main{
+  display:flex;
+  align-items:flex-start;
+  gap:12px;
+  min-width:0;
+}
+.settings-row-icon{
+  flex:0 0 auto;
+  width:34px;
+  height:34px;
+  display:grid;
+  place-items:center;
+  border:2px solid var(--border-color);
+  border-radius:12px;
+  background:var(--neutral-100);
+  box-shadow:3px 3px 0 var(--shadow-color);
+  font-size:1rem;
+  color:var(--ink);
+  font-variation-settings:'FILL' 1,'wght' 650,'GRAD' 0,'opsz' 48;
+}
+.settings-audio-head > .settings-row-main,
+.settings-toggle-row > .settings-row-main{
+  min-width:0;
+  flex:1 1 auto;
+}
+.settings-audio-head > .settings-row-main > div,
+.settings-toggle-row > .settings-row-main > div{
+  min-width:0;
+}
+
+/* ---------- Result bonus stack ----------
+   Post-level rewards and achievements are summarised inside the result card
+   so the player is not forced through a chain of extra popups. */
+.result-bonus-stack{
+  margin-top:16px;
+  padding-top:16px;
+  border-top:3px solid var(--border-color);
+}
+.result-bonus-items{
+  display:grid;
+  gap:10px;
+  margin-top:10px;
+}
+.result-bonus-item{
+  display:grid;
+  grid-template-columns:58px minmax(0,1fr);
+  align-items:center;
+  gap:12px;
+  padding:10px 0;
+  border-bottom:2px solid var(--border-soft);
+}
+.result-bonus-item:last-child{ border-bottom:0; padding-bottom:0; }
+.result-bonus-art{
+  width:58px;
+  height:58px;
+  display:grid;
+  place-items:center;
+}
+.result-bonus-art svg{
+  width:100%;
+  height:100%;
+  overflow:visible;
+}
+.result-bonus-art .stamp-face{
+  width:58px!important;
+}
+.result-bonus-art .reward-card{
+  margin:0!important;
+  width:58px;
+  height:58px;
+  box-shadow:3px 3px 0 var(--shadow-color);
+}
+.result-bonus-copy{
+  min-width:0;
+}
+.result-bonus-copy b{
+  display:block;
+  font:800 .96rem/1.15 Manrope,sans-serif;
+  color:var(--ink);
+}
+.result-bonus-copy span{
+  display:block;
+  margin-top:4px;
+  font:700 .8rem/1.35 Inter,sans-serif;
+  color:var(--muted);
+}
+
+
+/* ---------- Settings row icons ---------- */
+.settings-row-main{
+  display:flex;
+  align-items:flex-start;
+  gap:12px;
+  min-width:0;
+  flex:1 1 auto;
+}
+.settings-row-main > div{min-width:0;}
+.settings-row-icon{
+  flex:0 0 36px;
+  width:36px;
+  height:36px;
+  display:grid!important;
+  place-items:center;
+  margin:0!important;
+  border:2px solid var(--border-color);
+  border-radius:12px;
+  background:var(--neutral-100);
+  box-shadow:3px 3px 0 var(--shadow-color);
+  color:var(--ink)!important;
+  font-family:'Material Symbols Rounded'!important;
+  font-size:1.05rem!important;
+  font-weight:normal!important;
+  font-style:normal!important;
+  line-height:1!important;
+  letter-spacing:normal!important;
+  text-transform:none!important;
+  white-space:nowrap!important;
+  word-wrap:normal!important;
+  direction:ltr!important;
+  -webkit-font-feature-settings:'liga'!important;
+  -webkit-font-smoothing:antialiased;
+  font-feature-settings:'liga'!important;
+  font-variation-settings:'FILL' 1,'wght' 650,'GRAD' 0,'opsz' 48!important;
+}
+.settings-state-btn{
+  min-width:84px!important;
+}
+.settings-toggle-row .settings-state-btn span,
+.settings-audio-head .settings-state-btn span{
+  margin:0!important;
+  font:800 .75rem/1 Manrope,sans-serif!important;
+  color:inherit!important;
+}
+
+/* ---------- Scrollable round rewards ---------- */
+.result-bonus-items{
+  max-height:190px;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+  padding-right:7px;
+  scrollbar-width:thin;
+  scrollbar-color:var(--muted) transparent;
+}
+.result-bonus-items::-webkit-scrollbar{width:4px;}
+.result-bonus-items::-webkit-scrollbar-track{background:transparent;}
+.result-bonus-items::-webkit-scrollbar-thumb{
+  background:var(--muted);
+  border-radius:999px;
+}
+
+
+/* ---------- Level-results popup layout ----------
+   The end-of-level card is the one popup that is allowed to sit higher
+   so it can use more vertical space for the result summary and rewards. */
+#screen-overlay.popup-overlay{
+  align-items:flex-start!important;
+  padding-top:calc(14px + env(safe-area-inset-top))!important;
+  padding-bottom:14px!important;
+}
+#screen-overlay.popup-overlay .overlay-card{
+  max-height:min(92dvh,760px)!important;
+}
+
+/* Show at least two reward rows before scrolling is needed. */
+.result-bonus-items{
+  max-height:250px!important;
+}
+
+
+/* ---------- Level-results reward viewport refinement ---------- */
+#screen-overlay.popup-overlay .overlay-card{
+  max-height:min(96dvh,820px)!important;
+}
+.result-bonus-items{
+  min-height:212px!important;
+  max-height:290px!important;
 }
 
 </style>
@@ -3995,12 +4184,18 @@ body.swipe-back-active{ cursor:grabbing; }
       <h3 id="settings-gameplay-title">Gameplay</h3>
       <div class="settings-toggle-list">
         <div class="settings-toggle-row">
-          <div><b>Haptics</b><span>Small vibration feedback for milestones and invalid moves</span></div>
-          <button class="secondary settings-mute-btn" type="button" id="haptics-toggle-btn" aria-pressed="true"><span class="material-symbols-outlined">vibration</span><span id="haptics-toggle-label">ON</span></button>
+          <div class="settings-row-main">
+            <span class="material-symbols-outlined settings-row-icon" aria-hidden="true">vibration</span>
+            <div><b>Haptics</b><span>Small vibration feedback for milestones and invalid moves</span></div>
+          </div>
+          <button class="secondary settings-mute-btn settings-state-btn" type="button" id="haptics-toggle-btn" aria-pressed="true"><span id="haptics-toggle-label">ON</span></button>
         </div>
         <div class="settings-toggle-row">
-          <div><b>Reduced motion</b><span>Minimises wipes, bounces, wiggles, and transition movement</span></div>
-          <button class="secondary settings-mute-btn" type="button" id="reduced-motion-toggle-btn" aria-pressed="false"><span class="material-symbols-outlined">motion_photos_off</span><span id="reduced-motion-toggle-label">OFF</span></button>
+          <div class="settings-row-main">
+            <span class="material-symbols-outlined settings-row-icon" aria-hidden="true">motion_photos_off</span>
+            <div><b>Reduced motion</b><span>Minimises wipes, bounces, wiggles, and transition movement</span></div>
+          </div>
+          <button class="secondary settings-mute-btn settings-state-btn" type="button" id="reduced-motion-toggle-btn" aria-pressed="false"><span id="reduced-motion-toggle-label">OFF</span></button>
         </div>
       </div>
     </section>
@@ -4010,12 +4205,14 @@ body.swipe-back-active{ cursor:grabbing; }
 
       <div class="settings-audio-control">
         <div class="settings-audio-head">
-          <div>
-            <b>Background music</b>
-            <span>Mind-Bender · 8-Bit Puzzler during memory challenges</span>
+          <div class="settings-row-main">
+            <span class="material-symbols-outlined settings-row-icon" aria-hidden="true">music_note</span>
+            <div>
+              <b>Background music</b>
+              <span>Mind-Bender · 8-Bit Puzzler during memory challenges</span>
+            </div>
           </div>
-          <button class="secondary settings-mute-btn" type="button" id="music-mute-btn" aria-pressed="false">
-            <span class="material-symbols-outlined" id="music-mute-icon">volume_up</span>
+          <button class="secondary settings-mute-btn settings-state-btn" type="button" id="music-mute-btn" aria-pressed="false">
             <span id="music-mute-label">MUTE</span>
           </button>
         </div>
@@ -4027,12 +4224,14 @@ body.swipe-back-active{ cursor:grabbing; }
 
       <div class="settings-audio-control">
         <div class="settings-audio-head">
-          <div>
-            <b>Sound effects</b>
-            <span>Matches, power-ups, rewards, and interface sounds</span>
+          <div class="settings-row-main">
+            <span class="material-symbols-outlined settings-row-icon" aria-hidden="true">graphic_eq</span>
+            <div>
+              <b>Sound effects</b>
+              <span>Matches, power-ups, rewards, and interface sounds</span>
+            </div>
           </div>
-          <button class="secondary settings-mute-btn" type="button" id="sfx-mute-btn" aria-pressed="false">
-            <span class="material-symbols-outlined" id="sfx-mute-icon">volume_up</span>
+          <button class="secondary settings-mute-btn settings-state-btn" type="button" id="sfx-mute-btn" aria-pressed="false">
             <span id="sfx-mute-label">MUTE</span>
           </button>
         </div>
@@ -4061,7 +4260,7 @@ body.swipe-back-active{ cursor:grabbing; }
     <button class="modal-corner-close" id="howto-close-btn" aria-label="Close How To Play"><span class="material-symbols-outlined">close</span></button>
     <h2>How To Play</h2>
     <div class="howto-sheet ui-scroll">
-      <p class="howto-intro">The goal is simple. Make matches and reach the first star before you run out of moves. Finish early and your unused moves turn into row and column busters for a final score-boosting cascade.</p>
+      <p class="howto-intro">Reach the first progress marker to clear the level. Any moves you have left become bonus row and column busters, which can raise your final score and star rating.</p>
 
       <div class="howto-section">
         <h3 class="howto-section-title">The basics</h3>
@@ -4291,6 +4490,10 @@ body.swipe-back-active{ cursor:grabbing; }
         <div class="result-stat"><b id="result-score">0</b><span>Score earned</span></div>
         <div class="result-stat"><b id="result-moves">0 / 0</b><span>Moves used</span></div>
       </div>
+      <div class="result-bonus-stack" id="result-bonus-stack" hidden>
+        <span class="collection-kicker">Round rewards</span>
+        <div class="result-bonus-items" id="result-bonus-items"></div>
+      </div>
       <div class="screen-actions end-screen-actions">
         <button class="primary" id="screen-btn">CONTINUE</button>
         <div class="end-screen-secondary-actions">
@@ -4359,7 +4562,7 @@ body.swipe-back-active{ cursor:grabbing; }
       </div>
     </div>
     <div class="mini-game-meta">
-      <div><b id="mini-game-pairs">0 / 3</b><span>Pairs</span></div>
+      <div><b id="mini-game-pairs">0 / 4</b><span>Pairs</span></div>
       <div><b id="mini-game-turns">0</b><span>Turns</span></div>
     </div>
     <div class="memory-game-wrap">
@@ -5877,6 +6080,7 @@ this.progressTrack = document.getElementById('progressTrack');
         if (!overlay || overlay.classList.contains('active')) return;
         if (!this.achievementQueue.length) return;
         const resultOverlay = document.getElementById('screen-overlay');
+        if (this.isLevelActive) return;
         if (this.isProcessing && !resultOverlay?.classList.contains('active')) return;
         const achievement = this.achievementQueue.shift();
         const sheet = STICKER_SHEETS.find(s => s.id === achievement.id);
@@ -7323,6 +7527,7 @@ if (peekBtn) {
         document.getElementById('result-time').innerText = this.formatDuration(result.elapsedMs);
         document.getElementById('result-score').innerText = this.formatStat(scoreEarned);
         document.getElementById('result-moves').innerText = `${movesUsed} / ${movesAllotted}`;
+        this.renderResultBonuses(result.extras || []);
 
         const starsRow = document.getElementById('screen-stars');
         starsRow.innerHTML = '';
@@ -7345,6 +7550,74 @@ if (peekBtn) {
         });
     }
 
+    renderResultBonuses(extras = []) {
+        const stack = document.getElementById('result-bonus-stack');
+        const items = document.getElementById('result-bonus-items');
+        if (!stack || !items) return;
+        items.innerHTML = '';
+        const list = Array.isArray(extras) ? extras.filter(Boolean) : [];
+        stack.hidden = !list.length;
+        if (!list.length) return;
+
+        list.forEach(extra => {
+            const row = document.createElement('div');
+            row.className = 'result-bonus-item';
+
+            const art = document.createElement('div');
+            art.className = 'result-bonus-art';
+            if (extra.artHtml) art.innerHTML = extra.artHtml;
+            else if (extra.icon) {
+                art.innerHTML = `<span class="material-symbols-outlined">${extra.icon}</span>`;
+            }
+
+            const copy = document.createElement('div');
+            copy.className = 'result-bonus-copy';
+            const title = document.createElement('b');
+            title.innerText = extra.title || 'Bonus';
+            const desc = document.createElement('span');
+            desc.innerText = extra.desc || '';
+            copy.appendChild(title);
+            copy.appendChild(desc);
+
+            row.appendChild(art);
+            row.appendChild(copy);
+            items.appendChild(row);
+        });
+    }
+
+    collectAchievementResultExtras() {
+        const extras = [];
+        while (this.achievementQueue && this.achievementQueue.length) {
+            const achievement = this.achievementQueue.shift();
+            const sheet = STICKER_SHEETS.find(s => s.id === achievement.id);
+            const sticker = sheet?.stickers?.[0];
+            extras.push({
+                type:'achievement',
+                title:`New stamp: ${achievement.name}`,
+                desc:achievement.desc,
+                artHtml:sticker ? this.buildStickerFace(sticker) : ''
+            });
+        }
+        return extras;
+    }
+
+    grantRandomResultReward() {
+        const types = Object.keys(POWER_UPS);
+        if (!types.length) return null;
+        const type = types[Math.floor(Math.random() * types.length)];
+        const def = POWER_UPS[type];
+        this.inventory[type] = (this.inventory[type] || 0) + 1;
+        this.updatePowerUpTray();
+        this.persist();
+        this.sfx.reward();
+        return {
+            type:'reward',
+            title:`Free power-up: ${def.name}`,
+            desc:`Added to your inventory and ready to use next round.`,
+            artHtml:this.buildCardIcon(def)
+        };
+    }
+
     hideScreen() {
         document.getElementById('screen-overlay').classList.remove('active');
         const confetti = document.getElementById('screen-confetti');
@@ -7357,14 +7630,14 @@ if (peekBtn) {
         if (status) status.innerHTML = '';
     }
 
-    onScreenButton() {
+    async onScreenButton() {
         this.hideScreen();
         if (this.screenAction === 'minigame') {
             this.startMiniGame(this.currentLevelIdx, false);
             return;
         }
         if (this.screenAction === 'reward') {
-            this.showRewardPicker();
+            await this.startLevel();
             return;
         }
         if (this.screenAction === 'debugReturn') {
@@ -7692,7 +7965,7 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
         const color = starColors[index];
         this.ringBurst(x, y, color, 40 + index * 8);
         this.particleBurst(x, y, index + 1, 10 + index * 3);
-        this.progressToast(['1 STAR!', '2 STARS!', '3 STARS!'][index]);
+        this.progressToast(['GOAL!', '2 STARS!', '3 STARS!'][index]);
         this.sfx.milestoneHit();
         this.vibrate(14 + index * 5);
     }
@@ -8467,7 +8740,7 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
                 { transform:'scale(1) rotate(0deg)' }
               ];
         const announce = tile.inner.animate(announceFrames,
-            { duration:this.isReducedMotion() ? 1 : (source === 'finale' ? 440 : 620), easing:'cubic-bezier(.16,.84,.22,1)' }
+            { duration:this.isReducedMotion() ? 1 : (source === 'finale' ? 340 : 620), easing:'cubic-bezier(.16,.84,.22,1)' }
         );
         announce.addEventListener('finish', () => { tile.el.style.zIndex = ''; }, { once:true });
         announce.addEventListener('cancel', () => { tile.el.style.zIndex = ''; }, { once:true });
@@ -8942,13 +9215,10 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
         const placed = [];
         const firstVertical = Math.random() < 0.5;
 
-        /* Give the player time to understand why the level has not ended yet.
-           The finale is deliberately staged as: remaining moves -> conversion ->
-           individual placements -> ready beat -> simultaneous activation. */
-        await this.showFinaleBanner(`${count} MOVE${count === 1 ? '' : 'S'} LEFT`, reduced ? 1 : 950);
-        await wait(reduced ? 1 : 180);
-        await this.showFinaleBanner('TURNING THEM INTO BUSTERS', reduced ? 1 : 1050);
-        await wait(reduced ? 1 : 220);
+        /* One cue is enough. After this, the moves counter visibly counts down
+           while each remaining move becomes a buster on the board. */
+        await this.showFinaleBanner(`${count} MOVE${count === 1 ? '' : 'S'} → BONUS`, reduced ? 1 : 700);
+        await wait(reduced ? 1 : 160);
 
         for (let i = 0; i < shuffled.length; i++) {
             const oldTile = shuffled[i];
@@ -8968,44 +9238,18 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
             this.movesEl.innerText = this.moves;
             if (!reduced) {
                 this.bumpEl(this.movesEl.closest('.pill'));
-
-                /* Each buster gets its own readable landing beat. */
-                const landing = tile.inner.animate(
-                    [
-                        { transform:'scale(1) rotate(0deg)' },
-                        { transform:'scale(1.18,.9) rotate(-2deg)', offset:.34 },
-                        { transform:'scale(.96,1.08) rotate(1deg)', offset:.62 },
-                        { transform:'scale(1.04) rotate(0deg)', offset:.82 },
-                        { transform:'scale(1) rotate(0deg)' }
-                    ],
-                    { duration:420, easing:'cubic-bezier(.16,.84,.22,1)' }
-                );
-                await this.safeFinished(landing);
-                await wait(140);
+                await wait(300);
             }
         }
 
-        if (overflowMoves > 0) {
-            this.moves = 0;
-            this.movesEl.innerText = '0';
-            if (!reduced) {
-                const power = 1 + overflowMoves * 0.10;
-                await this.showFinaleBanner(`BONUS x${power.toFixed(1)}`, 620);
-                await wait(180);
-            }
-        } else {
-            this.moves = 0;
-            this.movesEl.innerText = '0';
-        }
+        this.moves = 0;
+        this.movesEl.innerText = '0';
 
         if (!placed.length) return 0;
 
-        /* Let the completed set sit on the board before it fires. */
-        await wait(reduced ? 1 : 650);
-        await this.showFinaleBanner('BUSTERS READY', reduced ? 1 : 700);
-        await wait(reduced ? 1 : 250);
-        await this.showFinaleBanner('GO!', reduced ? 1 : 520);
-        await wait(reduced ? 1 : 260);
+        /* A short beat lets the player see the finished set, then all busters fire.
+           No READY / GO / multiplier banners are needed. */
+        await wait(reduced ? 1 : 520);
 
         /* All busters fire on the same beat. Existing specials caught in their
            paths can chain normally, but the free finale busters themselves do
@@ -9143,13 +9387,30 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
                 const rewardMilestone = this.currentLevelIdx % 5 === 0;
                 const miniGameMilestone = this.currentLevelIdx % 10 === 0;
                 this.pendingPostMiniReward = false;
+
+                const resultExtras = [];
+                if (miniGameMilestone) {
+                    resultExtras.push({
+                        type:'challenge',
+                        title:'Memory Match challenge unlocked',
+                        desc:'Continue to play the bonus challenge for a stamp and 500 coins.',
+                        artHtml:`<div class="reward-card"><div class="rc-piece" style="display:grid;place-items:center;"><span class="material-symbols-outlined" style="font-size:1.4rem;">grid_view</span></div></div>`
+                    });
+                }
+                if (rewardMilestone) {
+                    const rewardExtra = this.grantRandomResultReward();
+                    if (rewardExtra) resultExtras.push(rewardExtra);
+                }
+                resultExtras.push(...this.collectAchievementResultExtras());
+
                 const title = (rewardMilestone || miniGameMilestone) ? `${this.currentLevelIdx} LEVELS CLEARED!` : 'Level Clear!';
-                this.showScreen(title, 'CONTINUE', stars, miniGameMilestone ? 'minigame' : (rewardMilestone ? 'reward' : 'play'), true, {
+                this.showScreen(title, 'CONTINUE', stars, miniGameMilestone ? 'minigame' : 'play', true, {
                     coinsEarned,
                     elapsedMs,
                     score:this.score,
                     movesUsed,
-                    movesAllotted
+                    movesAllotted,
+                    extras:resultExtras
                 });
             }
         } else {
@@ -9161,7 +9422,8 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
                 elapsedMs,
                 score:this.score,
                 movesUsed,
-                movesAllotted
+                movesAllotted,
+                extras:this.collectAchievementResultExtras()
             });
         }
 
@@ -9633,7 +9895,7 @@ Object.assign(Game.prototype, {
         if (action === 'mini60') return this.startMiniGame(60, true);
         if (action === 'miniReward') {
             this.debugMiniGame = true;
-            this.miniGameState = { level:10, challenge:1, pairs:3, matchedPairs:3, turns:4, artwork:this.makeMemoryStampArtwork(1) };
+            this.miniGameState = { level:10, challenge:1, pairs:4, matchedPairs:4, turns:5, artwork:this.makeMemoryStampArtwork(1) };
             this.showMiniGameReward(true);
         }
     },
@@ -9641,14 +9903,12 @@ Object.assign(Game.prototype, {
     miniGameConfig(levelNumber) {
         const challenge = Math.max(1, Math.floor(Math.max(10, levelNumber) / 10));
         let pairs;
-        if (challenge === 1) pairs = 3;
-        else if (challenge === 2) pairs = 4;
-        else if (challenge === 3) pairs = 5;
-        else if (challenge === 4) pairs = 6;
-        else if (challenge <= 6) pairs = 8;
-        else if (challenge <= 8) pairs = 10;
-        else pairs = 12;
-        const cols = pairs <= 3 ? 3 : 4;
+        if (challenge === 1) pairs = 4;       // 8 cards
+        else if (challenge === 2) pairs = 6;  // 12 cards
+        else if (challenge === 3) pairs = 8;  // 16 cards
+        else if (challenge <= 5) pairs = 10;  // 20 cards
+        else pairs = 12;                      // 24 cards
+        const cols = 4;
         return { challenge, pairs, cols };
     },
 
@@ -9700,7 +9960,7 @@ Object.assign(Game.prototype, {
         this.debugMiniGame = !!debug;
         this.miniGameState = {
             level:levelNumber, challenge:config.challenge, pairs:config.pairs, cols:config.cols, cards,
-            firstIndex:null, lock:false, matchedPairs:0, turns:0, artwork:this.makeMemoryStampArtwork(config.challenge)
+            firstIndex:null, lock:true, previewing:true, matchedPairs:0, turns:0, artwork:this.makeMemoryStampArtwork(config.challenge)
         };
         const kicker = document.getElementById('mini-game-kicker');
         if (kicker) kicker.innerText = debug ? `DEBUG · LEVEL ${levelNumber} CHALLENGE` : `LEVEL ${levelNumber} CHALLENGE`;
@@ -9710,6 +9970,15 @@ Object.assign(Game.prototype, {
         const overlay = document.getElementById('mini-game-overlay');
         if (from && from !== overlay) this.swipeModalSwap(from, overlay, true);
         else this.panGameToSheet(overlay);
+
+        /* A short memory preview makes the challenge about remembering positions,
+           not blind guessing. The player cannot interact until the cards flip down. */
+        const previewState = this.miniGameState;
+        await wait(this.isReducedMotion() ? 500 : 1500);
+        if (!previewState || this.miniGameState !== previewState) return;
+        previewState.previewing = false;
+        previewState.lock = false;
+        this.renderMiniGame();
     },
 
     renderMiniGame() {
@@ -9723,9 +9992,10 @@ Object.assign(Game.prototype, {
         s.cards.forEach((card,index) => {
             const btn = document.createElement('button');
             btn.type = 'button';
-            btn.className = `memory-card${card.revealed ? ' revealed' : ''}${card.matched ? ' matched' : ''}`;
-            btn.disabled = card.matched;
-            btn.setAttribute('aria-label', card.revealed || card.matched ? `Card ${index + 1}, revealed` : `Card ${index + 1}, hidden`);
+            const isShown = !!s.previewing || card.revealed || card.matched;
+            btn.className = `memory-card${isShown ? ' revealed' : ''}${card.matched ? ' matched' : ''}`;
+            btn.disabled = !!s.previewing || card.matched;
+            btn.setAttribute('aria-label', isShown ? `Card ${index + 1}, revealed` : `Card ${index + 1}, hidden`);
             btn.style.setProperty('--memory-bg', themeColor(card.color,'base'));
             btn.style.setProperty('--memory-icon', themeColor(card.color,'light'));
             btn.innerHTML = `<span class="memory-card-back" aria-hidden="true"></span><span class="memory-card-front" aria-hidden="true"><svg viewBox="0 0 480 480"><use href="#${SHAPES[card.shape]}"></use></svg></span>`;
@@ -9797,7 +10067,7 @@ Object.assign(Game.prototype, {
     },
 
     showMiniGameReward(debug = false) {
-        const s = this.miniGameState || {level:10,challenge:1,pairs:3,matchedPairs:3,turns:4,artwork:this.makeMemoryStampArtwork(1)};
+        const s = this.miniGameState || {level:10,challenge:1,pairs:4,matchedPairs:4,turns:5,artwork:this.makeMemoryStampArtwork(1)};
         const art = document.getElementById('mini-reward-art');
         if (art) art.style.backgroundImage = s.artwork;
         const copy = document.getElementById('mini-reward-copy');
