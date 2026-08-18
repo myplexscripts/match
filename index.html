@@ -407,8 +407,9 @@ button{touch-action:manipulation}
   display:flex;
   align-items:center;
   justify-content:center;
-  gap:10px;
+  gap:8px;
   padding-top:6px;
+  flex-wrap:wrap;
 }
 .objective-row[hidden]{display:none!important;}
 
@@ -2353,6 +2354,19 @@ symbol{
 .result-coin-value b{
   display:block;
 }
+.result-next{
+  width:100%;
+  margin-top:2px;
+  padding:10px 12px;
+  border:2px solid var(--border-color);
+  border-radius:14px;
+  background:var(--neutral-50);
+  color:var(--muted);
+  font:800 .76rem/1.3 Manrope,sans-serif;
+  text-align:left;
+}
+.result-next[hidden]{display:none!important;}
+
 .result-stat span{
   display:block;
   margin-top:7px;
@@ -3709,6 +3723,32 @@ button.sticker-slot.stamp-catalog-entry.earned:active .stamp-slot-visual{ transf
   text-transform:uppercase;
   letter-spacing:.04em;
 }
+.level-select-mastery{
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:10px 12px;
+  border:2px solid var(--border-color);
+  border-radius:14px;
+  background:var(--color-true-yellow-light);
+  color:var(--ink-fixed);
+  box-shadow:2px 2px 0 var(--shadow-color);
+  font:800 .75rem/1.2 Manrope,sans-serif;
+}
+.level-select-mastery b{font-size:.84rem;}
+.level-select-note{
+  width:100%;
+  margin:10px 0 0;
+  color:var(--muted);
+  font:700 .78rem/1.4 Inter,sans-serif;
+  text-align:left;
+}
+.level-select-tile.mastered{
+  background:var(--neutral-50);
+  box-shadow:4px 4px 0 var(--shadow-color), inset 0 0 0 3px var(--color-true-yellow-base);
+}
 .level-select-empty{
   grid-column:1 / -1;
   margin:12px 0;
@@ -4140,6 +4180,82 @@ body.swipe-back-active{ cursor:grabbing; }
   text-transform:uppercase;
   color:var(--muted);
 }
+.objective-pill.challenge-pill{
+  min-width:126px;
+  background:var(--color-true-yellow-light);
+  color:var(--ink-fixed);
+}
+.objective-pill.challenge-pill .objective-copy span{color:rgba(23,22,26,.66);}
+.objective-mini-tile.challenge-icon,
+.objective-mini-tile.glass-icon{
+  background:var(--neutral-50);
+  color:var(--ink);
+}
+.objective-mini-tile.challenge-icon .material-symbols-outlined,
+.objective-mini-tile.glass-icon .material-symbols-outlined{
+  font-size:1.15rem;
+  font-variation-settings:'FILL' 1,'wght' 700;
+}
+.objective-pill.glass-pill{
+  background:var(--color-blue-light);
+  color:var(--ink-fixed);
+}
+.objective-pill.glass-pill .objective-copy span{color:rgba(23,22,26,.66);}
+
+/* Board modifiers are cell-based, so gravity can move tiles through them.
+   They never capture input and only a handful exist on a level. */
+.board-modifier{
+  position:absolute;
+  left:0;
+  top:0;
+  z-index:4;
+  pointer-events:none;
+  border-radius:24%;
+  transform-origin:center;
+  overflow:visible;
+}
+.board-modifier.spotlight-cell{
+  z-index:3;
+  border:3px dashed var(--color-true-yellow-light);
+  box-shadow:inset 0 0 0 2px var(--color-true-yellow-dark);
+}
+.board-modifier.spotlight-cell::after,
+.board-modifier.coin-cell::after,
+.board-modifier.move-cell::after{
+  position:absolute;
+  top:-7px;
+  right:-7px;
+  min-width:24px;
+  height:24px;
+  padding:0 4px;
+  display:grid;
+  place-items:center;
+  border:2px solid var(--border-color);
+  border-radius:999px;
+  box-shadow:2px 2px 0 var(--shadow-color);
+  font:800 .68rem/1 Manrope,sans-serif;
+  color:var(--ink-fixed);
+}
+.board-modifier.spotlight-cell::after{
+  content:'×2';
+  background:var(--color-true-yellow-light);
+}
+.board-modifier.coin-cell::after{
+  content:'$';
+  background:var(--color-yellow-orange-light);
+}
+.board-modifier.move-cell::after{
+  content:'+1';
+  background:var(--color-green-light);
+}
+.board-modifier.glass-cell{
+  z-index:5;
+  border:3px solid rgba(255,255,255,.72);
+  background:
+    linear-gradient(45deg,transparent 46%,rgba(255,255,255,.58) 47%,rgba(255,255,255,.58) 53%,transparent 54%),
+    linear-gradient(-45deg,transparent 46%,rgba(255,255,255,.38) 47%,rgba(255,255,255,.38) 53%,transparent 54%);
+  box-shadow:inset 0 0 0 2px rgba(3,77,118,.45);
+}
 
 /* ---------- Memory Match size consistency ----------
    Hidden and revealed tiles should occupy the exact same visual size. */
@@ -4173,6 +4289,12 @@ body.swipe-back-active{ cursor:grabbing; }
   font:800 .78rem/1 Manrope,sans-serif;
   letter-spacing:.12em;
   text-transform:uppercase;
+  color:var(--ink-fixed);
+}
+.level-wipe-detail{
+  margin-top:7px;
+  max-width:330px;
+  font:800 1.05rem/1.25 Manrope,sans-serif;
   color:var(--ink-fixed);
 }
 .level-wipe-targets{
@@ -4807,7 +4929,7 @@ body.swipe-back-active{ cursor:grabbing; }
     <button class="modal-corner-close" id="howto-close-btn" aria-label="Close How To Play"><span class="material-symbols-outlined">close</span></button>
     <h2>How To Play</h2>
     <div class="howto-sheet ui-scroll">
-      <p class="howto-intro">Early levels are score challenges. Later levels add Targeted Tiles, asking you to clear specific tile types as well as reaching the score goal. Finish every active goal before your moves run out. Any moves left become bonus row and column busters.</p>
+      <p class="howto-intro">Early levels teach the basic match loop. Later rounds develop different personalities, add optional bonus challenges, and introduce new board spaces a little at a time. Finish every required goal before your moves run out. Any moves left become bonus row and column busters.</p>
 
       <div class="howto-section">
         <h3 class="howto-section-title">The basics</h3>
@@ -4828,7 +4950,7 @@ body.swipe-back-active{ cursor:grabbing; }
             </div>
             <div class="howto-step-copy">
               <b>Fill the meter</b>
-              <span>Every match adds score. Reach the level goal before your moves run out to clear the level and bank your stars.</span>
+              <span>Every clear adds score. Bigger clears, special combinations, and cascades score more. Reach the goal before your moves run out to clear the level and bank your stars.</span>
             </div>
           </div>
 
@@ -4837,8 +4959,8 @@ body.swipe-back-active{ cursor:grabbing; }
               <svg viewBox="0 0 480 480" aria-hidden="true"><use href="#piece-sparkle"></use></svg>
             </div>
             <div class="howto-step-copy">
-              <b>Later levels add targets</b>
-              <span>Some later rounds add Targeted Tiles. Clear the requested number of each shown tile as well as reaching the score goal. Later challenges can have two Targeted Tiles at once.</span>
+              <b>Later levels change the board</b>
+              <span>Targeted Tiles ask for specific colours. Glass spaces must be cleared, ×2 Spotlight spaces boost score, coin spaces pay out when cleared, and +1 spaces give you another move. Yellow BONUS goals are optional and pay extra coins.</span>
             </div>
           </div>
 
@@ -4909,6 +5031,8 @@ body.swipe-back-active{ cursor:grabbing; }
       <b>Completed levels</b>
       <span id="level-select-count">0</span>
     </div>
+    <div class="level-select-mastery" id="level-select-mastery"><b>Master 1–5</b><span>0 / 5</span></div>
+    <p class="level-select-note">Improve a level's star rating to earn 75 coins for each new star. Master all five levels in a set for a bigger reward.</p>
     <div class="collection-scroll ui-scroll">
       <div class="level-select-grid" id="level-select-grid"></div>
     </div>
@@ -5035,6 +5159,7 @@ body.swipe-back-active{ cursor:grabbing; }
         <span class="collection-kicker">Round rewards</span>
         <div class="result-bonus-items" id="result-bonus-items"></div>
       </div>
+      <div class="result-next" id="result-next" hidden></div>
       <div class="screen-actions end-screen-actions">
         <button class="primary" id="screen-btn">CONTINUE</button>
         <div class="end-screen-secondary-actions">
@@ -5185,7 +5310,8 @@ body.swipe-back-active{ cursor:grabbing; }
     <div class="level-wipe-number" id="levelWipeNumber">LEVEL 1</div>
     <div class="level-wipe-objective" id="levelWipeObjective" hidden>
       <div class="level-wipe-rule"></div>
-      <div class="level-wipe-objective-label">TARGETED TILES</div>
+      <div class="level-wipe-objective-label" id="levelWipeObjectiveLabel">ROUND</div>
+      <div class="level-wipe-detail" id="levelWipeDetail"></div>
       <div class="level-wipe-targets" id="levelWipeTargets"></div>
     </div>
   </div>
@@ -5206,12 +5332,12 @@ const SPECIALS = { NONE: 0, H_STRIPE: 1, V_STRIPE: 2, BURST: 3, BOMB: 4 };
    SVG piece referenced by SPECIAL_SHAPES) instead of icon, so the tray/shop
    icon always matches the tile the power-up actually produces. */
 const POWER_UPS = {
-    swap: { pieceIcon: 'pu-swap-new', iconViewBox: '0 0 256 256', exactIcon: true, iconScale: 1.18, name: 'Swap', desc: 'Swap any two tiles on the board.', colorId: 6, cost: 600 },
-    shuffle: { pieceIcon: 'pu-shuffle-new', iconViewBox: '0 0 256 256', exactIcon: true, iconScale: 1.14, name: 'Shuffle', desc: 'Reshuffle the whole board.', colorId: 3, cost: 800 },
-    extraMoves: { pieceIcon: 'pu-five-new', iconViewBox: '0 0 256 256', exactIcon: true, iconScale: 1.08, name: '+5 Moves', desc: 'Adds 5 extra moves to spend.', colorId: 4, cost: 700 },
-    colorBomb: { pieceIcon: 'pu-bomb-new', iconViewBox: '0 0 256 256', exactIcon: true, iconScale: 1.06, name: 'Colour Bomb', desc: 'Drops a colour bomb onto the board.', colorId: 1, cost: 1200 },
-    rowRocket: { pieceIcon: 'pu-row-new', iconViewBox: '0 0 256 256', exactIcon: true, iconScale: 1.16, name: 'Horizontal Clear', desc: 'Drops a special tile that clears a whole row when matched.', colorId: 1, cost: 900 },
-    colRocket: { pieceIcon: 'pu-col-new', iconViewBox: '0 0 256 256', exactIcon: true, iconScale: 1.16, name: 'Vertical Clear', desc: 'Drops a special tile that clears a whole column when matched.', colorId: 2, cost: 900 }
+    swap: { pieceIcon: 'pu-swap-new', iconViewBox: '0 0 256 256', exactIcon: true, iconScale: 1.18, name: 'Swap', desc: 'Swap any two tiles on the board.', colorId: 6, cost: 650 },
+    shuffle: { pieceIcon: 'pu-shuffle-new', iconViewBox: '0 0 256 256', exactIcon: true, iconScale: 1.14, name: 'Shuffle', desc: 'Reshuffle the whole board.', colorId: 3, cost: 850 },
+    extraMoves: { pieceIcon: 'pu-five-new', iconViewBox: '0 0 256 256', exactIcon: true, iconScale: 1.08, name: '+5 Moves', desc: 'Adds 5 extra moves to spend.', colorId: 4, cost: 750 },
+    colorBomb: { pieceIcon: 'pu-bomb-new', iconViewBox: '0 0 256 256', exactIcon: true, iconScale: 1.06, name: 'Colour Bomb', desc: 'Drops a colour bomb onto the board.', colorId: 1, cost: 1250 },
+    rowRocket: { pieceIcon: 'pu-row-new', iconViewBox: '0 0 256 256', exactIcon: true, iconScale: 1.16, name: 'Horizontal Clear', desc: 'Drops a special tile that clears a whole row when matched.', colorId: 1, cost: 950 },
+    colRocket: { pieceIcon: 'pu-col-new', iconViewBox: '0 0 256 256', exactIcon: true, iconScale: 1.16, name: 'Vertical Clear', desc: 'Drops a special tile that clears a whole column when matched.', colorId: 2, cost: 950 }
 };
 
 const BOARD_SPECIAL_INFO = {
@@ -5236,12 +5362,22 @@ const COLOR_TOKEN_NAMES = {
     6: 'red-orange'
 };
 
+const THEME_COLOR_CACHE = new Map();
+
+function clearThemeColorCache() {
+    THEME_COLOR_CACHE.clear();
+}
+
 function themeColor(colorId, tone = 'base') {
     const name = COLOR_TOKEN_NAMES[colorId] || COLOR_TOKEN_NAMES[1];
+    const scheme = document.documentElement.getAttribute('data-theme') || 'light';
+    const key = `${scheme}:${name}:${tone}`;
+    if (THEME_COLOR_CACHE.has(key)) return THEME_COLOR_CACHE.get(key);
     const value = getComputedStyle(document.documentElement)
         .getPropertyValue(`--color-${name}-${tone}`)
-        .trim();
-    return value || '#FFC567';
+        .trim() || '#FFC567';
+    THEME_COLOR_CACHE.set(key, value);
+    return value;
 }
 
 const COLORS = new Proxy({}, {
@@ -5281,6 +5417,95 @@ const THEMES = [
 const TIER_COLORS = ['var(--color-true-yellow-base)', 'var(--color-yellow-orange-base)', 'var(--color-red-orange-base)'];
 /* target/starMax is always 1/1.35 regardless of level, since starMax = target*1.35 */
 const MILESTONE_PCTS = [100 / 1.35, 115 / 1.35, 100];
+
+const GAMEPLAY_TUNING = Object.freeze({
+    collateralPointsPerTile: 6,
+    specialCreatePoints: Object.freeze({
+        [SPECIALS.H_STRIPE]: 20,
+        [SPECIALS.V_STRIPE]: 20,
+        [SPECIALS.BURST]: 35,
+        [SPECIALS.BOMB]: 60
+    }),
+    comboPoints: Object.freeze({
+        BOMB_COLOR: 80,
+        STRIPE_STRIPE: 90,
+        BURST_BURST: 120,
+        STRIPE_BURST: 140,
+        BOMB_SPECIAL: 180,
+        BOMB_BOMB: 260
+    }),
+    firstTryCoins: 50,
+    cleanClearCoins: 50,
+    threeStarCoins: 75,
+    replayStarUpgradeCoins: 75,
+    streakCoinStep: 25,
+    streakCoinCap: 100,
+    streakPowerupFirst: 7,
+    streakPowerupEvery: 5,
+    masterySetCoins: 350,
+    masterySetSize: 5,
+    spotlightPointsPerTile: 10,
+    boardCoinValue: 25
+});
+
+const LEVEL_DIRECTOR = Object.freeze({
+    pressureWave:Object.freeze([0.96, 1.01, 1.05, 0.92, 1.07, 0.98, 1.09, 1.12]),
+    archetypeWave:Object.freeze(['flow','specialist','precision','cascade','target','flow','combo','glass']),
+    archetypes:Object.freeze({
+        flow:{ name:'Flow', icon:'waves', copy:'Look for one big, satisfying clear.' },
+        cascade:{ name:'Cascade', icon:'bolt', copy:'Fewer colours make chain reactions easier to build.' },
+        specialist:{ name:'Specialist', icon:'electric_bolt', copy:'Make special tiles and turn setup into payoff.' },
+        precision:{ name:'Precision', icon:'speed', copy:'A tighter move budget rewards efficient choices.' },
+        target:{ name:'Target Hunt', icon:'my_location', copy:'Clear the requested colours as well as the score goal.' },
+        combo:{ name:'Combo Lab', icon:'all_inclusive', copy:'Set up two special tiles and combine them.' },
+        glass:{ name:'Glass Break', icon:'grid_view', copy:'Clear every glass space as well as the score goal.' }
+    })
+});
+
+function levelDirectorProfile(levelNumber) {
+    const level = Math.max(1, Number(levelNumber) || 1);
+    const phase = (level - 1) % LEVEL_DIRECTOR.archetypeWave.length;
+    let archetype = LEVEL_DIRECTOR.archetypeWave[phase];
+    if (level <= 2) archetype = 'flow';
+    else if (level === 3) archetype = 'specialist';
+    else if (level === 15) archetype = 'target';
+    else if (level <= 6 && archetype === 'target') archetype = 'flow';
+    if (archetype === 'target' && level < 15) archetype = 'flow';
+    if (archetype === 'combo' && level < 20) archetype = 'specialist';
+    if (archetype === 'glass' && level < 30) archetype = 'cascade';
+
+    let pressure = LEVEL_DIRECTOR.pressureWave[phase];
+    if (level <= 10) pressure = Math.min(1.02, pressure);
+    const mood = pressure <= .94 ? 'Breather' : pressure >= 1.10 ? 'Peak' : pressure >= 1.05 ? 'Push' : 'Build';
+    const meta = LEVEL_DIRECTOR.archetypes[archetype] || LEVEL_DIRECTOR.archetypes.flow;
+    return { archetype, pressure, phase, mood, name:meta.name, icon:meta.icon, copy:meta.copy };
+}
+
+function levelChallengeFor(levelNumber, director, moves) {
+    const level = Math.max(1, Number(levelNumber) || 1);
+    if (level <= 3) return null;
+    const tier = Math.floor((level - 1) / 10);
+    const reward = Math.min(175, 70 + tier * 10);
+    switch (director.archetype) {
+        case 'cascade': return { type:'cascade', target:level >= 60 ? 4 : 3, reward, label:'CHAIN REACTION', icon:'bolt' };
+        case 'specialist': return { type:'specials', target:Math.min(4, 2 + Math.floor(level / 25)), reward, label:'MAKE SPECIALS', icon:'electric_bolt' };
+        case 'precision': return { type:'movesLeft', target:Math.max(3, Math.min(5, Math.round(moves * .18))), reward, label:'SAVE MOVES', icon:'speed' };
+        case 'target': return { type:'twoStar', target:2, reward, label:'PUSH FOR 2 STARS', icon:'star' };
+        case 'combo': return { type:'specialCombos', target:level >= 70 ? 2 : 1, reward:Math.min(200, reward + 25), label:'SPECIAL COMBO', icon:'all_inclusive' };
+        case 'glass': return { type:'movesLeft', target:2, reward:Math.min(190, reward + 15), label:'CLEAN BREAK', icon:'grid_view' };
+        default: return { type:'bigClear', target:Math.min(12, 8 + Math.floor(level / 30)), reward, label:'BIG CLEAR', icon:'auto_awesome' };
+    }
+}
+
+function shuffledPlayableCells(blocked, rows, cols, rng) {
+    const cells = [];
+    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) if (!blocked[r][c]) cells.push({r,c});
+    for (let i = cells.length - 1; i > 0; i--) {
+        const j = Math.floor(rng() * (i + 1));
+        [cells[i], cells[j]] = [cells[j], cells[i]];
+    }
+    return cells;
+}
 
 let COLS = 6;
 let ROWS = 8;
@@ -5666,11 +5891,11 @@ const BOARD_DIMS = [{ rows: 8, cols: 6 }, { rows: 8, cols: 7 }, { rows: 9, cols:
 function generateLevel(levelNumber) {
     const rng = mulberry32(levelNumber * 104729 + 17);
     const tier = Math.floor((levelNumber - 1) / 3);
+    const director = levelDirectorProfile(levelNumber);
 
     /* The first ten levels are onboarding, not a difficulty test. Complexity is
        introduced deliberately: board silhouettes first, then a sixth colour
-       beginning at Level 11. This keeps Level 7 meaningful without making it a
-       sudden wall caused by several difficulty knobs rising together. */
+       beginning at Level 11. The director adds waves on top of that baseline. */
     const earlyShapePool =
         levelNumber <= 3 ? ['classic'] :
         levelNumber <= 6 ? ['classic', 'classic', 'notched'] :
@@ -5711,47 +5936,86 @@ function generateLevel(levelNumber) {
     const perCell = 27 + Math.min(14, tier * 1.6);
     const targetRelief = Math.max(0.84, 1 - constrained * 0.24 - cramped * 0.22 - Math.max(0, colors - 6) * 0.025);
     const onboardingTargetScale = [0.78,0.84,0.88,0.92,0.95,0.97,0.98,1,1,1][levelNumber - 1] || 1;
-    const target = Math.max(
+    let target = Math.max(
         100,
         Math.round((playable * perCell * targetRelief * onboardingTargetScale) / 10) * 10
     );
 
+    /* Wave pressure deliberately rises and falls instead of climbing every level.
+       Archetypes then bias individual rounds toward different kinds of play. */
+    target = Math.max(100, Math.round(target * director.pressure / 10) * 10);
+    if (director.archetype === 'cascade') {
+        colors = Math.max(4, colors - 1);
+        target = Math.round(target * 1.06 / 10) * 10;
+    } else if (director.archetype === 'specialist') {
+        colors = Math.min(colors, 5);
+        target = Math.round(target * 1.03 / 10) * 10;
+    } else if (director.archetype === 'precision') {
+        moves = Math.max(12, moves - 2);
+        target = Math.round(target * .88 / 10) * 10;
+    } else if (director.archetype === 'target') {
+        moves += 1;
+        target = Math.round(target * .92 / 10) * 10;
+    } else if (director.archetype === 'combo') {
+        colors = Math.min(colors, 5);
+        moves += 1;
+        target = Math.round(target * 1.05 / 10) * 10;
+    } else if (director.archetype === 'glass') {
+        moves += 2;
+        target = Math.round(target * .92 / 10) * 10;
+    } else if (director.pressure <= .94) {
+        moves += 1;
+    }
+
     const minOpeningMoves =
         levelNumber <= 3 ? 5 :
         levelNumber <= 6 ? 4 :
-        levelNumber <= 10 ? 3 : 2;
+        levelNumber <= 10 ? 3 :
+        (director.archetype === 'precision' ? 3 : 2);
 
     let objective = null;
-
-    /* Selected later levels add targeted-tile objectives. Level 15 begins with
-       one target colour. From Level 30 onward, objective rounds can ask for two
-       different colours, using smaller per-colour counts so the combined demand
-       stays fair. The player must complete the score goal AND every target. */
-    if (levelNumber >= 15 && (levelNumber - 15) % 3 === 0) {
+    if (director.archetype === 'target') {
         const targetCount = levelNumber >= 30 ? 2 : 1;
         const availableColours = Array.from({length:colors}, (_, i) => i + 1);
         for (let i = availableColours.length - 1; i > 0; i--) {
             const j = Math.floor(rng() * (i + 1));
             [availableColours[i], availableColours[j]] = [availableColours[j], availableColours[i]];
         }
-
         const factor = targetCount === 1
-            ? (colors >= 6 ? 0.54 : 0.62)
-            : (colors >= 6 ? 0.38 : 0.42);
-
-        const targets = availableColours.slice(0, targetCount).map(color => ({
-            color,
-            target:Math.max(
-                targetCount === 1 ? 10 : 8,
-                Math.min(targetCount === 1 ? 28 : 20, Math.round(moves * factor))
-            )
-        }));
-
+            ? (colors >= 6 ? 0.50 : 0.57)
+            : (colors >= 6 ? 0.34 : 0.38);
         objective = {
             type:'targetedTiles',
-            targets
+            targets:availableColours.slice(0, targetCount).map(color => ({
+                color,
+                target:Math.max(targetCount === 1 ? 10 : 7, Math.min(targetCount === 1 ? 26 : 18, Math.round(moves * factor)))
+            }))
         };
     }
+
+    /* Mechanics are introduced separately and never pile up all at once.
+       They are cell-based, which keeps gravity and tile generation simple. */
+    const modifiers = { spotlight:[], coin:[], move:[], glass:[] };
+    const pool = shuffledPlayableCells(blocked, rows, cols, rng);
+    const takeCells = count => pool.splice(0, Math.max(0, Math.min(count, pool.length)));
+
+    if (director.archetype === 'glass') {
+        const glassCount = Math.min(8, 4 + Math.floor(levelNumber / 25));
+        modifiers.glass = takeCells(glassCount);
+        objective = { type:'glass', target:modifiers.glass.length };
+    } else {
+        if (levelNumber >= 12 && ['flow','cascade','specialist'].includes(director.archetype)) {
+            modifiers.spotlight = takeCells(Math.min(4, 2 + Math.floor(levelNumber / 45)));
+        }
+        if (levelNumber >= 20 && (director.archetype === 'flow' || levelNumber % 5 === 2)) {
+            modifiers.coin = takeCells(levelNumber >= 55 ? 2 : 1);
+        }
+        if (levelNumber >= 40 && director.pressure >= 1.05 && director.archetype !== 'precision') {
+            modifiers.move = takeCells(1);
+        }
+    }
+
+    const challenge = levelChallengeFor(levelNumber, director, moves);
 
     return {
         id: levelNumber,
@@ -5760,7 +6024,10 @@ function generateLevel(levelNumber) {
         shape,
         difficultyRelief:targetRelief,
         minOpeningMoves,
-        objective
+        objective,
+        director,
+        challenge,
+        modifiers
     };
 }
 
@@ -6151,6 +6418,8 @@ class Game {
         this.scoreEl = document.getElementById('score-txt');
         this.movesEl = document.getElementById('moves-txt');
 this.levelEl = document.getElementById('level-txt');
+this.levelSublabelEl = this.levelEl?.closest('.brand-card')?.querySelector('span') || null;
+this._objectiveHudSignature = null;
 this.progressFill = document.getElementById('progressFill');
 this.progressHead = document.getElementById('progressHead');
 this.progressTrack = document.getElementById('progressTrack');
@@ -6161,6 +6430,7 @@ this.progressTrack = document.getElementById('progressTrack');
         this.levelWipeEl = document.getElementById('levelWipe');
         this.levelWipeNumberEl = document.getElementById('levelWipeNumber');
         this.levelWipeObjectiveEl = document.getElementById('levelWipeObjective');
+        this.levelWipeObjectiveLabelEl = document.getElementById('levelWipeObjectiveLabel');
         this.levelWipeTargetsEl = document.getElementById('levelWipeTargets');
         this.levelWipeDetailEl = document.getElementById('levelWipeDetail');
         this.lastPresentedLevel = null;
@@ -6190,6 +6460,14 @@ this.progressTrack = document.getElementById('progressTrack');
         this.levelMovesAllotted = 0;
         this.levelObjective = null;
         this.levelObjectiveProgress = {};
+        this.levelChallenge = null;
+        this.levelDirector = null;
+        this.levelTilesCleared = 0;
+        this.levelSpecialsMade = 0;
+        this.levelSpecialCombos = 0;
+        this.levelBoardCoinsEarned = 0;
+        this.boardModifiers = { spotlight:new Set(), coin:new Set(), move:new Set(), glass:new Set() };
+        this.modifierEls = [];
         this.resultStatusAnim = null;
         this.coinRewardAnim = null;
         this.reachedMilestones = new Set();
@@ -6234,8 +6512,11 @@ this.progressTrack = document.getElementById('progressTrack');
         this.particles = [];
         this.rings = [];
         this.beams = [];
+        this.fxRunning = false;
         this.perf = { last: performance.now(), frame: 0 };
         this.dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+        this.levelBestCascade = 0;
+        this.levelBiggestClear = 0;
 
         this.sfx = new SFX();
         this.audioSettingsKey = 'mellowMatch.audio.v1';
@@ -6265,8 +6546,6 @@ this.progressTrack = document.getElementById('progressTrack');
         window.addEventListener('pagehide', () => this.flushSave());
 
         this.showMainMenu();
-
-        requestAnimationFrame(now => this.fxLoop(now));
     }
 
 
@@ -6367,6 +6646,12 @@ this.progressTrack = document.getElementById('progressTrack');
             s.el.style.transform = this.tileTransform(s.r, s.c);
         });
 
+        (this.modifierEls || []).forEach(m => {
+            m.el.style.width = `${cell}px`;
+            m.el.style.height = `${cell}px`;
+            m.el.style.transform = this.tileTransform(m.r, m.c);
+        });
+
         this.resizeCanvas();
     }
 
@@ -6427,6 +6712,7 @@ this.progressTrack = document.getElementById('progressTrack');
             powerupsUsed:0, swapUsed:0, shuffleUsed:0, extraMovesUsed:0,
             colorBombPowerupUsed:0, horizontalPowerupUsed:0, verticalPowerupUsed:0,
             closeCallLevels:0, lastMoveLevels:0, noPowerupLevels:0, perfectRunLevels:0,
+            winStreakBest:0,
             coinsEarned:0, coinsSpent:0, maxCoins:0
         };
     }
@@ -6446,7 +6732,10 @@ this.progressTrack = document.getElementById('progressTrack');
             memoryGameStamps: [],
             stampEarnedAt: {},
             levelRecords: {},
-            levelLossStreaks: {}
+            levelLossStreaks: {},
+            levelNearMisses: {},
+            winStreak: 0,
+            masterySetsClaimed: []
         };
         this.ensurePunchCardRewards(data);
         return data;
@@ -6498,6 +6787,9 @@ this.progressTrack = document.getElementById('progressTrack');
             });
             data.levelRecords = data.levelRecords && typeof data.levelRecords === 'object' ? data.levelRecords : {};
             data.levelLossStreaks = data.levelLossStreaks && typeof data.levelLossStreaks === 'object' ? data.levelLossStreaks : {};
+            data.levelNearMisses = data.levelNearMisses && typeof data.levelNearMisses === 'object' ? data.levelNearMisses : {};
+            data.winStreak = Math.max(0, Number(data.winStreak) || 0);
+            data.masterySetsClaimed = Array.isArray(data.masterySetsClaimed) ? data.masterySetsClaimed.map(Number).filter(Number.isFinite) : [];
             this.ensurePunchCardRewards(data);
             return data;
         } catch (e) { return this.defaultCollection(); }
@@ -7386,6 +7678,15 @@ this.progressTrack = document.getElementById('progressTrack');
                         fullSetCredited: !!this.levelFullSetCredited,
                         objective: this.levelObjective,
                         objectiveProgress: this.levelObjectiveProgress || {},
+                        director: this.levelDirector,
+                        challenge: this.levelChallenge,
+                        levelTilesCleared: this.levelTilesCleared || 0,
+                        levelSpecialsMade: this.levelSpecialsMade || 0,
+                        levelSpecialCombos: this.levelSpecialCombos || 0,
+                        levelBestCascade: this.levelBestCascade || 0,
+                        levelBiggestClear: this.levelBiggestClear || 0,
+                        levelBoardCoinsEarned: this.levelBoardCoinsEarned || 0,
+                        modifiers: this.serializeBoardModifiers(),
                         grid: this.snapshotBoard().grid
                     } : null)
             };
@@ -7425,6 +7726,7 @@ this.progressTrack = document.getElementById('progressTrack');
                 if (cell) this.createTile(r, c, cell.color, cell.special);
             }
         }
+        this.renderBoardModifiers();
     }
 
     resumeFromSave(save) {
@@ -7432,8 +7734,18 @@ this.progressTrack = document.getElementById('progressTrack');
             const lvl = save.level;
             ROWS = lvl.rows; COLS = lvl.cols;
             this.blocked = lvl.blocked;
-            this.levelConfig = { shape: lvl.shape, rows: lvl.rows, cols: lvl.cols, blocked: lvl.blocked, objective:lvl.objective || null };
+            const generated = generateLevel((save.currentLevelIdx || 0) + 1);
+            this.levelConfig = Object.assign({}, generated, { shape: lvl.shape, rows: lvl.rows, cols: lvl.cols, blocked: lvl.blocked, objective:lvl.objective || null });
             this.levelObjective = lvl.objective || null;
+            this.levelDirector = lvl.director || generated.director || null;
+            this.levelChallenge = lvl.challenge || generated.challenge || null;
+            this.boardModifiers = this.normaliseBoardModifiers(lvl.modifiers || {});
+            this.levelTilesCleared = Math.max(0, Number(lvl.levelTilesCleared) || 0);
+            this.levelSpecialsMade = Math.max(0, Number(lvl.levelSpecialsMade) || 0);
+            this.levelSpecialCombos = Math.max(0, Number(lvl.levelSpecialCombos) || 0);
+            this.levelBestCascade = Math.max(0, Number(lvl.levelBestCascade) || 0);
+            this.levelBiggestClear = Math.max(0, Number(lvl.levelBiggestClear) || 0);
+            this.levelBoardCoinsEarned = Math.max(0, Number(lvl.levelBoardCoinsEarned) || 0);
             if (lvl.objectiveProgress && typeof lvl.objectiveProgress === 'object') {
                 this.levelObjectiveProgress = Object.assign({}, lvl.objectiveProgress);
             } else {
@@ -7579,6 +7891,9 @@ this.progressTrack = document.getElementById('progressTrack');
         this.collection.levelRecords = {};
         this.levelRecords = this.collection.levelRecords;
         this.collection.levelLossStreaks = {};
+        this.collection.levelNearMisses = {};
+        this.collection.winStreak = 0;
+        this.collection.masterySetsClaimed = [];
         this.saveCollection();
         this.coins = 0;
         this.inventory = {
@@ -7595,39 +7910,137 @@ this.progressTrack = document.getElementById('progressTrack');
         return Math.max(0, Number(this.collection?.levelLossStreaks?.[String(levelNumber)]) || 0);
     }
 
-    noteLevelLoss(levelNumber) {
-        if (!this.collection.levelLossStreaks || typeof this.collection.levelLossStreaks !== 'object') {
-            this.collection.levelLossStreaks = {};
+    getLevelNearMiss(levelNumber) {
+        return Math.max(0, Math.min(1, Number(this.collection?.levelNearMisses?.[String(levelNumber)]) || 0));
+    }
+
+    currentGoalProgress() {
+        const scorePart = Math.max(0, Math.min(1, this.targetScore ? this.score / this.targetScore : 0));
+        if (!this.levelObjective) return scorePart;
+        if (this.levelObjective.type === 'glass') {
+            const target = Math.max(1, Number(this.levelObjective.target) || 1);
+            const remaining = glassRemaining;
+            const objectivePart = Math.max(0, Math.min(1, (target - remaining) / target));
+            return Math.min(scorePart, objectivePart);
         }
+        const targets = this.objectiveTargets();
+        if (!targets.length) return scorePart;
+        const objectivePart = targets.reduce((sum, target) => {
+            const progress = Math.max(0, Number(this.levelObjectiveProgress?.[String(target.color)]) || 0);
+            return sum + Math.min(1, progress / target.target);
+        }, 0) / targets.length;
+        return Math.min(scorePart, objectivePart);
+    }
+
+    noteLevelLoss(levelNumber, progress = this.currentGoalProgress()) {
+        if (!this.collection.levelLossStreaks || typeof this.collection.levelLossStreaks !== 'object') this.collection.levelLossStreaks = {};
+        if (!this.collection.levelNearMisses || typeof this.collection.levelNearMisses !== 'object') this.collection.levelNearMisses = {};
         const key = String(Math.max(1, Number(levelNumber) || 1));
         this.collection.levelLossStreaks[key] = this.getLevelLossStreak(levelNumber) + 1;
+        this.collection.levelNearMisses[key] = Math.max(this.getLevelNearMiss(levelNumber), Math.max(0, Math.min(1, Number(progress) || 0)));
         this.saveCollection();
     }
 
     clearLevelLossStreak(levelNumber) {
-        const streaks = this.collection?.levelLossStreaks;
-        if (!streaks) return;
-        delete streaks[String(Math.max(1, Number(levelNumber) || 1))];
+        const key = String(Math.max(1, Number(levelNumber) || 1));
+        if (this.collection?.levelLossStreaks) delete this.collection.levelLossStreaks[key];
+        if (this.collection?.levelNearMisses) delete this.collection.levelNearMisses[key];
         this.saveCollection();
     }
 
     applyLossAssist(config, levelNumber) {
         const losses = this.getLevelLossStreak(levelNumber);
+        const near = this.getLevelNearMiss(levelNumber);
         config.lossAssist = losses;
 
-        /* Two misses make the next opening richer. Only repeated frustration
-           changes the actual move/target budget, and even then only slightly. */
-        if (losses >= 2) config.minOpeningMoves = Math.max(config.minOpeningMoves || 2, 5);
-        if (losses >= 3) {
-            config.moves += 1;
-            config.target = Math.round(config.target * 0.97 / 10) * 10;
-        }
+        /* Assistance reacts more strongly to repeated near-misses than to an
+           early bad run. It stays invisible and only nudges opening quality,
+           moves, target, or colour count by small amounts. */
+        if (losses >= 1 && near >= .90) config.minOpeningMoves = Math.max(config.minOpeningMoves || 2, 4);
+        if (losses >= 2) config.minOpeningMoves = Math.max(config.minOpeningMoves || 2, near >= .82 ? 5 : 4);
+        if (losses >= 2 && near >= .82) config.moves += 1;
+        if (losses >= 3) config.target = Math.max(100, Math.round(config.target * (near >= .78 ? .96 : .98) / 10) * 10);
         if (losses >= 4) {
             config.moves += 1;
-            config.target = Math.round(config.target * 0.97 / 10) * 10;
             if (config.colors > 5) config.colors -= 1;
         }
         return config;
+    }
+
+    getWinStreak() {
+        return Math.max(0, Number(this.collection?.winStreak) || 0);
+    }
+
+    updateStreakDisplay() {
+        const label = this.levelSublabelEl;
+        if (!label) return;
+        const streak = this.getWinStreak();
+        label.innerText = streak >= 2 ? `LEVEL · ×${streak}` : 'LEVEL';
+    }
+
+    registerCampaignWin() {
+        const streak = this.getWinStreak() + 1;
+        this.collection.winStreak = streak;
+        if (this.collection?.stats) this.collection.stats.winStreakBest = Math.max(this.collection.stats.winStreakBest || 0, streak);
+        const coinBonus = streak >= 2
+            ? Math.min(GAMEPLAY_TUNING.streakCoinCap, (streak - 1) * GAMEPLAY_TUNING.streakCoinStep)
+            : 0;
+        const powerUpEarned = streak >= GAMEPLAY_TUNING.streakPowerupFirst &&
+            (streak - GAMEPLAY_TUNING.streakPowerupFirst) % GAMEPLAY_TUNING.streakPowerupEvery === 0;
+        this.updateStreakDisplay();
+        this.markDirty();
+        return { streak, coinBonus, powerUpEarned };
+    }
+
+    softenCampaignStreak() {
+        const before = this.getWinStreak();
+        const after = Math.max(0, before - 2);
+        this.collection.winStreak = after;
+        this.updateStreakDisplay();
+        this.markDirty();
+        return { before, after };
+    }
+
+    masterySetStartForLevel(levelNumber) {
+        const size = GAMEPLAY_TUNING.masterySetSize;
+        return Math.floor((Math.max(1, Number(levelNumber) || 1) - 1) / size) * size + 1;
+    }
+
+    masterySetProgress(setStart) {
+        const size = GAMEPLAY_TUNING.masterySetSize;
+        let mastered = 0;
+        for (let level = setStart; level < setStart + size; level++) {
+            const stars = Math.max(0, Number(this.collection?.levelRecords?.[String(level)]?.bestStars) || 0);
+            if (stars >= 3) mastered++;
+        }
+        return { mastered, size, complete:mastered >= size };
+    }
+
+    claimMasterySetIfReady(levelNumber) {
+        const setStart = this.masterySetStartForLevel(levelNumber);
+        const progress = this.masterySetProgress(setStart);
+        if (!progress.complete) return null;
+        if (!Array.isArray(this.collection.masterySetsClaimed)) this.collection.masterySetsClaimed = [];
+        if (this.collection.masterySetsClaimed.includes(setStart)) return null;
+        this.collection.masterySetsClaimed.push(setStart);
+        this.addCoins(GAMEPLAY_TUNING.masterySetCoins);
+        const powerExtra = this.grantRandomResultReward();
+        if (powerExtra) {
+            powerExtra.title = `Mastery set power-up: ${powerExtra.title.replace('Free power-up: ', '')}`;
+            powerExtra.desc = `Bonus for mastering Levels ${setStart}–${setStart + progress.size - 1}.`;
+        }
+        this.markDirty();
+        return {
+            coins:GAMEPLAY_TUNING.masterySetCoins,
+            setStart,
+            setEnd:setStart + progress.size - 1,
+            extras:[{
+                type:'mastery-set',
+                title:`Mastery set +${this.formatStat(GAMEPLAY_TUNING.masterySetCoins)} coins`,
+                desc:`Every level from ${setStart}–${setStart + progress.size - 1} now has 3 stars.`,
+                icon:'workspace_premium'
+            }, powerExtra].filter(Boolean)
+        };
     }
 
     getCompletedLevelCount() {
@@ -7664,6 +8077,16 @@ this.progressTrack = document.getElementById('progressTrack');
         const countEl = document.getElementById('level-select-count');
         const grid = document.getElementById('level-select-grid');
         if (countEl) countEl.innerText = this.formatStat(count);
+        const masteryEl = document.getElementById('level-select-mastery');
+        if (masteryEl) {
+            const size = GAMEPLAY_TUNING.masterySetSize;
+            const claimed = new Set((this.collection?.masterySetsClaimed || []).map(Number));
+            let setStart = 1;
+            while (claimed.has(setStart) && setStart + size - 1 <= Math.max(size, count + size)) setStart += size;
+            if (setStart > Math.max(size, count + 1)) setStart = this.masterySetStartForLevel(Math.max(1, count));
+            const progress = this.masterySetProgress(setStart);
+            masteryEl.innerHTML = `<b>Master ${setStart}–${setStart + size - 1}</b><span>${progress.mastered} / ${size}</span>`;
+        }
         if (!grid) return;
         grid.innerHTML = '';
         if (!count) {
@@ -7674,8 +8097,8 @@ this.progressTrack = document.getElementById('progressTrack');
             const record = this.collection?.levelRecords?.[String(level)] || null;
             const btn = document.createElement('button');
             btn.type = 'button';
-            btn.className = 'level-select-tile';
             const stars = record ? Math.max(0, Math.min(3, Number(record.bestStars) || 0)) : 0;
+            btn.className = 'level-select-tile' + (stars >= 3 ? ' mastered' : '');
             const starText = record ? `${'★'.repeat(stars)}${'☆'.repeat(3 - stars)}` : '☆☆☆';
             const scoreText = record && record.bestScore
                 ? `BEST ${this.formatStat(record.bestScore)}`
@@ -7754,6 +8177,7 @@ this.progressTrack = document.getElementById('progressTrack');
             ${row('Colour Bombs', s.bombActivated)}
           </section>
           <section class="stats-section"><h3>Power-ups used</h3>
+            ${row('Best win streak', s.winStreakBest || 0)}
             ${row('All power-ups', s.powerupsUsed)}
             ${row('Swap', s.swapUsed)}
             ${row('Shuffle', s.shuffleUsed)}
@@ -7916,6 +8340,7 @@ document.getElementById('reduced-motion-toggle-btn')?.addEventListener('click', 
     setColorScheme(scheme) {
         const next = scheme === 'dark' ? 'dark' : 'light';
         document.documentElement.setAttribute('data-theme', next);
+        clearThemeColorCache();
         try { localStorage.setItem('mellowMatch.theme', next); } catch (e) { /* ignore */ }
         this.applyColorSchemeMeta(next);
         this.syncSettingsUI();
@@ -8117,6 +8542,11 @@ document.getElementById('reduced-motion-toggle-btn')?.addEventListener('click', 
         document.getElementById('result-score').innerText = this.formatStat(scoreEarned);
         document.getElementById('result-moves').innerText = `${movesUsed} / ${movesAllotted}`;
         this.renderResultBonuses(result.extras || []);
+        const resultNext = document.getElementById('result-next');
+        if (resultNext) {
+            resultNext.hidden = !result.nextText;
+            resultNext.innerText = result.nextText || '';
+        }
 
         const starsRow = document.getElementById('screen-stars');
         starsRow.innerHTML = '';
@@ -8272,11 +8702,27 @@ document.getElementById('reduced-motion-toggle-btn')?.addEventListener('click', 
         label.classList.remove('visible');
 
         const objectiveWrap = this.levelWipeObjectiveEl;
+        const objectiveLabel = this.levelWipeObjectiveLabelEl;
+        const detail = this.levelWipeDetailEl;
         const targetsHost = this.levelWipeTargetsEl;
         const targets = !labelText && config ? this.objectiveTargets(config.objective) : [];
         if (objectiveWrap && targetsHost) {
             targetsHost.innerHTML = '';
-            objectiveWrap.hidden = targets.length === 0;
+            const director = !labelText ? config?.director : null;
+            const challenge = !labelText ? config?.challenge : null;
+            const glassTarget = !labelText && config?.objective?.type === 'glass' ? Math.max(0, Number(config.objective.target) || 0) : 0;
+            objectiveWrap.hidden = !director && targets.length === 0 && !glassTarget;
+            if (objectiveLabel) objectiveLabel.innerText = director ? `${director.mood} · ${director.name}` : 'ROUND';
+            if (detail) {
+                const mechanicNotes = [];
+                const mods = config?.modifiers || {};
+                if ((mods.spotlight || []).length) mechanicNotes.push('×2 spaces double the tile points cleared on them');
+                if ((mods.coin || []).length) mechanicNotes.push('coin spaces pay out when cleared');
+                if ((mods.move || []).length) mechanicNotes.push('+1 spaces add a move when cleared');
+                if (glassTarget) mechanicNotes.push('clear glass by making matches over it');
+                const mechanicCopy = mechanicNotes.length ? ` ${mechanicNotes.join('. ')}.` : '';
+                detail.innerText = director ? `${director.copy}${mechanicCopy}${challenge ? ` Bonus: ${challenge.label.toLowerCase()}.` : ''}` : '';
+            }
             targets.forEach(target => {
                 const token = COLOR_TOKEN_NAMES[target.color] || COLOR_TOKEN_NAMES[1];
                 const item = document.createElement('div');
@@ -8289,6 +8735,12 @@ document.getElementById('reduced-motion-toggle-btn')?.addEventListener('click', 
                   <span>× ${target.target}</span>`;
                 targetsHost.appendChild(item);
             });
+            if (glassTarget) {
+                const item = document.createElement('div');
+                item.className = 'level-wipe-target';
+                item.innerHTML = `<span class="level-wipe-target-tile"><span class="material-symbols-outlined">grid_view</span></span><span>× ${glassTarget}</span>`;
+                targetsHost.appendChild(item);
+            }
         }
 
         wipe.getAnimations().forEach(anim => anim.cancel());
@@ -8340,6 +8792,7 @@ document.getElementById('reduced-motion-toggle-btn')?.addEventListener('click', 
         const nextLevelNumber = Math.max(1, Number(levelNumber) || (this.currentLevelIdx + 1));
         this.replayLevelNumber = replay ? nextLevelNumber : null;
         const config = generateLevel(nextLevelNumber);
+        if (replay && config.modifiers) config.modifiers.coin = [];
         if (!replay) this.applyLossAssist(config, nextLevelNumber);
         const showLevelWipe = this.lastPresentedLevel !== null && this.lastPresentedLevel !== nextLevelNumber;
         if (showLevelWipe) await this.coverLevelWipe(nextLevelNumber, config);
@@ -8355,8 +8808,19 @@ document.getElementById('reduced-motion-toggle-btn')?.addEventListener('click', 
         this.levelPowerUpsUsed = 0;
         this.levelSpecialTypesMade = new Set();
         this.levelFullSetCredited = false;
+        this.levelBestCascade = 0;
+        this.levelBiggestClear = 0;
         this.levelObjective = config.objective || null;
         this.levelObjectiveProgress = {};
+        this.levelDirector = config.director || null;
+        this.levelChallenge = config.challenge || null;
+        this.levelChallengeCelebrated = false;
+        this._objectiveHudSignature = null;
+        this.levelTilesCleared = 0;
+        this.levelSpecialsMade = 0;
+        this.levelSpecialCombos = 0;
+        this.levelBoardCoinsEarned = 0;
+        this.boardModifiers = this.normaliseBoardModifiers(config.modifiers || {});
         this.targetScore = config.target;
         this.starMax = config.target * 1.35;
         this.numColors = config.colors;
@@ -8378,12 +8842,14 @@ document.getElementById('reduced-motion-toggle-btn')?.addEventListener('click', 
         this.refreshGeometry();
         this.renderSockets();
         this.fillBoardInitial();
+        this.renderBoardModifiers();
         this.improveOpeningBoard(config.minOpeningMoves || 2);
 
         await this.ensureSolvable();
         this.isProcessing = false;
         this.isLevelActive = true;
         this.lastPresentedLevel = nextLevelNumber;
+        this.updateStreakDisplay();
         this.persist();
 
         /* The complete board is ready before it ever enters the viewport. */
@@ -8393,6 +8859,133 @@ document.getElementById('reduced-motion-toggle-btn')?.addEventListener('click', 
             this.resumeBoardSession();
         }
         if (showLevelWipe) await this.revealLevelWipe();
+    }
+
+    cellKey(row, col) { return `${Math.round(row)}:${Math.round(col)}`; }
+
+    parseCellKey(key) {
+        const [r, c] = String(key).split(':').map(Number);
+        return { r:Number.isFinite(r) ? r : 0, c:Number.isFinite(c) ? c : 0 };
+    }
+
+    normaliseBoardModifiers(source = {}) {
+        const toSet = value => new Set((Array.isArray(value) ? value : []).map(cell =>
+            typeof cell === 'string' ? cell : this.cellKey(cell?.r, cell?.c)
+        ));
+        return {
+            spotlight:toSet(source.spotlight),
+            coin:toSet(source.coin),
+            move:toSet(source.move),
+            glass:toSet(source.glass)
+        };
+    }
+
+    serializeBoardModifiers() {
+        const out = {};
+        ['spotlight','coin','move','glass'].forEach(type => {
+            out[type] = Array.from(this.boardModifiers?.[type] || []);
+        });
+        return out;
+    }
+
+    renderBoardModifiers() {
+        (this.modifierEls || []).forEach(item => item.el.remove());
+        this.modifierEls = [];
+        const classMap = { spotlight:'spotlight-cell', coin:'coin-cell', move:'move-cell', glass:'glass-cell' };
+        ['spotlight','coin','move','glass'].forEach(type => {
+            (this.boardModifiers?.[type] || new Set()).forEach(key => {
+                const {r,c} = this.parseCellKey(key);
+                if (r < 0 || r >= ROWS || c < 0 || c >= COLS || this.blocked?.[r]?.[c]) return;
+                const el = document.createElement('span');
+                el.className = `board-modifier ${classMap[type]}`;
+                el.setAttribute('aria-hidden', 'true');
+                el.style.width = `${this.geom.cell || 40}px`;
+                el.style.height = `${this.geom.cell || 40}px`;
+                el.style.transform = this.tileTransform(r, c);
+                this.grid.appendChild(el);
+                this.modifierEls.push({el,r,c,type,key});
+            });
+        });
+    }
+
+    consumeBoardModifiers(tiles, options = {}) {
+        if (!Array.isArray(tiles) || !tiles.length) return { spotlight:0, coins:0, moves:0, glass:0 };
+        const keys = new Set(tiles.filter(Boolean).map(tile => this.cellKey(tile.r, tile.c)));
+        let spotlight = 0, coins = 0, moveSpaces = 0, glass = 0;
+        keys.forEach(key => {
+            if (this.boardModifiers?.spotlight?.has(key)) spotlight++;
+            if (this.boardModifiers?.coin?.delete(key)) coins++;
+            if (this.boardModifiers?.move?.delete(key)) moveSpaces++;
+            if (this.boardModifiers?.glass?.delete(key)) glass++;
+        });
+
+        if (spotlight > 0) {
+            const bonus = spotlight * GAMEPLAY_TUNING.spotlightPointsPerTile * Math.max(1, Number(options.cascade) || 1);
+            this.addScore(bonus);
+            const tile = tiles.find(t => t && this.boardModifiers?.spotlight?.has(this.cellKey(t.r,t.c))) || tiles[0];
+            if (tile) {
+                const p = this.shellPointForCell(tile.r, tile.c);
+                this.floatingScore(p.x, p.y, `+${bonus} ×2`);
+            }
+        }
+        if (coins > 0 && !this.replayLevelNumber) {
+            const earned = coins * GAMEPLAY_TUNING.boardCoinValue;
+            this.levelBoardCoinsEarned = (this.levelBoardCoinsEarned || 0) + earned;
+            this.addCoins(earned);
+            const p = this.shellPointForCell((ROWS - 1) / 2, (COLS - 1) / 2);
+            this.floatingScore(p.x, p.y, `+${earned} COINS`);
+        }
+        if (moveSpaces > 0 && !options.finale) {
+            this.moves += moveSpaces;
+            this.levelMovesAllotted += moveSpaces;
+            const tile = tiles[0];
+            if (tile) {
+                const p = this.shellPointForCell(tile.r, tile.c);
+                this.floatingScore(p.x, p.y, `+${moveSpaces} MOVE${moveSpaces === 1 ? '' : 'S'}`);
+            }
+        }
+        if (glass > 0) this.vibrate(18);
+
+        if (coins || moveSpaces || glass) this.renderBoardModifiers();
+        if (coins || moveSpaces || glass || spotlight) this.updateHUD(false);
+        return { spotlight, coins, moves:moveSpaces, glass };
+    }
+
+    challengeState(challenge = this.levelChallenge) {
+        if (!challenge) return { progress:0, target:0, complete:false, display:'' };
+        const target = Math.max(1, Number(challenge.target) || 1);
+        let progress = 0;
+        let complete = false;
+        let display = '';
+        if (challenge.type === 'cascade') progress = this.levelBestCascade || 0;
+        else if (challenge.type === 'specials') progress = this.levelSpecialsMade || 0;
+        else if (challenge.type === 'specialCombos') progress = this.levelSpecialCombos || 0;
+        else if (challenge.type === 'bigClear') progress = this.levelBiggestClear || 0;
+        else if (challenge.type === 'twoStar') progress = this.computeBankedStars();
+        else if (challenge.type === 'movesLeft') {
+            progress = Math.max(0, this.moves || 0);
+            complete = this.isLevelGoalComplete() && progress >= target;
+            display = `KEEP ${target}`;
+            return { progress, target, complete, display };
+        }
+        complete = progress >= target;
+        display = `${Math.min(progress, target)} / ${target}`;
+        return { progress, target, complete, display };
+    }
+
+    isLevelChallengeComplete() {
+        return !!this.challengeState().complete;
+    }
+
+    progressionTeaser(completedCount = this.currentLevelIdx) {
+        const completed = Math.max(0, Number(completedCount) || 0);
+        const nextLevel = completed + 1;
+        const profile = levelDirectorProfile(nextLevel);
+        const clearsToPower = 5 - (completed % 5 || 0);
+        const powerText = `${clearsToPower} clear${clearsToPower === 1 ? '' : 's'} to the next free power-up.`;
+        const masteryStart = this.masterySetStartForLevel(nextLevel);
+        const mastery = this.masterySetProgress(masteryStart);
+        return `Next: Level ${nextLevel} · ${profile.name}. ${powerText} Mastery ${mastery.mastered}/${mastery.size}.`;
     }
 
     renderSockets() {
@@ -8520,23 +9113,32 @@ document.getElementById('reduced-motion-toggle-btn')?.addEventListener('click', 
         const row = this.objectiveRowEl;
         if (!row) return;
         const targets = this.objectiveTargets();
+        const glassActive = this.levelObjective?.type === 'glass';
+        const challenge = this.levelChallenge;
+        const challengeStatus = challenge ? this.challengeState(challenge) : null;
+        const glassRemaining = glassActive ? (this.boardModifiers?.glass?.size || 0) : 0;
+        const signature = [
+            targets.map(target => `${target.color}:${Math.max(0, Number(this.levelObjectiveProgress?.[String(target.color)]) || 0)}:${target.target}`).join('|'),
+            glassActive ? `glass:${glassRemaining}:${Math.max(1, Number(this.levelObjective?.target) || 1)}` : '',
+            challengeStatus ? `${challenge.type}:${challengeStatus.progress}:${challengeStatus.target}:${challengeStatus.complete ? 1 : 0}` : ''
+        ].join(';');
+        if (signature === this._objectiveHudSignature) return;
+        this._objectiveHudSignature = signature;
 
         row.innerHTML = '';
-        row.hidden = targets.length === 0;
-        if (!targets.length) return;
+        row.hidden = targets.length === 0 && !glassActive && !challenge;
+        if (row.hidden) return;
 
         targets.forEach(target => {
             const colour = target.color;
             const token = COLOR_TOKEN_NAMES[colour] || COLOR_TOKEN_NAMES[1];
             const progress = Math.max(0, Number(this.levelObjectiveProgress?.[String(colour)]) || 0);
             const done = progress >= target.target;
-
             const pill = document.createElement('div');
             pill.className = 'objective-pill';
             pill.setAttribute('aria-label', done
                 ? `${token.replace('-', ' ')} targeted tiles complete`
                 : `Clear ${target.target} ${token.replace('-', ' ')} tiles. ${Math.min(progress, target.target)} cleared.`);
-
             pill.innerHTML = `
               <span class="objective-mini-tile" aria-hidden="true"
                     style="--objective-bg:var(--color-${token}-base);--objective-shape:var(--color-${token}-light)">
@@ -8548,6 +9150,35 @@ document.getElementById('reduced-motion-toggle-btn')?.addEventListener('click', 
               </span>`;
             row.appendChild(pill);
         });
+
+        if (glassActive) {
+            const target = Math.max(1, Number(this.levelObjective.target) || 1);
+            const remaining = this.boardModifiers?.glass?.size || 0;
+            const cleared = Math.max(0, target - remaining);
+            const done = remaining === 0;
+            const pill = document.createElement('div');
+            pill.className = 'objective-pill glass-pill';
+            pill.innerHTML = `
+              <span class="objective-mini-tile glass-icon" aria-hidden="true"><span class="material-symbols-outlined">grid_view</span></span>
+              <span class="objective-copy"><b class="${done ? 'objective-done' : ''}">${done ? '✓' : `${cleared} / ${target}`}</b><span>glass</span></span>`;
+            row.appendChild(pill);
+        }
+
+        if (challenge) {
+            const state = challengeStatus;
+            if (state.complete && !this.levelChallengeCelebrated && this.isLevelActive && !this.levelEnding) {
+                this.levelChallengeCelebrated = true;
+                this.progressToast('BONUS LOCKED!');
+                this.sfx.milestoneHit();
+                this.vibrate(16);
+            }
+            const pill = document.createElement('div');
+            pill.className = 'objective-pill challenge-pill';
+            pill.innerHTML = `
+              <span class="objective-mini-tile challenge-icon" aria-hidden="true"><span class="material-symbols-outlined">${challenge.icon || 'star'}</span></span>
+              <span class="objective-copy"><b class="${state.complete ? 'objective-done' : ''}">${state.complete ? '✓' : state.display}</b><span>BONUS · ${challenge.label}</span></span>`;
+            row.appendChild(pill);
+        }
     }
 
     recordObjectiveClears(tiles) {
@@ -8574,6 +9205,7 @@ document.getElementById('reduced-motion-toggle-btn')?.addEventListener('click', 
 
     isLevelGoalComplete() {
         const scoreComplete = this.score >= this.targetScore;
+        if (this.levelObjective?.type === 'glass') return scoreComplete && (this.boardModifiers?.glass?.size || 0) === 0;
         const targets = this.objectiveTargets();
         if (!targets.length) return scoreComplete;
         return scoreComplete && targets.every(target =>
@@ -8584,7 +9216,7 @@ document.getElementById('reduced-motion-toggle-btn')?.addEventListener('click', 
     updateHUD(celebrate = true) {
         this.movesEl.innerText = this.moves;
         this.levelEl.innerText = this.replayLevelNumber || (this.currentLevelIdx + 1);
-        this.scoreEl.innerText = this.score;
+        this.scoreEl.innerText = this.formatStat(this.score);
 
         const progress = Math.max(0, Math.min(100, (this.score / this.starMax) * 100));
 this.progressFill.style.width = `${progress}%`;
@@ -8621,6 +9253,7 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
         }
         this.lastProgress = progress;
         this.updateObjectiveHUD();
+        this.updateStreakDisplay();
         this.markDirty();
     }
 
@@ -9025,13 +9658,67 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
         return merged;
     }
 
+    localMatchTilesAt(row, col) {
+        const tile = this.board[row]?.[col];
+        if (!tile || tile.special === SPECIALS.BOMB) return new Set();
+        const colour = tile.color;
+        const found = new Set();
+
+        const collectLine = (dr, dc) => {
+            const line = [tile];
+            let r = row - dr, c = col - dc;
+            while (r >= 0 && r < ROWS && c >= 0 && c < COLS) {
+                const next = this.board[r][c];
+                if (!next || next.color !== colour || next.special === SPECIALS.BOMB) break;
+                line.unshift(next); r -= dr; c -= dc;
+            }
+            r = row + dr; c = col + dc;
+            while (r >= 0 && r < ROWS && c >= 0 && c < COLS) {
+                const next = this.board[r][c];
+                if (!next || next.color !== colour || next.special === SPECIALS.BOMB) break;
+                line.push(next); r += dr; c += dc;
+            }
+            if (line.length >= 3) line.forEach(item => found.add(item));
+        };
+
+        collectLine(0, 1);
+        collectLine(1, 0);
+        return found;
+    }
+
+    evaluateSwap(r1, c1, r2, c2) {
+        const a = this.board[r1]?.[c1];
+        const b = this.board[r2]?.[c2];
+        if (!a || !b) return { valid:false, score:0 };
+
+        const combo = this.checkSpecialCombo(a, b);
+        if (combo.isCombo) {
+            const comboRank = {
+                BOMB_BOMB:120, BOMB_SPECIAL:100, STRIPE_BURST:90,
+                BURST_BURST:82, STRIPE_STRIPE:72, BOMB_COLOR:68
+            };
+            return { valid:true, score:comboRank[combo.type] || 60 };
+        }
+
+        this.board[r1][c1] = b;
+        this.board[r2][c2] = a;
+        const matched = new Set([
+            ...this.localMatchTilesAt(r1, c1),
+            ...this.localMatchTilesAt(r2, c2)
+        ]);
+        this.board[r1][c1] = a;
+        this.board[r2][c2] = b;
+
+        const size = matched.size;
+        if (!size) return { valid:false, score:0 };
+        let score = size * 10;
+        if (size >= 5) score += 34;
+        else if (size === 4) score += 18;
+        return { valid:true, score };
+    }
+
     simulateSwapHasMatch(r1, c1, r2, c2) {
-        const b = this.board;
-        const a = b[r1][c1], d = b[r2][c2];
-        b[r1][c1] = d; b[r2][c2] = a;
-        const hasMatch = this.findMatches().length > 0;
-        b[r1][c1] = a; b[r2][c2] = d;
-        return hasMatch;
+        return this.evaluateSwap(r1, c1, r2, c2).valid;
     }
 
 
@@ -9043,14 +9730,14 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
                 if (!p) continue;
                 if (c < COLS - 1) {
                     const q = this.board[r][c + 1];
-                    if (q && (this.checkSpecialCombo(p, q).isCombo || this.simulateSwapHasMatch(r, c, r, c + 1))) {
+                    if (q && this.evaluateSwap(r, c, r, c + 1).valid) {
                         count++;
                         if (count >= stopAt) return count;
                     }
                 }
                 if (r < ROWS - 1) {
                     const q = this.board[r + 1][c];
-                    if (q && (this.checkSpecialCombo(p, q).isCombo || this.simulateSwapHasMatch(r, c, r + 1, c))) {
+                    if (q && this.evaluateSwap(r, c, r + 1, c).valid) {
                         count++;
                         if (count >= stopAt) return count;
                     }
@@ -9078,11 +9765,11 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
                 if (!p) continue;
                 if (c < COLS - 1) {
                     const q = this.board[r][c + 1];
-                    if (q && (this.checkSpecialCombo(p, q).isCombo || this.simulateSwapHasMatch(r, c, r, c + 1))) return true;
+                    if (q && this.evaluateSwap(r, c, r, c + 1).valid) return true;
                 }
                 if (r < ROWS - 1) {
                     const q = this.board[r + 1][c];
-                    if (q && (this.checkSpecialCombo(p, q).isCombo || this.simulateSwapHasMatch(r, c, r + 1, c))) return true;
+                    if (q && this.evaluateSwap(r, c, r + 1, c).valid) return true;
                 }
             }
         }
@@ -9097,16 +9784,25 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
                 if (!p) continue;
                 if (c < COLS - 1) {
                     const q = this.board[r][c + 1];
-                    if (q && (this.checkSpecialCombo(p, q).isCombo || this.simulateSwapHasMatch(r, c, r, c + 1))) moves.push([p, q]);
+                    if (q) {
+                        const potential = this.evaluateSwap(r, c, r, c + 1);
+                        if (potential.valid) moves.push({ pair:[p, q], score:potential.score });
+                    }
                 }
                 if (r < ROWS - 1) {
                     const q = this.board[r + 1][c];
-                    if (q && (this.checkSpecialCombo(p, q).isCombo || this.simulateSwapHasMatch(r, c, r + 1, c))) moves.push([p, q]);
+                    if (q) {
+                        const potential = this.evaluateSwap(r, c, r + 1, c);
+                        if (potential.valid) moves.push({ pair:[p, q], score:potential.score });
+                    }
                 }
             }
         }
         if (!moves.length) return null;
-        return moves[Math.floor(Math.random() * moves.length)];
+        moves.sort((a, b) => b.score - a.score);
+        const bestScore = moves[0].score;
+        const best = moves.filter(move => move.score >= bestScore - 4);
+        return best[Math.floor(Math.random() * best.length)].pair;
     }
 
     showHint(stage = 1) {
@@ -9173,6 +9869,7 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
         } while (!this.hasPossibleMove() && attempts < 20);
 
         this.renderSockets();
+        this.renderBoardModifiers();
         await wait(60);
     }
 
@@ -9208,11 +9905,16 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
 
         while (groups.length > 0 || combo?.isCombo) {
             let toDestroy = new Set(), spawnQ = [];
+            const directlyMatched = new Set();
+            const activeComboType = combo?.isCombo ? combo.type : null;
             let matchColor = null;
             let rippleOrigin = combo?.origin ? { r:combo.origin.r, c:combo.origin.c } : null;
             comboCount++;
+            this.levelBestCascade = Math.max(this.levelBestCascade || 0, comboCount);
 
             if (combo?.isCombo) {
+                this.levelSpecialCombos = (this.levelSpecialCombos || 0) + 1;
+                this.updateObjectiveHUD();
                 this.recordSpecialCombo(combo);
                 if (combo.type === 'BOMB_BOMB') {
                     this.allTiles().forEach(t => toDestroy.add(t));
@@ -9267,7 +9969,7 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
                 if (g.length === 4) this.bumpCollectionStat('matches4', 1);
                 if (g.length === 5) this.bumpCollectionStat('matches5', 1);
                 if (gw >= 3 && gh >= 3) this.bumpCollectionStat('shapeMatches', 1);
-                g.forEach(p => toDestroy.add(p));
+                g.forEach(p => { toDestroy.add(p); directlyMatched.add(p); });
                 const points = g.length * 10 * comboCount;
                 this.addScore(points);
 
@@ -9337,6 +10039,21 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
                 }
             }
 
+            const impactTiles = Array.from(toDestroy);
+            const impactOrigin = rippleOrigin || (impactTiles[0] ? { r:impactTiles[0].r, c:impactTiles[0].c } : null);
+            const collateralCount = impactTiles.reduce((sum, tile) => sum + (directlyMatched.has(tile) ? 0 : 1), 0);
+            const collateralPoints = collateralCount * GAMEPLAY_TUNING.collateralPointsPerTile * Math.max(1, comboCount);
+            const comboPoints = activeComboType ? (GAMEPLAY_TUNING.comboPoints[activeComboType] || 0) : 0;
+            const impactPoints = collateralPoints + comboPoints;
+            if (impactPoints > 0) {
+                this.addScore(impactPoints);
+                if (impactOrigin) {
+                    const fp = this.shellPointForCell(impactOrigin.r, impactOrigin.c);
+                    this.floatingScore(fp.x, fp.y, `+${impactPoints} IMPACT`);
+                }
+            }
+            this.levelBiggestClear = Math.max(this.levelBiggestClear || 0, toDestroy.size);
+
             /* Do not animate the entire shell during large cascades. On iOS Safari,
                transforming this container while many tile layers are animating can make
                the whole board briefly decompose/re-rasterise and appear to vanish. The
@@ -9350,8 +10067,10 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
                     this.comboFeedback(`${word} x${comboCount}`);
                 }
 
-                const destroyList = Array.from(toDestroy);
+                const destroyList = impactTiles.slice();
+                this.consumeBoardModifiers(destroyList, { cascade:comboCount });
                 this.recordObjectiveClears(destroyList);
+                this.levelTilesCleared = (this.levelTilesCleared || 0) + destroyList.length;
                 this.bumpCollectionStat('tilesCleared', destroyList.length);
 
                 const origin = rippleOrigin || (destroyList[0] ? {r:destroyList[0].r,c:destroyList[0].c} : {r:0,c:0});
@@ -9368,8 +10087,17 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
             }
 
             if (spawnQ.length) {
+                this.levelSpecialsMade = (this.levelSpecialsMade || 0) + spawnQ.length;
+                this.updateObjectiveHUD();
                 this.bumpCollectionStat('specialsMade', spawnQ.length);
                 spawnQ.forEach(s => this.recordSpecialMade(s.sp));
+                const creationPoints = spawnQ.reduce((sum, item) => sum + (GAMEPLAY_TUNING.specialCreatePoints[item.sp] || 0), 0);
+                if (creationPoints > 0) {
+                    this.addScore(creationPoints);
+                    const anchor = spawnQ[0];
+                    const fp = this.shellPointForCell(anchor.r, anchor.c);
+                    this.floatingScore(fp.x, fp.y, `+${creationPoints} SPECIAL`);
+                }
             }
             spawnQ.forEach(s => this.spawnSpecial(s.r, s.c, s.col, s.sp));
             await this.applyGravity(cascadeSpeed);
@@ -9857,7 +10585,22 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
             }
             grid.push(row);
         }
-        return { grid, score: this.score, moves: this.moves };
+        return {
+            grid,
+            score:this.score,
+            moves:this.moves,
+            levelMovesAllotted:this.levelMovesAllotted,
+            objectiveProgress:Object.assign({}, this.levelObjectiveProgress || {}),
+            modifiers:this.serializeBoardModifiers(),
+            levelTilesCleared:this.levelTilesCleared || 0,
+            levelSpecialsMade:this.levelSpecialsMade || 0,
+            levelSpecialCombos:this.levelSpecialCombos || 0,
+            levelBestCascade:this.levelBestCascade || 0,
+            levelBiggestClear:this.levelBiggestClear || 0,
+            levelBoardCoinsEarned:this.levelBoardCoinsEarned || 0,
+            levelChallengeCelebrated:!!this.levelChallengeCelebrated,
+            coins:this.coins
+        };
     }
 
     async useUndo() {
@@ -9867,9 +10610,21 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
         this.isProcessing = true;
         this.sfx.powerUp();
 
+        this.boardModifiers = this.normaliseBoardModifiers(snap.modifiers || {});
         this.loadBoardFromGrid(snap.grid);
         this.score = snap.score;
         this.moves = snap.moves;
+        this.levelMovesAllotted = Math.max(0, Number(snap.levelMovesAllotted) || this.levelMovesAllotted);
+        this.levelObjectiveProgress = Object.assign({}, snap.objectiveProgress || {});
+        this.levelTilesCleared = Math.max(0, Number(snap.levelTilesCleared) || 0);
+        this.levelSpecialsMade = Math.max(0, Number(snap.levelSpecialsMade) || 0);
+        this.levelSpecialCombos = Math.max(0, Number(snap.levelSpecialCombos) || 0);
+        this.levelBestCascade = Math.max(0, Number(snap.levelBestCascade) || 0);
+        this.levelBiggestClear = Math.max(0, Number(snap.levelBiggestClear) || 0);
+        this.levelBoardCoinsEarned = Math.max(0, Number(snap.levelBoardCoinsEarned) || 0);
+        this.levelChallengeCelebrated = !!snap.levelChallengeCelebrated;
+        this.coins = Math.max(0, Number(snap.coins) || 0);
+        this.updateCoinDisplay();
         this.updateHUD(false);
         this.comboFeedback('UNDONE!');
         this.isProcessing = false;
@@ -10047,6 +10802,7 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
             this.floatingScore(centre.x, centre.y, `+${this.formatStat(bonus)} BONUS`);
         }
 
+        this.consumeBoardModifiers(cleared, { cascade:1, finale:true });
         this.bumpCollectionStat('tilesCleared', cleared.length);
         await Promise.all(cleared.map(tile => this.popTile(tile, reduced ? 0 : Math.random() * 20, 1.25)));
         cleared.forEach(tile => {
@@ -10084,6 +10840,10 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
             /* Score-only levels finish at the score goal. Later objective rounds
                finish only after BOTH the score goal and the clear target are met.
                Any unused moves then become the end-of-level bonus. */
+            const lossesBeforeWin = this.getLevelLossStreak(playedLevel);
+            const challengeCompleteAtClear = this.isLevelChallengeComplete();
+            const previousRecord = Object.assign({}, this.collection?.levelRecords?.[String(playedLevel)] || {});
+            const previousBestStars = Math.max(0, Number(previousRecord.bestStars) || 0);
             await this.runRemainingMovesBonus(remainingAtFinish);
             this.sfx.win();
             const stars = this.computeStars();
@@ -10093,14 +10853,39 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
             await wait(this.isReducedMotion() ? 1 : 1050);
 
             if (this.replayLevelNumber) {
-                /* Replays are for improving a personal best. They never farm
-                   progression rewards, coins, stamps, or lifetime clear counts. */
+                const upgradedStars = Math.max(0, stars - previousBestStars);
+                let replayCoins = upgradedStars * GAMEPLAY_TUNING.replayStarUpgradeCoins;
+                const replayExtras = [];
+                if (replayCoins > 0) {
+                    this.addCoins(replayCoins);
+                    replayExtras.push({
+                        type:'mastery',
+                        title:`Star upgrade +${this.formatStat(replayCoins)} coins`,
+                        desc:`You improved this level by ${upgradedStars} star${upgradedStars === 1 ? '' : 's'}.`,
+                        icon:'workspace_premium'
+                    });
+                }
+                const masterySet = this.claimMasterySetIfReady(playedLevel);
+                if (masterySet) {
+                    replayCoins += masterySet.coins;
+                    replayExtras.push(...masterySet.extras);
+                }
+                if ((this.levelBestCascade || 0) >= 3) {
+                    replayExtras.push({
+                        type:'combo',
+                        title:`Best cascade x${this.levelBestCascade}`,
+                        desc:`Your strongest chain this round kept going for ${this.levelBestCascade} clears.`,
+                        icon:'bolt'
+                    });
+                }
                 this.showScreen('Replay Complete!', 'LEVEL SELECT', stars, 'levelSelect', false, {
-                    coinsEarned:0,
+                    coinsEarned:replayCoins,
                     elapsedMs,
                     score:this.score,
                     movesUsed,
-                    movesAllotted
+                    movesAllotted,
+                    extras:replayExtras,
+                    nextText:`Level ${playedLevel} best: ${stars} star${stars === 1 ? '' : 's'}. Keep mastering old levels for set rewards.`
                 });
             } else {
                 this.bumpCollectionStat('starsEarned', stars);
@@ -10111,9 +10896,30 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
                     this.bumpCollectionStat('noPowerupLevels', 1);
                     if (stars === 3) this.bumpCollectionStat('perfectRunLevels', 1);
                 }
-                let coinsEarned = stars * 100;
-                if (this.coinDoublerActive) { coinsEarned *= 2; this.coinDoublerActive = false; }
-                this.addCoins(coinsEarned);
+                const streakResult = this.registerCampaignWin();
+                let endCoins = stars * 100;
+                const masteryReasons = [];
+                let masteryCoins = 0;
+                if (lossesBeforeWin === 0) {
+                    masteryCoins += GAMEPLAY_TUNING.firstTryCoins;
+                    masteryReasons.push('first try');
+                }
+                if ((this.levelPowerUpsUsed || 0) === 0) {
+                    masteryCoins += GAMEPLAY_TUNING.cleanClearCoins;
+                    masteryReasons.push('no power-ups');
+                }
+                if (stars === 3) {
+                    masteryCoins += GAMEPLAY_TUNING.threeStarCoins;
+                    masteryReasons.push('3 stars');
+                }
+                const challengeCoins = challengeCompleteAtClear ? Math.max(0, Number(this.levelChallenge?.reward) || 0) : 0;
+                endCoins += masteryCoins + streakResult.coinBonus + challengeCoins;
+                if (this.coinDoublerActive) {
+                    endCoins *= 2;
+                    masteryCoins *= 2;
+                    this.coinDoublerActive = false;
+                }
+                this.addCoins(endCoins);
                 this.bumpCollectionStat('levelsCleared', 1);
                 this.currentLevelIdx++;
                 const rewardMilestone = this.currentLevelIdx % 5 === 0;
@@ -10121,6 +10927,62 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
                 this.pendingPostMiniReward = false;
 
                 const resultExtras = [];
+                let coinsEarned = endCoins + (this.levelBoardCoinsEarned || 0);
+                if (challengeCompleteAtClear && this.levelChallenge) {
+                    resultExtras.push({
+                        type:'challenge',
+                        title:`Bonus complete +${this.formatStat(challengeCoins)} coins`,
+                        desc:this.levelChallenge.label,
+                        icon:this.levelChallenge.icon || 'star'
+                    });
+                }
+                if (streakResult.coinBonus > 0) {
+                    resultExtras.push({
+                        type:'streak',
+                        title:`Streak ${streakResult.streak} +${this.formatStat(streakResult.coinBonus)} coins`,
+                        desc:'Consecutive clears build a small momentum bonus. A loss only knocks the streak down by two.',
+                        icon:'local_fire_department'
+                    });
+                }
+                if (streakResult.powerUpEarned) {
+                    const streakPower = this.grantRandomResultReward();
+                    if (streakPower) {
+                        streakPower.title = `Streak reward: ${streakPower.title.replace('Free power-up: ', '')}`;
+                        streakPower.desc = `Earned for keeping a ${streakResult.streak}-clear streak alive.`;
+                        resultExtras.push(streakPower);
+                    }
+                }
+                if ((this.levelBoardCoinsEarned || 0) > 0) {
+                    resultExtras.push({
+                        type:'board-coins',
+                        title:`Board coins +${this.formatStat(this.levelBoardCoinsEarned)}`,
+                        desc:'Collected directly from coin spaces during the round.',
+                        icon:'paid'
+                    });
+                }
+                if (masteryCoins > 0) {
+                    resultExtras.push({
+                        type:'mastery',
+                        title:`Mastery bonus +${this.formatStat(masteryCoins)} coins`,
+                        desc:`Earned for ${masteryReasons.join(', ')}.`,
+                        icon:'workspace_premium'
+                    });
+                }
+                if ((this.levelBestCascade || 0) >= 3) {
+                    resultExtras.push({
+                        type:'combo',
+                        title:`Best cascade x${this.levelBestCascade}`,
+                        desc:`Your strongest chain this round kept going for ${this.levelBestCascade} clears.`,
+                        icon:'bolt'
+                    });
+                } else if ((this.levelBiggestClear || 0) >= 12) {
+                    resultExtras.push({
+                        type:'impact',
+                        title:`Big clear: ${this.levelBiggestClear} tiles`,
+                        desc:'That was your biggest single clear this round.',
+                        icon:'auto_awesome'
+                    });
+                }
                 if (miniGameMilestone) {
                     resultExtras.push({
                         type:'challenge',
@@ -10133,6 +10995,11 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
                     const rewardExtra = this.grantRandomResultReward();
                     if (rewardExtra) resultExtras.push(rewardExtra);
                 }
+                const masterySet = this.claimMasterySetIfReady(playedLevel);
+                if (masterySet) {
+                    coinsEarned += masterySet.coins;
+                    resultExtras.push(...masterySet.extras);
+                }
                 resultExtras.push(...this.collectAchievementResultExtras());
 
                 const title = (rewardMilestone || miniGameMilestone) ? `${this.currentLevelIdx} LEVELS CLEARED!` : 'Level Clear!';
@@ -10142,20 +11009,44 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
                     score:this.score,
                     movesUsed,
                     movesAllotted,
-                    extras:resultExtras
+                    extras:resultExtras,
+                    nextText:this.progressionTeaser(this.currentLevelIdx)
                 });
             }
         } else {
-            if (!this.replayLevelNumber) this.noteLevelLoss(playedLevel);
+            const progress = this.currentGoalProgress();
+            let streakChange = null;
+            if (!this.replayLevelNumber) {
+                this.noteLevelLoss(playedLevel, progress);
+                streakChange = this.softenCampaignStreak();
+            }
             this.sfx.lose();
             await wait(this.isReducedMotion() ? 1 : 900);
+            const lossExtras = this.collectAchievementResultExtras();
+            if (progress >= .75) {
+                lossExtras.unshift({
+                    type:'near-miss',
+                    title:`${Math.round(progress * 100)}% of the goal`,
+                    desc:'You were close. One stronger opening chain could turn the next attempt.',
+                    icon:'trending_up'
+                });
+            }
+            if (streakChange && streakChange.before > streakChange.after) {
+                lossExtras.unshift({
+                    type:'streak',
+                    title:`Streak ${streakChange.before} → ${streakChange.after}`,
+                    desc:'A loss lowers momentum by two instead of wiping it out.',
+                    icon:'local_fire_department'
+                });
+            }
             this.showScreen('Out of Moves', 'TRY AGAIN', null, this.replayLevelNumber ? 'replay' : 'play', !this.replayLevelNumber, {
                 coinsEarned:0,
                 elapsedMs,
                 score:this.score,
                 movesUsed,
                 movesAllotted,
-                extras:this.collectAchievementResultExtras()
+                extras:lossExtras,
+                nextText:this.replayLevelNumber ? 'Replay attempts do not affect your campaign streak.' : `Retry Level ${playedLevel}. Your best near-miss is remembered.`
             });
         }
 
@@ -10297,7 +11188,7 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
                 const valid = new Set(this.allTiles().map(t => t.el));
                 this.grid.querySelectorAll('.tile').forEach(el => { if (!valid.has(el)) el.remove(); });
             }
-        }, 1000);
+        }, 1500);
     }
 
     async repairBoard() {
@@ -10418,11 +11309,13 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
                 color
             });
         }
+        this.ensureFxLoop();
     }
 
     ringBurst(shellX, shellY, color, maxRadius = 58) {
         const off = this.canvasOffset();
         this.rings.push({ x: shellX + off.x, y: shellY + off.y, life: 0, ttl: .42, color, maxRadius });
+        this.ensureFxLoop();
     }
 
     beamCross(shellX, shellY, color) {
@@ -10430,6 +11323,7 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
         const extent = Math.max(this.shell.clientWidth, this.shell.clientHeight) * 1.15;
         [0, Math.PI].forEach(angle => this.beams.push({ x: shellX + off.x, y: shellY + off.y, angle, length: extent, life: 0, ttl: .22, color }));
         [-Math.PI / 2, Math.PI / 2].forEach(angle => this.beams.push({ x: shellX + off.x, y: shellY + off.y, angle, length: extent, life: 0, ttl: .22, color }));
+        this.ensureFxLoop();
     }
 
     beamLine(shellX, shellY, color, vertical = false) {
@@ -10445,6 +11339,14 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
             ttl:.25,
             color
         }));
+        this.ensureFxLoop();
+    }
+
+    ensureFxLoop() {
+        if (this.fxRunning) return;
+        this.fxRunning = true;
+        this.perf.last = performance.now();
+        requestAnimationFrame(now => this.fxLoop(now));
     }
 
     drawFx(dt) {
@@ -10503,7 +11405,11 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
         this.perf.frame = dt * 1000;
         this.drawFx(dt);
         this.perf.last = now;
-        requestAnimationFrame(t => this.fxLoop(t));
+        if (this.particles.length || this.rings.length || this.beams.length) {
+            requestAnimationFrame(t => this.fxLoop(t));
+        } else {
+            this.fxRunning = false;
+        }
     }
 }
 
