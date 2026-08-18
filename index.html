@@ -4620,6 +4620,421 @@ body.swipe-back-active{ cursor:grabbing; }
   transform:translate(-50%,-50%)!important;
 }
 
+
+
+/* ---------- Result popup fit and reward cleanup ---------- */
+#screen-overlay.popup-overlay{
+  align-items:center!important;
+  justify-content:center!important;
+  padding:
+    calc(10px + env(safe-area-inset-top))
+    12px
+    calc(10px + env(safe-area-inset-bottom))!important;
+}
+#screen-overlay.popup-overlay .overlay-card{
+  width:min(100%,360px)!important;
+  max-width:360px!important;
+  max-height:calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 20px)!important;
+  padding:22px 18px 16px!important;
+  overflow:hidden!important;
+  display:flex!important;
+  flex-direction:column!important;
+}
+#screen-overlay.popup-overlay .popup-content{
+  min-height:0!important;
+  height:100%!important;
+  display:flex!important;
+  flex-direction:column!important;
+  gap:10px!important;
+}
+.end-popup-scroll{
+  flex:1 1 auto;
+  min-height:0;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+  padding-right:4px;
+  margin-right:-4px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  scrollbar-width:thin;
+  scrollbar-color:var(--muted) transparent;
+}
+.end-popup-scroll::-webkit-scrollbar{ width:4px; }
+.end-popup-scroll::-webkit-scrollbar-track{ background:transparent; }
+.end-popup-scroll::-webkit-scrollbar-thumb{ background:var(--muted); border-radius:999px; }
+.end-popup-card #screen-title{
+  min-height:0!important;
+  margin:0!important;
+  padding-right:64px!important;
+  font-size:clamp(1.75rem,8vw,2.35rem)!important;
+}
+#screen-overlay .result-status-animation{
+  top:12px!important;
+  right:12px!important;
+  width:56px!important;
+  height:56px!important;
+}
+#screen-overlay .screen-confetti{
+  inset:-54px!important;
+}
+#screen-overlay .stars-row{
+  height:auto!important;
+  min-height:2.25rem;
+  gap:8px!important;
+}
+#screen-overlay .stars-row .star{
+  font-size:2.15rem!important;
+}
+#screen-overlay .result-stats{
+  gap:12px 14px!important;
+  padding:0!important;
+}
+#screen-overlay .result-stat{
+  padding-bottom:10px!important;
+}
+#screen-overlay .result-stat b{
+  font:800 clamp(1.45rem,6.8vw,1.95rem)/.96 Manrope,sans-serif!important;
+}
+#screen-overlay .result-coin-value{
+  gap:6px!important;
+  min-height:30px!important;
+}
+#screen-overlay .result-coin-value .coin-icon{
+  width:23px!important;
+  height:23px!important;
+  flex-basis:23px!important;
+}
+#screen-overlay .result-stat span{
+  margin-top:6px!important;
+  font:800 .66rem/1.15 Inter,sans-serif!important;
+}
+#screen-overlay .result-bonus-stack{
+  margin-top:2px!important;
+  padding-top:12px!important;
+}
+#screen-overlay .result-bonus-items{
+  min-height:0!important;
+  max-height:min(29dvh,210px)!important;
+  margin-top:8px!important;
+  padding-right:2px!important;
+  display:grid!important;
+  gap:8px!important;
+}
+#screen-overlay .result-bonus-items.fit-two{
+  max-height:none!important;
+}
+#screen-overlay .result-bonus-item{
+  display:grid!important;
+  grid-template-columns:44px minmax(0,1fr)!important;
+  align-items:center!important;
+  gap:10px!important;
+  padding:9px 10px!important;
+  border:2px solid var(--border-color)!important;
+  border-radius:16px!important;
+  background:var(--neutral-50)!important;
+  box-shadow:2px 2px 0 var(--shadow-color)!important;
+}
+#screen-overlay .result-bonus-item:last-child{
+  padding:9px 10px!important;
+}
+#screen-overlay .result-bonus-art{
+  width:44px!important;
+  height:44px!important;
+  display:grid!important;
+  place-items:center!important;
+}
+#screen-overlay .result-bonus-art .material-symbols-outlined{
+  width:44px;
+  height:44px;
+  display:grid;
+  place-items:center;
+  border:2px solid var(--border-color);
+  border-radius:14px;
+  background:var(--neutral-100);
+  box-shadow:2px 2px 0 var(--shadow-color);
+  font-size:1.15rem;
+  color:var(--ink);
+  font-variation-settings:'FILL' 1,'wght' 650,'GRAD' 0,'opsz' 48;
+}
+#screen-overlay .result-bonus-art .stamp-face,
+#screen-overlay .result-bonus-art .reward-card{
+  width:44px!important;
+  height:44px!important;
+  margin:0!important;
+  box-shadow:2px 2px 0 var(--shadow-color)!important;
+}
+#screen-overlay .result-bonus-copy b{
+  font:800 .88rem/1.14 Manrope,sans-serif!important;
+}
+#screen-overlay .result-bonus-copy span{
+  margin-top:3px!important;
+  font:700 .75rem/1.28 Inter,sans-serif!important;
+}
+#screen-overlay .result-bonus-item.type-achievement .result-bonus-art .material-symbols-outlined,
+#screen-overlay .result-bonus-art.type-achievement .material-symbols-outlined{
+  background:var(--color-pink-light);
+}
+#screen-overlay .result-bonus-art.type-challenge .material-symbols-outlined,
+#screen-overlay .result-bonus-item.type-challenge .result-bonus-art .material-symbols-outlined,
+#screen-overlay .result-bonus-art.type-combo .material-symbols-outlined,
+#screen-overlay .result-bonus-item.type-combo .result-bonus-art .material-symbols-outlined,
+#screen-overlay .result-bonus-art.type-impact .material-symbols-outlined,
+#screen-overlay .result-bonus-item.type-impact .result-bonus-art .material-symbols-outlined{
+  background:var(--color-true-yellow-light);
+}
+#screen-overlay .result-bonus-art.type-streak .material-symbols-outlined,
+#screen-overlay .result-bonus-item.type-streak .result-bonus-art .material-symbols-outlined{
+  background:var(--color-red-orange-light);
+}
+#screen-overlay .result-bonus-art.type-mastery .material-symbols-outlined,
+#screen-overlay .result-bonus-item.type-mastery .result-bonus-art .material-symbols-outlined,
+#screen-overlay .result-bonus-art.type-reward .material-symbols-outlined,
+#screen-overlay .result-bonus-item.type-reward .result-bonus-art .material-symbols-outlined{
+  background:var(--color-purple-light);
+}
+#screen-overlay .result-bonus-art.type-board-coins .material-symbols-outlined,
+#screen-overlay .result-bonus-item.type-board-coins .result-bonus-art .material-symbols-outlined{
+  background:var(--color-green-light);
+}
+#screen-overlay .result-next{
+  margin-top:0!important;
+  padding:9px 10px!important;
+  font:800 .72rem/1.24 Manrope,sans-serif!important;
+}
+#screen-overlay .end-screen-actions{
+  flex:0 0 auto;
+  gap:10px!important;
+  padding-top:10px;
+  border-top:3px solid var(--border-color);
+  background:var(--neutral-0);
+}
+#screen-overlay .end-screen-actions > .primary,
+#screen-overlay .end-screen-actions .secondary{
+  padding:12px 18px!important;
+}
+#screen-overlay .end-screen-secondary-actions{
+  gap:10px!important;
+}
+@media (max-height: 760px){
+  #screen-overlay.popup-overlay .overlay-card{
+    padding:20px 16px 14px!important;
+  }
+  #screen-overlay .stars-row .star{
+    font-size:1.95rem!important;
+  }
+  #screen-overlay .result-bonus-items{
+    max-height:min(24dvh,160px)!important;
+  }
+  #screen-overlay .result-bonus-item{
+    padding:8px 9px!important;
+  }
+  #screen-overlay .result-bonus-art,
+  #screen-overlay .result-bonus-art .material-symbols-outlined,
+  #screen-overlay .result-bonus-art .stamp-face,
+  #screen-overlay .result-bonus-art .reward-card{
+    width:40px!important;
+    height:40px!important;
+  }
+}
+
+
+
+/* ---------- Memory Match turn budget ---------- */
+#mini-game-turns-stat{
+  transition:color .18s ease, border-color .18s ease;
+}
+#mini-game-turns-stat.danger b,
+#mini-game-turns-stat.danger span{
+  color:var(--color-red-orange-dark)!important;
+}
+.mini-game-fail-card{
+  width:min(90vw,340px)!important;
+  max-width:340px!important;
+  padding:26px 22px 22px!important;
+  text-align:left!important;
+  align-items:stretch!important;
+}
+.mini-game-fail-card h2{
+  text-align:left!important;
+}
+.mini-game-fail-card > p{
+  margin:0!important;
+  text-align:left!important;
+}
+.mini-game-fail-progress{
+  margin-top:4px;
+  padding:14px 0 12px;
+  border-top:3px solid var(--border-color);
+  border-bottom:3px solid var(--border-color);
+}
+.mini-game-fail-progress b{
+  display:block;
+  font:800 1.75rem/1 Manrope,sans-serif;
+  letter-spacing:-.04em;
+}
+.mini-game-fail-progress span{
+  display:block;
+  margin-top:5px;
+  font:800 .72rem/1 Inter,sans-serif;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+.mini-game-fail-actions{
+  margin-top:4px;
+  display:grid!important;
+  grid-template-columns:1fr 1fr;
+  gap:10px!important;
+}
+.mini-game-fail-actions button{
+  width:100%;
+  margin:0!important;
+  padding:13px 10px!important;
+}
+
+/* ---------- Quiet board art ----------
+   Two oversized shapes sit behind the board and HUD. They are intentionally
+   low contrast and mostly cropped off-screen so the gameplay pieces remain the
+   only high-attention objects. The Level Director chooses the geometry. */
+.game-page::before,
+.game-page::after{
+  content:"";
+  position:absolute;
+  pointer-events:none;
+  z-index:0;
+  opacity:.075;
+  transition:transform .6s cubic-bezier(.16,.84,.22,1), opacity .35s ease;
+}
+:root[data-theme="dark"] .game-page::before,
+:root[data-theme="dark"] .game-page::after{
+  opacity:.105;
+}
+.game-page::before{
+  width:min(78vw,370px);
+  aspect-ratio:1 / 1;
+  right:-34%;
+  top:13%;
+  background:var(--accent);
+  border:3px solid var(--border-color);
+}
+.game-page::after{
+  width:min(62vw,300px);
+  height:min(25vw,120px);
+  left:-28%;
+  bottom:13%;
+  background:transparent;
+  border:12px solid var(--ink);
+  border-radius:999px;
+  transform:rotate(-16deg);
+}
+.game-page.board-art-flow::before{
+  border-radius:50%;
+  transform:rotate(0deg);
+}
+.game-page.board-art-flow::after{
+  border-radius:999px;
+  transform:rotate(-16deg);
+}
+.game-page.board-art-specialist::before{
+  border:0;
+  border-radius:0;
+  clip-path:polygon(38% 0,62% 0,62% 38%,100% 38%,100% 62%,62% 62%,62% 100%,38% 100%,38% 62%,0 62%,0 38%,38% 38%);
+  transform:rotate(12deg);
+}
+.game-page.board-art-specialist::after{
+  width:min(46vw,220px);
+  height:auto;
+  aspect-ratio:1;
+  left:-16%;
+  bottom:9%;
+  border-radius:22%;
+  transform:rotate(45deg);
+}
+.game-page.board-art-precision::before{
+  background:transparent;
+  border:18px solid var(--accent);
+  border-radius:50%;
+  transform:scale(.92);
+}
+.game-page.board-art-precision::after{
+  width:min(38vw,180px);
+  height:auto;
+  aspect-ratio:1;
+  left:-8%;
+  bottom:16%;
+  border:10px solid var(--ink);
+  border-radius:50%;
+  transform:none;
+}
+.game-page.board-art-cascade::before{
+  border:0;
+  border-radius:0;
+  clip-path:polygon(50% 0,61% 29%,88% 12%,71% 39%,100% 50%,71% 61%,88% 88%,61% 71%,50% 100%,39% 71%,12% 88%,29% 61%,0 50%,29% 39%,12% 12%,39% 29%);
+  transform:rotate(9deg);
+}
+.game-page.board-art-cascade::after{
+  width:min(72vw,340px);
+  height:64px;
+  left:-34%;
+  bottom:17%;
+  border-radius:16px;
+  transform:rotate(-32deg);
+}
+.game-page.board-art-target::before{
+  background:transparent;
+  border:22px solid var(--accent);
+  border-radius:50%;
+  box-shadow:inset 0 0 0 22px transparent;
+  transform:none;
+}
+.game-page.board-art-target::after{
+  width:min(30vw,145px);
+  height:auto;
+  aspect-ratio:1;
+  left:5%;
+  bottom:13%;
+  background:var(--ink);
+  border:0;
+  border-radius:50%;
+  transform:none;
+}
+.game-page.board-art-combo::before{
+  width:min(60vw,285px);
+  right:-20%;
+  top:17%;
+  border-radius:50%;
+  transform:translateX(-24px);
+}
+.game-page.board-art-combo::after{
+  width:min(60vw,285px);
+  height:auto;
+  aspect-ratio:1;
+  left:-22%;
+  bottom:10%;
+  border:14px solid var(--ink);
+  border-radius:50%;
+  transform:translateX(24px);
+}
+.game-page.board-art-glass::before{
+  border-radius:24px;
+  background:
+    linear-gradient(90deg,transparent 47%,var(--ink) 47%,var(--ink) 53%,transparent 53%),
+    linear-gradient(0deg,transparent 47%,var(--ink) 47%,var(--ink) 53%,transparent 53%),
+    var(--accent);
+  transform:rotate(8deg);
+}
+.game-page.board-art-glass::after{
+  width:min(42vw,200px);
+  height:auto;
+  aspect-ratio:1;
+  left:-10%;
+  bottom:12%;
+  border-radius:22px;
+  transform:rotate(-10deg);
+}
+
 </style>
 </head>
 
@@ -5141,25 +5556,27 @@ body.swipe-back-active{ cursor:grabbing; }
     <div class="screen-confetti" id="screen-confetti" aria-hidden="true"></div>
     <div class="result-status-animation" id="result-status-animation" aria-hidden="true"></div>
     <div class="popup-content">
-      <h2 id="screen-title">LEVEL CLEAR!</h2>
-      <div class="stars-row" id="screen-stars"></div>
-      <div class="result-stats" id="result-stats">
-        <div class="result-stat">
-          <div class="result-coin-value">
-            <b id="result-coins">0</b>
-            <svg class="coin-icon" viewBox="0 0 256 256" aria-hidden="true"><use href="#icon-coins"></use></svg>
+      <div class="end-popup-scroll">
+        <h2 id="screen-title">LEVEL CLEAR!</h2>
+        <div class="stars-row" id="screen-stars"></div>
+        <div class="result-stats" id="result-stats">
+          <div class="result-stat">
+            <div class="result-coin-value">
+              <b id="result-coins">0</b>
+              <svg class="coin-icon" viewBox="0 0 256 256" aria-hidden="true"><use href="#icon-coins"></use></svg>
+            </div>
+            <span>Coins earned</span>
           </div>
-          <span>Coins earned</span>
+          <div class="result-stat"><b id="result-time">0:00</b><span>Time taken</span></div>
+          <div class="result-stat"><b id="result-score">0</b><span>Score earned</span></div>
+          <div class="result-stat"><b id="result-moves">0 / 0</b><span>Moves used</span></div>
         </div>
-        <div class="result-stat"><b id="result-time">0:00</b><span>Time taken</span></div>
-        <div class="result-stat"><b id="result-score">0</b><span>Score earned</span></div>
-        <div class="result-stat"><b id="result-moves">0 / 0</b><span>Moves used</span></div>
+        <div class="result-bonus-stack" id="result-bonus-stack" hidden>
+          <span class="collection-kicker">Round rewards</span>
+          <div class="result-bonus-items" id="result-bonus-items"></div>
+        </div>
+        <div class="result-next" id="result-next" hidden></div>
       </div>
-      <div class="result-bonus-stack" id="result-bonus-stack" hidden>
-        <span class="collection-kicker">Round rewards</span>
-        <div class="result-bonus-items" id="result-bonus-items"></div>
-      </div>
-      <div class="result-next" id="result-next" hidden></div>
       <div class="screen-actions end-screen-actions">
         <button class="primary" id="screen-btn">CONTINUE</button>
         <div class="end-screen-secondary-actions">
@@ -5229,12 +5646,12 @@ body.swipe-back-active{ cursor:grabbing; }
     </div>
     <div class="mini-game-meta">
       <div><b id="mini-game-pairs">0 / 4</b><span>Pairs</span></div>
-      <div><b id="mini-game-turns">0</b><span>Turns</span></div>
+      <div id="mini-game-turns-stat"><b id="mini-game-turns">0</b><span>Turns left</span></div>
     </div>
     <div class="memory-game-wrap">
       <div class="memory-grid" id="memory-grid" role="group" aria-label="Memory matching game"></div>
     </div>
-    <p class="mini-game-note">Find every matching pair. The cards use the same shapes and colours as the main board.</p>
+    <p class="mini-game-note">Find every matching pair before you run out of turns. The cards use the same shapes and colours as the main board.</p>
     <div class="mini-game-actions">
       <button class="secondary" id="mini-game-debug-solve-btn" hidden>DEBUG: MATCH ALL</button>
     </div>
@@ -5259,6 +5676,22 @@ body.swipe-back-active{ cursor:grabbing; }
       </div>
     </div>
     <button class="primary" id="mini-reward-continue-btn">CONTINUE</button>
+  </div>
+</div>
+
+<div class="overlay popup-overlay" id="mini-game-fail-overlay">
+  <div class="overlay-card mini-game-fail-card">
+    <span class="collection-kicker">MEMORY MATCH</span>
+    <h2>Out of Turns</h2>
+    <p id="mini-game-fail-copy">You were close.</p>
+    <div class="mini-game-fail-progress">
+      <b id="mini-game-fail-pairs">0 / 0</b>
+      <span>Pairs found</span>
+    </div>
+    <div class="screen-actions mini-game-fail-actions">
+      <button class="primary" id="mini-game-retry-btn">TRY AGAIN</button>
+      <button class="secondary" id="mini-game-skip-btn">CONTINUE</button>
+    </div>
   </div>
 </div>
 
@@ -6684,6 +7117,17 @@ this.progressTrack = document.getElementById('progressTrack');
         const out = [];
         for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) if (this.board[r][c]) out.push(this.board[r][c]);
         return out;
+    }
+
+    applyBoardBackdrop(levelNumber, director = null) {
+        const page = this.gamePageElement?.() || document.getElementById('game-page');
+        if (!page) return;
+        const names = ['flow','cascade','specialist','precision','target','combo','glass'];
+        names.forEach(name => page.classList.remove(`board-art-${name}`));
+        const archetype = director?.archetype && names.includes(director.archetype)
+            ? director.archetype
+            : names[(Math.max(1, Number(levelNumber) || 1) - 1) % names.length];
+        page.classList.add(`board-art-${archetype}`);
     }
 
     applyTheme(levelIdx) {
@@ -8540,7 +8984,7 @@ document.getElementById('reduced-motion-toggle-btn')?.addEventListener('click', 
         document.getElementById('result-coins').innerText = coinsEarned ? `+${this.formatStat(coinsEarned)}` : '0';
         document.getElementById('result-time').innerText = this.formatDuration(result.elapsedMs);
         document.getElementById('result-score').innerText = this.formatStat(scoreEarned);
-        document.getElementById('result-moves').innerText = `${movesUsed} / ${movesAllotted}`;
+        document.getElementById('result-moves').innerText = `${movesUsed} of ${movesAllotted}`;
         this.renderResultBonuses(result.extras || []);
         const resultNext = document.getElementById('result-next');
         if (resultNext) {
@@ -8581,10 +9025,10 @@ document.getElementById('reduced-motion-toggle-btn')?.addEventListener('click', 
 
         list.forEach(extra => {
             const row = document.createElement('div');
-            row.className = 'result-bonus-item';
+            row.className = `result-bonus-item${extra.type ? ` type-${extra.type}` : ''}`;
 
             const art = document.createElement('div');
-            art.className = 'result-bonus-art';
+            art.className = `result-bonus-art${extra.type ? ` type-${extra.type}` : ''}`;
             if (extra.artHtml) art.innerHTML = extra.artHtml;
             else if (extra.icon) {
                 art.innerHTML = `<span class="material-symbols-outlined">${extra.icon}</span>`;
@@ -8595,9 +9039,9 @@ document.getElementById('reduced-motion-toggle-btn')?.addEventListener('click', 
             const title = document.createElement('b');
             title.innerText = extra.title || 'Bonus';
             const desc = document.createElement('span');
-            desc.innerText = extra.desc || '';
+            desc.innerText = extra.shortDesc || extra.desc || '';
             copy.appendChild(title);
-            copy.appendChild(desc);
+            if (desc.innerText) copy.appendChild(desc);
 
             row.appendChild(art);
             row.appendChild(copy);
@@ -8830,6 +9274,7 @@ document.getElementById('reduced-motion-toggle-btn')?.addEventListener('click', 
         this.undoSnapshot = null;
 
         this.applyTheme(nextLevelNumber - 1);
+        this.applyBoardBackdrop(nextLevelNumber, this.levelDirector);
         this.progressTrack.classList.remove('tier-2', 'tier-3', 'full');
         this.pendingPowerUp = null;
         this.pendingPowerUpConfirm = null;
@@ -10874,7 +11319,7 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
                     replayExtras.push({
                         type:'combo',
                         title:`Best cascade x${this.levelBestCascade}`,
-                        desc:`Your strongest chain this round kept going for ${this.levelBestCascade} clears.`,
+                        shortDesc:'Strongest chain this round.', desc:`Your strongest chain this round kept going for ${this.levelBestCascade} clears.`,
                         icon:'bolt'
                     });
                 }
@@ -10940,7 +11385,7 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
                     resultExtras.push({
                         type:'streak',
                         title:`Streak ${streakResult.streak} +${this.formatStat(streakResult.coinBonus)} coins`,
-                        desc:'Consecutive clears build a small momentum bonus. A loss only knocks the streak down by two.',
+                        shortDesc:'Win streak bonus.', desc:'Consecutive clears build a small momentum bonus. A loss only knocks the streak down by two.',
                         icon:'local_fire_department'
                     });
                 }
@@ -10956,7 +11401,7 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
                     resultExtras.push({
                         type:'board-coins',
                         title:`Board coins +${this.formatStat(this.levelBoardCoinsEarned)}`,
-                        desc:'Collected directly from coin spaces during the round.',
+                        shortDesc:'Collected during the round.', desc:'Collected directly from coin spaces during the round.',
                         icon:'paid'
                     });
                 }
@@ -10964,7 +11409,7 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
                     resultExtras.push({
                         type:'mastery',
                         title:`Mastery bonus +${this.formatStat(masteryCoins)} coins`,
-                        desc:`Earned for ${masteryReasons.join(', ')}.`,
+                        shortDesc:`${masteryReasons.join(', ')}.`, desc:`Earned for ${masteryReasons.join(', ')}.`,
                         icon:'workspace_premium'
                     });
                 }
@@ -10972,14 +11417,14 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
                     resultExtras.push({
                         type:'combo',
                         title:`Best cascade x${this.levelBestCascade}`,
-                        desc:`Your strongest chain this round kept going for ${this.levelBestCascade} clears.`,
+                        shortDesc:'Strongest chain this round.', desc:`Your strongest chain this round kept going for ${this.levelBestCascade} clears.`,
                         icon:'bolt'
                     });
                 } else if ((this.levelBiggestClear || 0) >= 12) {
                     resultExtras.push({
                         type:'impact',
                         title:`Big clear: ${this.levelBiggestClear} tiles`,
-                        desc:'That was your biggest single clear this round.',
+                        shortDesc:'Biggest clear this round.', desc:'That was your biggest single clear this round.',
                         icon:'auto_awesome'
                     });
                 }
@@ -10987,7 +11432,7 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
                     resultExtras.push({
                         type:'challenge',
                         title:'Memory Match challenge unlocked',
-                        desc:'Continue to play the bonus challenge for a stamp and 500 coins.',
+                        shortDesc:'Bonus challenge ready.', desc:'Continue to play the bonus challenge for a stamp and 500 coins.',
                         artHtml:`<div class="reward-card"><div class="rc-piece" style="display:grid;place-items:center;"><span class="material-symbols-outlined" style="font-size:1.4rem;">grid_view</span></div></div>`
                     });
                 }
@@ -11027,7 +11472,7 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
                 lossExtras.unshift({
                     type:'near-miss',
                     title:`${Math.round(progress * 100)}% of the goal`,
-                    desc:'You were close. One stronger opening chain could turn the next attempt.',
+                    shortDesc:'You were close.', desc:'You were close. One stronger opening chain could turn the next attempt.',
                     icon:'trending_up'
                 });
             }
@@ -11035,7 +11480,7 @@ this.progressTrack.classList.toggle('full', this.score >= this.starMax);
                 lossExtras.unshift({
                     type:'streak',
                     title:`Streak ${streakChange.before} → ${streakChange.after}`,
-                    desc:'A loss lowers momentum by two instead of wiping it out.',
+                    shortDesc:'Momentum softened.', desc:'A loss lowers momentum by two instead of wiping it out.',
                     icon:'local_fire_department'
                 });
             }
@@ -11431,6 +11876,8 @@ Object.assign(Game.prototype, {
         document.getElementById('menu-debug-btn')?.addEventListener('click', () => this.openDebugPanel(false));
         document.getElementById('debug-close-btn')?.addEventListener('click', () => this.closeDebugPanel());
         document.getElementById('mini-reward-continue-btn')?.addEventListener('click', () => this.continueAfterMiniGame());
+        document.getElementById('mini-game-retry-btn')?.addEventListener('click', () => this.retryMiniGame());
+        document.getElementById('mini-game-skip-btn')?.addEventListener('click', () => this.skipMiniGameAfterFail());
         document.getElementById('mini-game-debug-solve-btn')?.addEventListener('click', () => this.debugSolveMiniGame());
         document.querySelectorAll('[data-debug-action]').forEach(btn => btn.addEventListener('click', () => this.runDebugAction(btn.dataset.debugAction)));
         this.updateDebugReadout();
@@ -11527,7 +11974,7 @@ Object.assign(Game.prototype, {
         if (action === 'mini60') return this.startMiniGame(60, true);
         if (action === 'miniReward') {
             this.debugMiniGame = true;
-            this.miniGameState = { level:10, challenge:1, pairs:4, matchedPairs:4, turns:5, artwork:this.makeMemoryStampArtwork(1) };
+            this.miniGameState = { level:10, challenge:1, pairs:4, matchedPairs:4, turns:5, turnLimit:8, artwork:this.makeMemoryStampArtwork(1) };
             this.showMiniGameReward(true);
         }
     },
@@ -11541,7 +11988,12 @@ Object.assign(Game.prototype, {
         else if (challenge <= 5) pairs = 10;  // 20 cards
         else pairs = 12;                      // 24 cards
         const cols = 4;
-        return { challenge, pairs, cols };
+        /* A turn is one completed pair attempt, successful or not. Early
+           challenges are forgiving, then the budget tightens slightly as the
+           card count grows. */
+        const turnMultiplier = challenge <= 2 ? 2 : challenge <= 5 ? 1.8 : 1.7;
+        const turnLimit = Math.max(pairs + 2, Math.ceil(pairs * turnMultiplier));
+        return { challenge, pairs, cols, turnLimit };
     },
 
     memoryPairDefinitions(challenge, pairCount) {
@@ -11591,8 +12043,8 @@ Object.assign(Game.prototype, {
         }
         this.debugMiniGame = !!debug;
         this.miniGameState = {
-            level:levelNumber, challenge:config.challenge, pairs:config.pairs, cols:config.cols, cards,
-            firstIndex:null, lock:true, previewing:true, matchedPairs:0, turns:0, artwork:this.makeMemoryStampArtwork(config.challenge)
+            level:levelNumber, challenge:config.challenge, pairs:config.pairs, cols:config.cols, turnLimit:config.turnLimit, cards,
+            firstIndex:null, lock:true, previewing:true, matchedPairs:0, turns:0, failed:false, artwork:this.makeMemoryStampArtwork(config.challenge)
         };
         const kicker = document.getElementById('mini-game-kicker');
         if (kicker) kicker.innerText = debug ? `DEBUG · LEVEL ${levelNumber} CHALLENGE` : `LEVEL ${levelNumber} CHALLENGE`;
@@ -11629,7 +12081,9 @@ Object.assign(Game.prototype, {
         if (!s || !host) return;
         host.style.setProperty('--memory-cols', String(s.cols));
         document.getElementById('mini-game-pairs').innerText = `${s.matchedPairs} / ${s.pairs}`;
-        document.getElementById('mini-game-turns').innerText = String(s.turns);
+        const turnsLeft = Math.max(0, (s.turnLimit || 0) - (s.turns || 0));
+        document.getElementById('mini-game-turns').innerText = String(turnsLeft);
+        document.getElementById('mini-game-turns-stat')?.classList.toggle('danger', turnsLeft <= 2 && !s.previewing);
         host.innerHTML = '';
         s.cards.forEach((card,index) => {
             const btn = document.createElement('button');
@@ -11662,7 +12116,9 @@ Object.assign(Game.prototype, {
         const first = s.cards[firstIndex];
         s.firstIndex = null;
         s.turns++;
-        document.getElementById('mini-game-turns').innerText = String(s.turns);
+        const turnsLeft = Math.max(0, (s.turnLimit || 0) - s.turns);
+        document.getElementById('mini-game-turns').innerText = String(turnsLeft);
+        document.getElementById('mini-game-turns-stat')?.classList.toggle('danger', turnsLeft <= 2);
         const match = first.pairIndex === card.pairIndex;
         s.lock = true;
         if (match) {
@@ -11675,17 +12131,70 @@ Object.assign(Game.prototype, {
             const shell = document.querySelector('.mini-game-card')?.getBoundingClientRect();
             if (rect && shell) this.vibrate(14);
             setTimeout(() => {
-                s.lock = false;
-                if (s.matchedPairs >= s.pairs) this.completeMiniGame();
+                if (s.matchedPairs >= s.pairs) {
+                    s.lock = false;
+                    this.completeMiniGame();
+                } else if (s.turns >= s.turnLimit) {
+                    this.failMiniGame();
+                } else {
+                    s.lock = false;
+                }
             }, this.isReducedMotion() ? 1 : 360);
         } else {
             const host = document.getElementById('memory-grid');
             host?.children?.[firstIndex]?.classList.add('wrong');
             el?.classList.add('wrong');
             setTimeout(() => {
-                first.revealed = false; card.revealed = false; s.lock = false; this.renderMiniGame();
+                first.revealed = false;
+                card.revealed = false;
+                this.renderMiniGame();
+                if (s.turns >= s.turnLimit) this.failMiniGame();
+                else s.lock = false;
             }, this.isReducedMotion() ? 1 : 700);
         }
+    },
+
+    failMiniGame() {
+        const s = this.miniGameState;
+        if (!s || s.failed || s.matchedPairs >= s.pairs) return;
+        s.failed = true;
+        s.lock = true;
+        this.setMusicContext('main');
+        this.sfx.lose();
+        this.vibrate(24);
+        const copy = document.getElementById('mini-game-fail-copy');
+        const found = s.matchedPairs || 0;
+        const remaining = Math.max(0, s.pairs - found);
+        if (copy) copy.innerText = remaining === 1
+            ? 'One pair was left. Try again and use the preview to lock in its position.'
+            : `${remaining} pairs were left. Try again and use the preview to remember a few anchor cards first.`;
+        const pairs = document.getElementById('mini-game-fail-pairs');
+        if (pairs) pairs.innerText = `${found} / ${s.pairs}`;
+        document.getElementById('mini-game-fail-overlay')?.classList.add('active');
+        this.setPaperUnderlay(true);
+    },
+
+    retryMiniGame() {
+        const s = this.miniGameState;
+        if (!s) return;
+        const level = s.level;
+        const debug = !!this.debugMiniGame;
+        document.getElementById('mini-game-fail-overlay')?.classList.remove('active');
+        this.startMiniGame(level, debug);
+    },
+
+    skipMiniGameAfterFail() {
+        document.getElementById('mini-game-fail-overlay')?.classList.remove('active');
+        this.setMusicContext('main');
+        if (this.debugMiniGame) {
+            this.debugMiniGame = false;
+            this.miniGameState = null;
+            this.openDebugPanel(true);
+            return;
+        }
+        this.miniGameState = null;
+        this.pendingPostMiniReward = false;
+        this.startLevel();
     },
 
     debugSolveMiniGame() {
@@ -11693,7 +12202,7 @@ Object.assign(Game.prototype, {
         if (!s) return;
         s.cards.forEach(card => { card.revealed = true; card.matched = true; });
         s.matchedPairs = s.pairs;
-        s.turns = Math.max(s.turns, s.pairs);
+        s.turns = Math.min(s.turnLimit || s.pairs, Math.max(s.turns, s.pairs));
         this.renderMiniGame();
         setTimeout(() => this.completeMiniGame(), 260);
     },
@@ -11709,13 +12218,14 @@ Object.assign(Game.prototype, {
     },
 
     showMiniGameReward(debug = false) {
-        const s = this.miniGameState || {level:10,challenge:1,pairs:4,matchedPairs:4,turns:5,artwork:this.makeMemoryStampArtwork(1)};
+        const s = this.miniGameState || {level:10,challenge:1,pairs:4,matchedPairs:4,turns:5,turnLimit:8,artwork:this.makeMemoryStampArtwork(1)};
         const art = document.getElementById('mini-reward-art');
         if (art) art.style.backgroundImage = s.artwork;
 
         const copy = document.getElementById('mini-reward-copy');
         if (copy) {
-            const baseCopy = `You found all ${s.pairs} pairs in ${s.turns} turns. This Memory Match stamp is now part of your collection.`;
+            const turnsLeft = Math.max(0, (s.turnLimit || s.turns) - s.turns);
+            const baseCopy = `You found all ${s.pairs} pairs with ${turnsLeft} turn${turnsLeft === 1 ? '' : 's'} left. This Memory Match stamp is now part of your collection.`;
             copy.innerText = debug
                 ? `${baseCopy} Preview only. Rewards will not be saved from debug mode.`
                 : baseCopy;
